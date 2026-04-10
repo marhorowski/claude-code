@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String         @id @default(cuid())
+  email      String         @unique
+  password   String
+  name       String
+  role       String         @default("CLOSER")
+  clients    ClientAccess[]
+  dailyForms DailyForm[]
+  createdAt  DateTime       @default(now())
+}
+
+model Client {
+  id             String          @id @default(cuid())
+  name           String
+  strategy       String          @default("Paid Lead Gen")
+  createdAt      DateTime        @default(now())
+  kpiTargets     KpiTarget[]
+  dailyForms     DailyForm[]
+  weeklyForms    WeeklyForm[]
+  monthlyForms   MonthlyForm[]
+  quarterlyForms QuarterlyForm[]
+  accesses       ClientAccess[]
+  bottlenecks    Bottleneck[]
+}
+
+model ClientAccess {
+  id       String @id @default(cuid())
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+
+  @@unique([userId, clientId])
+}
+
+model KpiTarget {
+  id            String  @id @default(cuid())
+  client        Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId      String
+  code          String
+  label         String
+  target        Float
+  unit          String
+  period        String
+  lowerIsBetter Boolean @default(false)
+}
+
+model DailyForm {
+  id               String   @id @default(cuid())
+  client           Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId         String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String
+  date             DateTime
+  plannedMeetings  Int?
+  attendedMeetings Int?
+  closings         Int?
+  revenue          Float?
+  callsMade        Int?
+  meetingsBooked   Int?
+  notes            String?
+  createdAt        DateTime @default(now())
+}
+
+model WeeklyForm {
+  id                   String    @id @default(cuid())
+  client               Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId             String
+  weekNumber           Int
+  year                 Int
+  weekStart            DateTime
+  weekEnd              DateTime
+  totalLeads           Int       @default(0)
+  totalCallsMade       Int       @default(0)
+  totalMeetingsBooked  Int       @default(0)
+  totalPlannedMeetings Int       @default(0)
+  totalAttended        Int       @default(0)
+  totalClosings        Int       @default(0)
+  totalRevenue         Float     @default(0)
+  adSpend              Float?
+  cpl                  Float?
+  notes                String?
+  lockedAt             DateTime?
+  createdAt            DateTime  @default(now())
+
+  @@unique([clientId, weekNumber, year])
+}
+
+model MonthlyForm {
+  id          String   @id @default(cuid())
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId    String
+  month       Int
+  year        Int
+  enge        Float?
+  mer         Float?
+  roas        Float?
+  cac         Float?
+  aov         Float?
+  ltvCac      Float?
+  gp          Float?
+  ar          Float?
+  leadToClose Float?
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@unique([clientId, month, year])
+}
+
+model QuarterlyForm {
+  id        String   @id @default(cuid())
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
+  quarter   Int
+  year      Int
+  ltv       Float?
+  alpvc     Float?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  @@unique([clientId, quarter, year])
+}
+
+model Bottleneck {
+  id          String    @id @default(cuid())
+  client      Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId    String
+  kpiCode     String
+  title       String
+  description String
+  actions     String
+  status      String    @default("ACTIVE")
+  isAuto      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+}
