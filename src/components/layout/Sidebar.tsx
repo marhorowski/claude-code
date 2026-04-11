@@ -43,20 +43,22 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           "lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
-        style={{ background: "#080808", borderRight: "1px solid #1a1a1a" }}
+        style={{ background: "var(--sidebar-bg)", borderRight: "1px solid var(--sidebar-border)" }}
       >
         {/* Logo */}
-        <div className="px-5 py-5" style={{ borderBottom: "1px solid #1a1a1a" }}>
+        <div className="px-5 py-5" style={{ borderBottom: "1px solid var(--sidebar-border)" }}>
           <div className="flex items-center gap-3">
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black"
-              style={{ background: "rgba(0,255,136,0.1)", border: "1px solid rgba(0,255,136,0.3)", color: "#00ff88" }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0"
+              style={{ background: "var(--neon-dim)", border: "1px solid var(--neon-border)", color: "var(--neon)" }}
             >
-              KPI
+              M
             </div>
             <div>
-              <div className="font-bold text-white text-sm tracking-tight">Sales KPI</div>
-              <div className="text-xs" style={{ color: "#444" }}>Dashboard</div>
+              <div className="font-black text-sm tracking-tight" style={{ color: "var(--neon)" }}>
+                McKwacz<span style={{ color: "var(--text-muted)" }}>.ai</span>
+              </div>
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>Sales Intelligence</div>
             </div>
           </div>
         </div>
@@ -76,15 +78,15 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
                   isActive
                     ? "nav-active"
-                    : "hover:bg-[#111]"
+                    : ""
                 )}
-                style={{ color: isActive ? "#00ff88" : "#555" }}
+                style={{ color: isActive ? "var(--neon)" : "var(--text-muted)" }}
               >
                 <span className="w-5 text-center text-base">{item.icon}</span>
-                <span style={{ color: isActive ? "#00ff88" : "#888" }}>{item.label}</span>
+                <span style={{ color: isActive ? "var(--neon)" : "var(--text-secondary)" }}>{item.label}</span>
                 {isActive && (
                   <span className="ml-auto w-1 h-4 rounded-full flex-shrink-0"
-                    style={{ background: "#00ff88", boxShadow: "0 0 6px #00ff88" }} />
+                    style={{ background: "var(--neon)", boxShadow: "0 0 6px var(--neon)" }} />
                 )}
               </Link>
             );
@@ -92,17 +94,17 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </nav>
 
         {/* User info */}
-        <div className="px-4 py-4" style={{ borderTop: "1px solid #1a1a1a" }}>
+        <div className="px-4 py-4" style={{ borderTop: "1px solid var(--sidebar-border)" }}>
           <div className="flex items-center gap-3">
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
-              style={{ background: "rgba(0,255,136,0.08)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.2)" }}
+              style={{ background: "var(--neon-dim)", color: "var(--neon)", border: "1px solid var(--neon-border)" }}
             >
               {session?.user?.name?.[0]?.toUpperCase() || "?"}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-xs font-semibold truncate">{session?.user?.name}</div>
-              <div className="text-xs truncate" style={{ color: "#444" }}>{getRoleLabel(role)}</div>
+              <div className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>{session?.user?.name}</div>
+              <div className="text-xs truncate" style={{ color: "var(--text-muted)" }}>{getRoleLabel(role)}</div>
             </div>
           </div>
         </div>

@@ -57,8 +57,8 @@ export default function DashboardLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#080808" }}>
-        <div style={{ color: "#444" }}>Ładowanie...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-primary)" }}>
+        <div style={{ color: "var(--text-muted)" }}>Ładowanie...</div>
       </div>
     );
   }
@@ -78,7 +78,7 @@ export default function DashboardLayout({
         setSelectedClientId,
       }}
     >
-      <div className="min-h-screen" style={{ background: "#080808" }}>
+      <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
         <Sidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}

@@ -3,8 +3,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Sales KPI Dashboard",
-  description: "Dashboard KPI sprzedażowych i marketingowych",
+  title: "McKwacz.ai",
+  description: "Sales Intelligence Platform — KPI sprzedażowych i marketingowych",
 };
 
 export default function RootLayout({
