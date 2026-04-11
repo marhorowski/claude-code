@@ -11,7 +11,9 @@ interface DailyFormData {
   id: string; userId: string; date: string;
   plannedMeetings: number | null; attendedMeetings: number | null;
   closings: number | null; revenue: number | null;
-  callsMade: number | null; meetingsBooked: number | null; notes: string | null;
+  callsMade: number | null; meetingsBooked: number | null;
+  vslMeetingsBooked: number | null; dailyLeads: number | null; dailyAdSpend: number | null;
+  notes: string | null;
   user: { id: string; name: string; role: string };
 }
 interface WeeklyFormData {
@@ -33,15 +35,15 @@ interface SalesSettings {
 }
 interface KpiTarget { code: string; target: number }
 
-type Tab = "closing" | "setting" | "weekly" | "monthly" | "quarterly";
+type Tab = "closing" | "setting" | "marketing" | "weekly" | "monthly" | "quarterly";
 
 function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 function toDateInput(d: Date) { return d.toISOString().split("T")[0]; }
 
-const INP = "w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500";
-const LBL = "block text-xs text-slate-400 mb-1";
+const INP = "w-full text-sm px-3 py-2 rounded-lg input-dark";
+const LBL = "block text-xs mb-1" + " " + "text-[#555]";
 
 export default function DanePage() {
   const { selectedClientId } = useClient();
@@ -72,6 +74,9 @@ export default function DanePage() {
   const [sPersonId, setSPersonId] = useState("");
   const [sDate, setSDate] = useState(toDateInput(now));
   const [sForm, setSForm] = useState({ callsMade: "", meetingsBooked: "", notes: "" });
+
+  const [mktDate, setMktDate] = useState(toDateInput(now));
+  const [mktForm, setMktForm] = useState({ vslMeetingsBooked: "", dailyLeads: "", dailyAdSpend: "" });
 
   const [wWeek, setWWeek] = useState(defWeek);
   const [wYear, setWYear] = useState(defWeekYear);
@@ -132,6 +137,14 @@ export default function DanePage() {
     else setSForm({ callsMade: "", meetingsBooked: "", notes: "" });
   }, [sPersonId, sDate, daily]);
 
+  // Auto-fill marketing form
+  useEffect(() => {
+    if (!mktDate || !session?.user?.id) return;
+    const ex = daily.find(f => f.userId === session.user.id && isSameDay(new Date(f.date), new Date(mktDate)) && (f.dailyLeads !== null || f.vslMeetingsBooked !== null || f.dailyAdSpend !== null));
+    if (ex) setMktForm({ vslMeetingsBooked: ex.vslMeetingsBooked?.toString() ?? "", dailyLeads: ex.dailyLeads?.toString() ?? "", dailyAdSpend: ex.dailyAdSpend?.toString() ?? "" });
+    else setMktForm({ vslMeetingsBooked: "", dailyLeads: "", dailyAdSpend: "" });
+  }, [mktDate, daily, session?.user?.id]);
+
   // Auto-fill weekly form
   useEffect(() => {
     const ex = weekly.find(f => f.weekNumber === wWeek && f.year === wYear);
@@ -165,6 +178,16 @@ export default function DanePage() {
     try {
       await post("/api/daily", { clientId: selectedClientId, targetUserId: cPersonId, date: cDate, plannedMeetings: cForm.plannedMeetings ? +cForm.plannedMeetings : null, attendedMeetings: cForm.attendedMeetings ? +cForm.attendedMeetings : null, closings: cForm.closings ? +cForm.closings : null, revenue: cForm.revenue ? +cForm.revenue : null, notes: cForm.notes || null });
       showMsg("Zapisano!", true); fetchAll();
+    } catch (e: any) { showMsg(e.message, false); }
+    setSaving(false);
+  };
+
+  const saveMkt = async () => {
+    if (!mktDate || !selectedClientId || !session?.user?.id) return;
+    setSaving(true);
+    try {
+      await post("/api/daily", { clientId: selectedClientId, date: mktDate, vslMeetingsBooked: mktForm.vslMeetingsBooked ? +mktForm.vslMeetingsBooked : null, dailyLeads: mktForm.dailyLeads ? +mktForm.dailyLeads : null, dailyAdSpend: mktForm.dailyAdSpend ? +mktForm.dailyAdSpend : null });
+      showMsg("Zapisano dane marketingowe!", true); fetchAll();
     } catch (e: any) { showMsg(e.message, false); }
     setSaving(false);
   };
@@ -300,31 +323,35 @@ export default function DanePage() {
   });
 
   const TABS: { id: Tab; label: string }[] = [
-    { id: "closing", label: "Dzienny — Closing" },
-    { id: "setting", label: "Dzienny — Setting" },
+    { id: "closing", label: "Closing" },
+    { id: "setting", label: "Setting" },
+    { id: "marketing", label: "Marketing" },
     { id: "weekly", label: "Tygodniowy" },
     { id: "monthly", label: "Miesięczny" },
     { id: "quarterly", label: "Kwartalny" },
   ];
 
-  if (loading) return <div className="text-center text-slate-400 py-16">Ładowanie...</div>;
+  if (loading) return <div className="text-center py-16" style={{ color: "#444" }}>Ładowanie...</div>;
 
   return (
     <div className="space-y-6 fade-in">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-white">Wprowadź dane</h1>
         {msg && (
-          <div className={`px-4 py-2 rounded-xl text-sm font-medium ${msg.ok ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-red-500/20 text-red-400 border border-red-500/30"}`}>
+          <div className={`px-4 py-2 rounded-lg text-sm font-medium ${msg.ok ? "badge-neon" : "badge-red"}`}>
             {msg.text}
           </div>
         )}
       </div>
 
       {/* Tab strip */}
-      <div className="flex flex-wrap gap-1 bg-[#0F172A] rounded-xl p-1 border border-[#334155]">
+      <div className="flex flex-wrap gap-1 p-1 rounded-xl" style={{ background: "#0a0a0a", border: "1px solid #1a1a1a" }}>
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${tab === t.id ? "bg-indigo-500 text-white" : "text-slate-400 hover:text-white"}`}>
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+            style={tab === t.id
+              ? { background: "rgba(0,255,136,0.12)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.3)" }
+              : { color: "#555", background: "transparent", border: "1px solid transparent" }}>
             {t.label}
           </button>
         ))}
@@ -336,8 +363,8 @@ export default function DanePage() {
 
           {/* CLOSING */}
           {tab === "closing" && (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-4">
-              <h2 className="font-bold text-white">Formularz dzienny — Closing</h2>
+            <div className="p-6 space-y-4 rounded-xl card">
+              <h2 className="font-bold text-white text-sm tracking-wide uppercase" style={{ color: "#00ff88" }}>Dzienny — Closing</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={LBL}>Closer *</label>
@@ -358,7 +385,7 @@ export default function DanePage() {
                 <div><label className={LBL}>Przychód (PLN)</label><input type="number" min="0" step="0.01" value={cForm.revenue} onChange={e => setCForm(p => ({ ...p, revenue: e.target.value }))} className={INP} placeholder="0.00" /></div>
               </div>
               <div><label className={LBL}>Notatki</label><textarea value={cForm.notes} onChange={e => setCForm(p => ({ ...p, notes: e.target.value }))} className={`${INP} h-20 resize-none`} placeholder="Opcjonalne..." /></div>
-              <button onClick={saveClosing} disabled={saving || !cPersonId || !cDate} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-xl transition-colors">
+              <button onClick={saveClosing} disabled={saving || !cPersonId || !cDate} className="btn-neon w-full py-2.5 disabled:opacity-40 disabled:cursor-not-allowed">
                 {saving ? "Zapisywanie..." : "Zapisz"}
               </button>
             </div>
@@ -366,8 +393,8 @@ export default function DanePage() {
 
           {/* SETTING */}
           {tab === "setting" && (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-4">
-              <h2 className="font-bold text-white">Formularz dzienny — Setting</h2>
+            <div className="p-6 space-y-4 rounded-xl card">
+              <h2 className="font-bold text-sm tracking-wide uppercase" style={{ color: "#00ff88" }}>Dzienny — Setting</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={LBL}>Setter *</label>
@@ -386,16 +413,35 @@ export default function DanePage() {
                 <div><label className={LBL}>Umówione spotkania</label><input type="number" min="0" value={sForm.meetingsBooked} onChange={e => setSForm(p => ({ ...p, meetingsBooked: e.target.value }))} className={INP} placeholder="0" /></div>
               </div>
               <div><label className={LBL}>Notatki</label><textarea value={sForm.notes} onChange={e => setSForm(p => ({ ...p, notes: e.target.value }))} className={`${INP} h-20 resize-none`} placeholder="Opcjonalne..." /></div>
-              <button onClick={saveSetting} disabled={saving || !sPersonId || !sDate} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-xl transition-colors">
+              <button onClick={saveSetting} disabled={saving || !sPersonId || !sDate} className="btn-neon w-full py-2.5 disabled:opacity-40 disabled:cursor-not-allowed">
                 {saving ? "Zapisywanie..." : "Zapisz"}
+              </button>
+            </div>
+          )}
+
+          {/* MARKETING */}
+          {tab === "marketing" && (
+            <div className="p-6 space-y-4 rounded-xl card">
+              <h2 className="font-bold text-sm tracking-wide uppercase" style={{ color: "#00ff88" }}>Dzienny — Marketing</h2>
+              <div>
+                <label className={LBL}>Data *</label>
+                <input type="date" value={mktDate} onChange={e => setMktDate(e.target.value)} max={toDateInput(now)} className={INP} />
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                <div><label className={LBL}>Spotkania umówione z VSL</label><input type="number" min="0" value={mktForm.vslMeetingsBooked} onChange={e => setMktForm(p => ({ ...p, vslMeetingsBooked: e.target.value }))} className={INP} placeholder="0" /></div>
+                <div><label className={LBL}>Liczba leadów</label><input type="number" min="0" value={mktForm.dailyLeads} onChange={e => setMktForm(p => ({ ...p, dailyLeads: e.target.value }))} className={INP} placeholder="0" /></div>
+                <div><label className={LBL}>Dzienny Ad Spend (PLN)</label><input type="number" min="0" step="0.01" value={mktForm.dailyAdSpend} onChange={e => setMktForm(p => ({ ...p, dailyAdSpend: e.target.value }))} className={INP} placeholder="0.00" /></div>
+              </div>
+              <button onClick={saveMkt} disabled={saving || !mktDate} className="btn-neon w-full py-2.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                {saving ? "Zapisywanie..." : "Zapisz dane marketingowe"}
               </button>
             </div>
           )}
 
           {/* WEEKLY */}
           {tab === "weekly" && (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-4">
-              <h2 className="font-bold text-white">Formularz tygodniowy</h2>
+            <div className="p-6 space-y-4 rounded-xl card">
+              <h2 className="font-bold text-sm tracking-wide uppercase" style={{ color: "#00ff88" }}>Tygodniowy</h2>
               <div>
                 <label className={LBL}>Tydzień</label>
                 <select value={`${wWeek}-${wYear}`} onChange={e => { const [w, y] = e.target.value.split("-").map(Number); setWWeek(w); setWYear(y); }} className={INP}>
@@ -403,11 +449,11 @@ export default function DanePage() {
                 </select>
               </div>
               {curWeekData && (
-                <div className="bg-[#0F172A] rounded-xl p-4">
-                  <div className="text-xs text-slate-400 mb-3">Zagregowane z formularzy dziennych</div>
+                <div className="rounded-lg p-4" style={{ background: "#080808", border: "1px solid #1a1a1a" }}>
+                  <div className="text-xs mb-3" style={{ color: "#444" }}>Zagregowane z formularzy dziennych</div>
                   <div className="grid grid-cols-3 gap-3">
                     {[["Zaplanowane", curWeekData.totalPlannedMeetings], ["Odbyłe", curWeekData.totalAttended], ["Zamknięcia", curWeekData.totalClosings], ["Telefony", curWeekData.totalCallsMade], ["Umówione", curWeekData.totalMeetingsBooked], ["Przychód PLN", curWeekData.totalRevenue.toFixed(0)]].map(([l, v]) => (
-                      <div key={String(l)}><div className="text-xs text-slate-500">{l}</div><div className="text-white font-bold">{v}</div></div>
+                      <div key={String(l)}><div className="text-xs" style={{ color: "#444" }}>{l}</div><div className="text-white font-bold">{v}</div></div>
                     ))}
                   </div>
                 </div>
@@ -417,7 +463,7 @@ export default function DanePage() {
                 <div><label className={LBL}>Ad Spend (PLN)</label><input type="number" min="0" step="0.01" value={wForm.adSpend} onChange={e => setWForm(p => ({ ...p, adSpend: e.target.value }))} className={INP} placeholder="0.00" /></div>
               </div>
               <div><label className={LBL}>Notatki / Podsumowanie tygodnia</label><textarea value={wForm.notes} onChange={e => setWForm(p => ({ ...p, notes: e.target.value }))} className={`${INP} h-20 resize-none`} placeholder="..." /></div>
-              <button onClick={saveWeekly} disabled={saving} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition-colors">
+              <button onClick={saveWeekly} disabled={saving} className="btn-neon w-full py-2.5 disabled:opacity-40">
                 {saving ? "Zapisywanie..." : "Zapisz dane tygodniowe"}
               </button>
             </div>
@@ -426,8 +472,8 @@ export default function DanePage() {
           {/* MONTHLY */}
           {tab === "monthly" && (
             <div className="space-y-4">
-              <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-4">
-                <h2 className="font-bold text-white">Formularz miesięczny</h2>
+              <div className="p-6 space-y-4 rounded-xl card">
+                <h2 className="font-bold text-sm tracking-wide uppercase" style={{ color: "#00ff88" }}>Miesięczny</h2>
                 <div>
                   <label className={LBL}>Miesiąc</label>
                   <select value={`${mMonth}-${mYear}`} onChange={e => { const [m, y] = e.target.value.split("-").map(Number); setMMonth(m); setMYear(y); }} className={INP}>
@@ -445,15 +491,15 @@ export default function DanePage() {
                   <div><label className={LBL}>Lead to Close (dni)</label><input type="number" step="1" value={mForm.leadToClose} onChange={e => setMForm(p => ({ ...p, leadToClose: e.target.value }))} className={INP} placeholder="—" /></div>
                 </div>
                 <div><label className={LBL}>Notatki</label><textarea value={mForm.notes} onChange={e => setMForm(p => ({ ...p, notes: e.target.value }))} className={`${INP} h-20 resize-none`} placeholder="Podsumowanie miesiąca..." /></div>
-                <button onClick={saveMonthly} disabled={saving} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition-colors">
+                <button onClick={saveMonthly} disabled={saving} className="btn-neon w-full py-2.5 disabled:opacity-40">
                   {saving ? "Zapisywanie..." : "Zapisz dane miesięczne"}
                 </button>
               </div>
 
               {/* Goal cascade */}
               {mCascade && (
-                <div className="bg-[#1E293B] border border-indigo-500/30 rounded-2xl p-6">
-                  <h3 className="font-semibold text-indigo-400 mb-4">Kaskada celu — {parseFloat(mForm.targetRevenue).toLocaleString("pl-PL")} PLN</h3>
+                <div className="p-6 rounded-xl" style={{ background: "#0f0f0f", border: "1px solid rgba(0,255,136,0.2)" }}>
+                  <h3 className="font-semibold mb-4 text-sm" style={{ color: "#00ff88" }}>Kaskada celu — {parseFloat(mForm.targetRevenue).toLocaleString("pl-PL")} PLN</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                     <CascadeCard label="Domknięcia" value={String(mCascade.closings)} sub={`deal size: ${settings.dealSize.toLocaleString("pl-PL")} PLN`} />
                     <CascadeCard label="Odbyłe spotkania" value={String(mCascade.attended)} sub="wg celu CP" />
@@ -471,8 +517,8 @@ export default function DanePage() {
 
           {/* QUARTERLY */}
           {tab === "quarterly" && (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-4">
-              <h2 className="font-bold text-white">Formularz kwartalny</h2>
+            <div className="p-6 space-y-4 rounded-xl card">
+              <h2 className="font-bold text-sm tracking-wide uppercase" style={{ color: "#00ff88" }}>Kwartalny</h2>
               <div>
                 <label className={LBL}>Kwartał</label>
                 <select value={`${qQuarter}-${qYear}`} onChange={e => { const [q, y] = e.target.value.split("-").map(Number); setQQuarter(q); setQYear(y); }} className={INP}>
@@ -490,7 +536,7 @@ export default function DanePage() {
                 <div><label className={LBL}>ALPVC — Avg Lifetime Profit/Client (PLN)</label><input type="number" step="0.01" value={qForm.alpvc} onChange={e => setQForm(p => ({ ...p, alpvc: e.target.value }))} className={INP} placeholder="—" /></div>
               </div>
               <div><label className={LBL}>Notatki</label><textarea value={qForm.notes} onChange={e => setQForm(p => ({ ...p, notes: e.target.value }))} className={`${INP} h-20 resize-none`} placeholder="Podsumowanie kwartału..." /></div>
-              <button onClick={saveQuarterly} disabled={saving} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-medium py-2.5 rounded-xl transition-colors">
+              <button onClick={saveQuarterly} disabled={saving} className="btn-neon w-full py-2.5 disabled:opacity-40">
                 {saving ? "Zapisywanie..." : "Zapisz dane kwartalne"}
               </button>
             </div>
@@ -516,13 +562,15 @@ export default function DanePage() {
 
 function CascadeCard({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="bg-[#0F172A] rounded-xl p-3">
-      <div className="text-xs text-slate-500 mb-1">{label}</div>
+    <div className="rounded-lg p-3" style={{ background: "#080808", border: "1px solid #1a1a1a" }}>
+      <div className="text-xs mb-1" style={{ color: "#444" }}>{label}</div>
       <div className="text-white font-bold text-lg">{value}</div>
-      <div className="text-xs text-slate-600">{sub}</div>
+      <div className="text-xs mt-0.5" style={{ color: "#333" }}>{sub}</div>
     </div>
   );
 }
+
+interface MissingItem { key: string; label: string; sub: string; action: () => void }
 
 interface MissingPanelProps {
   tab: Tab;
@@ -539,33 +587,62 @@ interface MissingPanelProps {
 }
 
 function MissingPanel({ tab, missingC, missingS, missingW, missingM, missingQ, onSelectC, onSelectS, onSelectW, onSelectM, onSelectQ }: MissingPanelProps) {
-  const items =
-    tab === "closing" ? missingC.map((m: any) => ({ label: m.person.name, sub: m.date.toLocaleDateString("pl-PL"), action: () => onSelectC(m.person.id, m.date) })) :
-    tab === "setting" ? missingS.map((m: any) => ({ label: m.person.name, sub: m.date.toLocaleDateString("pl-PL"), action: () => onSelectS(m.person.id, m.date) })) :
-    tab === "weekly" ? missingW.map((m: any) => ({ label: m.label, sub: "", action: () => onSelectW(m.week, m.year) })) :
-    tab === "monthly" ? missingM.map((m: any) => ({ label: `${getMonthName(m.month)} ${m.year}`, sub: "", action: () => onSelectM(m.month, m.year) })) :
-    missingQ.map((m: any) => ({ label: `Q${m.quarter} ${m.year}`, sub: "", action: () => onSelectQ(m.quarter, m.year) }));
+  const [dismissed, setDismissed] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem("kpi_dismissed_alerts");
+      return new Set(saved ? JSON.parse(saved) : []);
+    } catch { return new Set(); }
+  });
+
+  const dismiss = (key: string) => {
+    setDismissed(prev => {
+      const next = new Set(prev);
+      next.add(key);
+      try { localStorage.setItem("kpi_dismissed_alerts", JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  };
+
+  const allItems: MissingItem[] =
+    tab === "closing" ? missingC.map(m => ({ key: `c_${m.person.id}_${m.date.toISOString().split("T")[0]}`, label: m.person.name, sub: m.date.toLocaleDateString("pl-PL"), action: () => onSelectC(m.person.id, m.date) })) :
+    tab === "setting" ? missingS.map(m => ({ key: `s_${m.person.id}_${m.date.toISOString().split("T")[0]}`, label: m.person.name, sub: m.date.toLocaleDateString("pl-PL"), action: () => onSelectS(m.person.id, m.date) })) :
+    tab === "marketing" ? [] :
+    tab === "weekly" ? missingW.map(m => ({ key: `w_${m.week}_${m.year}`, label: m.label, sub: "", action: () => onSelectW(m.week, m.year) })) :
+    tab === "monthly" ? missingM.map(m => ({ key: `m_${m.month}_${m.year}`, label: `${getMonthName(m.month)} ${m.year}`, sub: "", action: () => onSelectM(m.month, m.year) })) :
+    missingQ.map(m => ({ key: `q_${m.quarter}_${m.year}`, label: `Q${m.quarter} ${m.year}`, sub: "", action: () => onSelectQ(m.quarter, m.year) }));
+
+  const items = allItems.filter(i => !dismissed.has(i.key));
 
   return (
-    <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden sticky top-4">
-      <div className="px-4 py-3 border-b border-[#334155] flex items-center justify-between">
+    <div className="rounded-xl overflow-hidden sticky top-4" style={{ background: "#0f0f0f", border: "1px solid #1a1a1a" }}>
+      <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid #1a1a1a" }}>
         <h3 className="font-semibold text-white text-sm">Brakujące dane</h3>
-        {items.length > 0 && <span className="bg-red-500/20 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full">{items.length}</span>}
+        {items.length > 0 && <span className="badge badge-red">{items.length}</span>}
       </div>
       <div className="max-h-[60vh] overflow-y-auto">
-        {items.length === 0 ? (
+        {tab === "marketing" ? (
+          <div className="p-6 text-center text-xs" style={{ color: "#444" }}>Marketing — brak alertów</div>
+        ) : items.length === 0 ? (
           <div className="p-6 text-center">
-            <div className="text-green-400 text-sm font-medium">Wszystko uzupełnione</div>
+            <div className="text-sm font-medium" style={{ color: "#00ff88" }}>Wszystko uzupełnione</div>
           </div>
         ) : (
-          <ul className="divide-y divide-[#334155]">
-            {items.map((item: any, i: number) => (
-              <li key={i} onClick={item.action} className="px-4 py-2.5 cursor-pointer hover:bg-red-500/10 transition-colors flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                <div>
-                  <div className="text-red-400 text-xs font-medium">{item.label}</div>
-                  {item.sub && <div className="text-red-400/60 text-xs">{item.sub}</div>}
+          <ul>
+            {items.map(item => (
+              <li key={item.key} className="flex items-center gap-2 px-4 py-2.5 transition-colors hover:bg-[#1a1a1a]" style={{ borderBottom: "1px solid #141414" }}>
+                <span className="dot-red flex-shrink-0" />
+                <div className="flex-1 cursor-pointer" onClick={item.action}>
+                  <div className="text-xs font-medium" style={{ color: "#ff4444" }}>{item.label}</div>
+                  {item.sub && <div className="text-xs" style={{ color: "#ff444466" }}>{item.sub}</div>}
                 </div>
+                <button
+                  onClick={() => dismiss(item.key)}
+                  className="text-xs px-1.5 py-0.5 rounded transition-colors flex-shrink-0"
+                  style={{ color: "#333", background: "#1a1a1a" }}
+                  title="Pomiń"
+                >
+                  ✕
+                </button>
               </li>
             ))}
           </ul>

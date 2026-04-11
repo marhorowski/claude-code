@@ -20,11 +20,15 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   const body = await req.json();
-  const { name, strategy } = body;
+  const { name, strategy, dataStartDate } = body;
 
   const client = await prisma.client.update({
     where: { id: params.id },
-    data: { name, strategy },
+    data: {
+      name,
+      strategy,
+      dataStartDate: dataStartDate ? new Date(dataStartDate) : undefined,
+    },
   });
 
   return NextResponse.json(client);

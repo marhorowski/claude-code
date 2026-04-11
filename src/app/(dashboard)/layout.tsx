@@ -57,8 +57,8 @@ export default function DashboardLayout({
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
-        <div className="text-slate-400">Ładowanie...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "#080808" }}>
+        <div style={{ color: "#444" }}>Ładowanie...</div>
       </div>
     );
   }
@@ -78,13 +78,13 @@ export default function DashboardLayout({
         setSelectedClientId,
       }}
     >
-      <div className="min-h-screen bg-[#0F172A]">
+      <div className="min-h-screen" style={{ background: "#080808" }}>
         <Sidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
-        <div className="lg:pl-64 flex flex-col min-h-screen">
+        <div className="lg:pl-56 flex flex-col min-h-screen">
           <Header
             onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
             clientName={selectedClient?.name || ""}

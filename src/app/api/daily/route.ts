@@ -25,7 +25,6 @@ export async function GET(req: NextRequest) {
     where.date = { gte: start, lte: end };
   }
 
-  // Closer/Setter see only their own data
   if (session.user.role === "CLOSER" || session.user.role === "SETTER") {
     where.userId = session.user.id;
   } else if (userId) {
@@ -55,6 +54,9 @@ export async function POST(req: NextRequest) {
     revenue,
     callsMade,
     meetingsBooked,
+    vslMeetingsBooked,
+    dailyLeads,
+    dailyAdSpend,
     notes,
     targetUserId,
   } = body;
@@ -88,6 +90,9 @@ export async function POST(req: NextRequest) {
     revenue: revenue ?? null,
     callsMade: callsMade ?? null,
     meetingsBooked: meetingsBooked ?? null,
+    vslMeetingsBooked: vslMeetingsBooked ?? null,
+    dailyLeads: dailyLeads ?? null,
+    dailyAdSpend: dailyAdSpend ?? null,
     notes: notes ?? null,
   };
 

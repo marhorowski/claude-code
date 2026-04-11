@@ -11,24 +11,22 @@ interface HeaderProps {
   onClientChange: (id: string) => void;
 }
 
-export function Header({
-  onMenuToggle,
-  clientName,
-  clients,
-  selectedClientId,
-  onClientChange,
-}: HeaderProps) {
+export function Header({ onMenuToggle, clientName, clients, selectedClientId, onClientChange }: HeaderProps) {
   const { data: session } = useSession();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const role = session?.user?.role;
   const canSwitchClient = role === "ADMIN" || role === "LIDER";
 
   return (
-    <header className="h-16 bg-[#1E293B] border-b border-[#334155] flex items-center px-4 gap-4 sticky top-0 z-30">
+    <header
+      className="h-14 flex items-center px-4 gap-4 sticky top-0 z-30"
+      style={{ background: "#080808", borderBottom: "1px solid #1a1a1a" }}
+    >
       {/* Hamburger */}
       <button
         onClick={onMenuToggle}
-        className="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-700/50 transition-colors"
+        className="lg:hidden p-2 rounded-lg transition-colors"
+        style={{ color: "#555" }}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -36,26 +34,27 @@ export function Header({
       </button>
 
       {/* Client selector */}
-      <div className="flex items-center gap-2">
-        {canSwitchClient && clients.length > 1 ? (
-          <select
-            value={selectedClientId}
-            onChange={(e) => onClientChange(e.target.value)}
-            className="bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-1.5 text-sm text-white focus:border-indigo-500 transition-colors"
-          >
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <div className="flex items-center gap-2 bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-1.5">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm text-white font-medium">{clientName}</span>
-          </div>
-        )}
-      </div>
+      {canSwitchClient && clients.length > 1 ? (
+        <select
+          value={selectedClientId}
+          onChange={(e) => onClientChange(e.target.value)}
+          className="text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+          style={{
+            background: "#0f0f0f",
+            border: "1px solid #1f1f1f",
+            color: "#00ff88",
+          }}
+        >
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+      ) : (
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg" style={{ background: "#0f0f0f", border: "1px solid #1f1f1f" }}>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: "#00ff88", boxShadow: "0 0 4px #00ff88" }} />
+          <span className="text-sm font-medium" style={{ color: "#00ff88" }}>{clientName}</span>
+        </div>
+      )}
 
       <div className="flex-1" />
 
@@ -63,25 +62,33 @@ export function Header({
       <div className="relative">
         <button
           onClick={() => setShowUserMenu(!showUserMenu)}
-          className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-700/50 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors hover:bg-[#111]"
         >
-          <div className="w-8 h-8 bg-indigo-500/30 rounded-full flex items-center justify-center text-indigo-400 font-bold text-sm">
+          <div
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold"
+            style={{ background: "rgba(0,255,136,0.08)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.2)" }}
+          >
             {session?.user?.name?.[0]?.toUpperCase() || "?"}
           </div>
-          <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <span className="text-sm hidden sm:block" style={{ color: "#888" }}>{session?.user?.name}</span>
+          <svg className="w-3.5 h-3.5" style={{ color: "#444" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
 
         {showUserMenu && (
-          <div className="absolute right-0 top-full mt-2 w-48 bg-[#1E293B] border border-[#334155] rounded-xl shadow-xl overflow-hidden z-50">
-            <div className="px-4 py-3 border-b border-[#334155]">
-              <div className="text-sm text-white font-medium">{session?.user?.name}</div>
-              <div className="text-xs text-slate-400">{session?.user?.email}</div>
+          <div
+            className="absolute right-0 top-full mt-2 w-48 rounded-xl shadow-2xl overflow-hidden z-50"
+            style={{ background: "#0f0f0f", border: "1px solid #1f1f1f" }}
+          >
+            <div className="px-4 py-3" style={{ borderBottom: "1px solid #1a1a1a" }}>
+              <div className="text-sm font-semibold text-white">{session?.user?.name}</div>
+              <div className="text-xs mt-0.5" style={{ color: "#444" }}>{session?.user?.email}</div>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+              className="w-full text-left px-4 py-3 text-sm transition-colors hover:bg-[#1a1a1a]"
+              style={{ color: "#ff4444" }}
             >
               Wyloguj się
             </button>

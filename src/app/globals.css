@@ -5,16 +5,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --bg-primary: #0F172A;
-  --bg-card: #1E293B;
-  --border-card: #334155;
-  --text-primary: #F1F5F9;
-  --text-secondary: #94A3B8;
+  --bg-primary: #080808;
+  --bg-card: #0f0f0f;
+  --bg-elevated: #141414;
+  --border-card: #1f1f1f;
+  --border-bright: #2a2a2a;
+  --neon: #00ff88;
+  --neon-dim: rgba(0, 255, 136, 0.15);
+  --neon-border: rgba(0, 255, 136, 0.3);
+  --text-primary: #f0f0f0;
+  --text-secondary: #888;
+  --text-muted: #444;
+  --red: #ff4444;
+  --orange: #ff8800;
+  --gold: #ffd700;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   background-color: var(--bg-primary);
@@ -24,52 +31,74 @@ body {
 }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #0F172A;
-}
-::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #080808; }
+::-webkit-scrollbar-thumb { background: #1f1f1f; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #2a2a2a; }
 
-/* Custom focus */
+/* Focus */
 input:focus, textarea:focus, select:focus {
-  outline: 2px solid #6366F1;
+  outline: 1px solid var(--neon);
   outline-offset: 0;
 }
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@keyframes neonPulse {
+  0%, 100% { box-shadow: 0 0 8px var(--neon-border); }
+  50% { box-shadow: 0 0 16px rgba(0,255,136,0.4); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
 
-.fade-in {
-  animation: fadeIn 0.2s ease-out;
+.fade-in { animation: fadeIn 0.25s ease-out; }
+.slide-in { animation: slideIn 0.2s ease-out; }
+
+/* Neon glow on active elements */
+.neon-active {
+  color: var(--neon);
+  text-shadow: 0 0 10px rgba(0,255,136,0.5);
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+}
+.card-elevated {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-bright);
+  border-radius: 12px;
+}
+
+/* Neon card border */
+.card-neon {
+  background: var(--bg-card);
+  border: 1px solid var(--neon-border);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,255,136,0.05);
 }
 
 /* Progress bar */
 .progress-bar {
-  height: 8px;
+  height: 6px;
   border-radius: 9999px;
-  background: #334155;
+  background: #1a1a1a;
   overflow: hidden;
 }
-
 .progress-bar-fill {
   height: 100%;
   border-radius: 9999px;
   transition: width 0.5s ease;
 }
 
-/* Number input */
+/* Number input spinners off */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -78,25 +107,129 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Table */
 .kpi-table th {
-  color: #94A3B8;
-  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.75rem 1rem;
+  letter-spacing: 0.08em;
+  padding: 0.65rem 1rem;
   text-align: left;
-  background: #0F172A;
+  background: #080808;
+  border-bottom: 1px solid var(--border-card);
 }
-
 .kpi-table td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid var(--border-card);
+}
+.kpi-table tr:last-child td { border-bottom: none; }
+.kpi-table tr:hover td { background: rgba(0, 255, 136, 0.03); }
+
+/* Buttons */
+.btn-neon {
+  background: var(--neon-dim);
+  border: 1px solid var(--neon-border);
+  color: var(--neon);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.btn-neon:hover {
+  background: rgba(0,255,136,0.25);
+  box-shadow: 0 0 12px rgba(0,255,136,0.2);
+}
+.btn-neon:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.kpi-table tr:last-child td {
-  border-bottom: none;
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  color: var(--text-secondary);
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  border-color: var(--neon-border);
+  color: var(--text-primary);
 }
 
-.kpi-table tr:hover td {
-  background: rgba(99, 102, 241, 0.05);
+/* Input */
+.input-dark {
+  width: 100%;
+  background: #0a0a0a;
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: border-color 0.15s;
 }
+.input-dark:focus {
+  outline: none;
+  border-color: var(--neon);
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge-neon { background: var(--neon-dim); color: var(--neon); border: 1px solid var(--neon-border); }
+.badge-red { background: rgba(255,68,68,0.1); color: var(--red); border: 1px solid rgba(255,68,68,0.3); }
+.badge-orange { background: rgba(255,136,0,0.1); color: var(--orange); border: 1px solid rgba(255,136,0,0.3); }
+.badge-gold { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+
+/* Sidebar active indicator */
+.nav-active {
+  color: var(--neon);
+  background: var(--neon-dim);
+  border: 1px solid var(--neon-border);
+  border-radius: 8px;
+}
+
+/* Stat value */
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* Section divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-card);
+  margin: 0;
+}
+
+/* Metric card grid */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+/* Neon dot */
+.dot-neon {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--neon);
+  box-shadow: 0 0 6px var(--neon);
+  flex-shrink: 0;
+}
+.dot-red { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; }

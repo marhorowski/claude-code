@@ -23,6 +23,7 @@ model Client {
   id             String          @id @default(cuid())
   name           String
   strategy       String          @default("Paid Lead Gen")
+  dataStartDate  DateTime?
   createdAt      DateTime        @default(now())
   kpiTargets     KpiTarget[]
   dailyForms     DailyForm[]
@@ -32,6 +33,7 @@ model Client {
   accesses       ClientAccess[]
   bottlenecks    Bottleneck[]
   salesSettings  SalesSettings?
+  formTokens     PublicFormToken[]
 }
 
 model ClientAccess {
@@ -64,12 +66,18 @@ model DailyForm {
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String
   date             DateTime
+  // Sales - Closing
   plannedMeetings  Int?
   attendedMeetings Int?
   closings         Int?
   revenue          Float?
+  // Sales - Setting
   callsMade        Int?
   meetingsBooked   Int?
+  // Marketing
+  vslMeetingsBooked Int?
+  dailyLeads       Int?
+  dailyAdSpend     Float?
   notes            String?
   createdAt        DateTime @default(now())
 }
@@ -139,6 +147,17 @@ model SalesSettings {
   setterCommissionPct Float  @default(0)
   fixedMonthlyCosts   Float  @default(0)
   leadToMeetingRate   Float  @default(0)
+}
+
+model PublicFormToken {
+  id        String    @id @default(cuid())
+  client    Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
+  token     String    @unique @default(cuid())
+  formType  String
+  label     String    @default("")
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
 }
 
 model Bottleneck {
