@@ -187,16 +187,20 @@ export default function BottleneckiPage() {
       {toast && <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
 
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold text-white flex-1">🚨 Bottlenecki</h1>
+        <h1 className="text-2xl font-bold flex-1" style={{ color: "var(--text-primary)" }}>🚨 Bottlenecki</h1>
 
-        <div className="flex gap-1 bg-[#0F172A] rounded-xl p-1 border border-[#334155]">
+        <div className="flex gap-1 rounded-xl p-1" style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)" }}>
           {(["ACTIVE", "IN_PROGRESS", "RESOLVED", "ALL"] as const).map((s) => (
             <button
               key={s}
               onClick={() => setFilterStatus(s)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                filterStatus === s ? "bg-indigo-500 text-white" : "text-slate-400 hover:text-white"
+                filterStatus === s ? "" : "hover:text-white"
               }`}
+              style={filterStatus === s
+                ? { background: "var(--neon)", color: "#000" }
+                : { color: "var(--text-muted)" }
+              }
             >
               {s === "ALL" ? "Wszystkie" : STATUS_LABELS[s]}
             </button>
@@ -232,7 +236,7 @@ export default function BottleneckiPage() {
         <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(0,255,136,0.25)", background: "#0a0a0a" }}>
           <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(0,255,136,0.15)" }}>
             <div>
-              <span className="font-bold text-white text-sm">✦ Propozycje AI</span>
+              <span className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>✦ Propozycje AI</span>
               <span className="ml-2 text-xs" style={{ color: "#555" }}>na podstawie danych z ostatnich 28 dni</span>
             </div>
             <button onClick={() => setShowAiPanel(false)} className="text-xs" style={{ color: "#444" }}>✕ Zamknij</button>
@@ -256,7 +260,7 @@ export default function BottleneckiPage() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-bold px-2 py-0.5 rounded-lg" style={{ background: "rgba(0,255,136,0.1)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.2)" }}>{s.kpiCode}</span>
-                        <span className="font-semibold text-white text-sm">{s.title}</span>
+                        <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>{s.title}</span>
                       </div>
                       <p className="text-xs leading-relaxed" style={{ color: "#777" }}>{s.description}</p>
                     </div>
@@ -285,39 +289,42 @@ export default function BottleneckiPage() {
 
       {/* Add form */}
       {isAdmin && showAddForm && (
-        <div className="bg-[#1E293B] border border-indigo-500/30 rounded-2xl p-6">
-          <h2 className="font-bold text-white mb-5">Dodaj bottleneck</h2>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold mb-5" style={{ color: "var(--text-primary)" }}>Dodaj bottleneck</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Kod KPI *</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Kod KPI *</label>
               <input
                 value={newKpiCode}
                 onChange={(e) => setNewKpiCode(e.target.value.toUpperCase())}
                 placeholder="np. SUR, CP, ENGE"
-                className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+                className="w-full rounded-xl px-3 py-2 text-sm"
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Tytuł *</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Tytuł *</label>
               <input
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 placeholder="Krótki opis problemu"
-                className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+                className="w-full rounded-xl px-3 py-2 text-sm"
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
               />
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-xs text-slate-400 mb-1">Opis problemu *</label>
+            <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Opis problemu *</label>
             <textarea
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
               rows={3}
-              className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm resize-none"
+              className="w-full rounded-xl px-3 py-2 text-sm resize-none"
+              style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
             />
           </div>
           <div className="mb-4">
-            <label className="block text-xs text-slate-400 mb-1">Akcje naprawcze (do 3)</label>
+            <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Akcje naprawcze (do 3)</label>
             <div className="space-y-2">
               {newActions.map((action, i) => (
                 <input
@@ -329,7 +336,8 @@ export default function BottleneckiPage() {
                     setNewActions(next);
                   }}
                   placeholder={`Akcja ${i + 1}`}
-                  className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+                  className="w-full rounded-xl px-3 py-2 text-sm"
+                  style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
                 />
               ))}
             </div>
@@ -337,13 +345,15 @@ export default function BottleneckiPage() {
           <div className="flex gap-3">
             <button
               onClick={addBottleneck}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-xl px-5 py-2.5 text-sm"
+              className="font-semibold rounded-xl px-5 py-2.5 text-sm"
+              style={{ background: "var(--neon)", color: "#000" }}
             >
               Dodaj
             </button>
             <button
               onClick={() => setShowAddForm(false)}
-              className="text-slate-400 hover:text-white text-sm px-4 py-2.5"
+              className="text-sm px-4 py-2.5"
+              style={{ color: "var(--text-muted)" }}
             >
               Anuluj
             </button>
@@ -353,12 +363,12 @@ export default function BottleneckiPage() {
 
       {/* Bottleneck cards */}
       {loading ? (
-        <div className="text-center text-slate-400 py-12">Ładowanie...</div>
+        <div className="text-center py-12" style={{ color: "var(--text-muted)" }}>Ładowanie...</div>
       ) : bottlenecks.length === 0 ? (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-12 text-center">
+        <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
           <div className="text-4xl mb-3">✅</div>
-          <div className="text-white font-medium">Brak aktywnych bottlenecków</div>
-          <div className="text-slate-400 text-sm mt-1">Wszystkie KPI są pod kontrolą!</div>
+          <div className="font-medium" style={{ color: "var(--text-primary)" }}>Brak aktywnych bottlenecków</div>
+          <div className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>Wszystkie KPI są pod kontrolą!</div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -372,13 +382,21 @@ export default function BottleneckiPage() {
             return (
               <div
                 key={b.id}
-                className={`bg-[#1E293B] border rounded-2xl overflow-hidden transition-all ${
+                className={`rounded-2xl overflow-hidden transition-all ${
                   b.status === "ACTIVE"
                     ? "border-red-500/30"
                     : b.status === "IN_PROGRESS"
                     ? "border-orange-500/30"
                     : "border-green-500/30"
                 }`}
+                style={{
+                  background: "var(--bg-card)",
+                  border: b.status === "ACTIVE"
+                    ? "1px solid rgba(239,68,68,0.3)"
+                    : b.status === "IN_PROGRESS"
+                    ? "1px solid rgba(249,115,22,0.3)"
+                    : "1px solid rgba(34,197,94,0.3)",
+                }}
               >
                 <div
                   className="flex items-start gap-4 p-5 cursor-pointer"
@@ -389,20 +407,21 @@ export default function BottleneckiPage() {
                   </span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-bold text-slate-400 uppercase">{b.kpiCode}</span>
+                      <span className="text-xs font-bold uppercase" style={{ color: "var(--text-muted)" }}>{b.kpiCode}</span>
                       <span
                         className={`text-xs font-semibold px-2 py-0.5 rounded-lg border ${STATUS_COLORS[b.status]}`}
                       >
                         {STATUS_LABELS[b.status]}
                       </span>
                       {b.isAuto && (
-                        <span className="text-xs text-slate-500">auto</span>
+                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>auto</span>
                       )}
                     </div>
-                    <div className="text-white font-semibold">{b.title}</div>
+                    <div className="font-semibold" style={{ color: "var(--text-primary)" }}>{b.title}</div>
                   </div>
                   <svg
-                    className={`w-5 h-5 text-slate-400 mt-0.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    className={`w-5 h-5 mt-0.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                    style={{ color: "var(--text-muted)" }}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -412,23 +431,23 @@ export default function BottleneckiPage() {
                 </div>
 
                 {isOpen && (
-                  <div className="px-5 pb-5 border-t border-[#334155]">
-                    <p className="text-slate-300 text-sm mt-4 mb-4 leading-relaxed">
+                  <div className="px-5 pb-5" style={{ borderTop: "1px solid var(--border-card)" }}>
+                    <p className="text-sm mt-4 mb-4 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                       {b.description}
                     </p>
 
                     {actions.length > 0 && (
                       <div className="mb-4">
-                        <div className="text-xs text-slate-400 font-semibold uppercase mb-2">
+                        <div className="text-xs font-semibold uppercase mb-2" style={{ color: "var(--text-muted)" }}>
                           Akcje naprawcze:
                         </div>
                         <ol className="space-y-2">
                           {actions.map((action, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm">
-                              <span className="w-5 h-5 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5">
+                              <span className="w-5 h-5 bg-indigo-500/20 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5" style={{ color: "var(--neon)" }}>
                                 {i + 1}
                               </span>
-                              <span className="text-slate-300">{action}</span>
+                              <span style={{ color: "var(--text-secondary)" }}>{action}</span>
                             </li>
                           ))}
                         </ol>
@@ -463,7 +482,7 @@ export default function BottleneckiPage() {
                       )}
                     </div>
 
-                    <div className="mt-3 text-xs text-slate-500">
+                    <div className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
                       Dodany: {new Date(b.createdAt).toLocaleDateString("pl-PL")}
                       {b.resolvedAt && ` · Naprawiony: ${new Date(b.resolvedAt).toLocaleDateString("pl-PL")}`}
                     </div>

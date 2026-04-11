@@ -232,7 +232,7 @@ export default function TygodniowyPage() {
   if (loading && !weeklyForm && targets.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-slate-400">Ładowanie danych...</div>
+        <div style={{ color: "var(--text-muted)" }}>Ładowanie danych...</div>
       </div>
     );
   }
@@ -243,7 +243,7 @@ export default function TygodniowyPage() {
 
       {/* Header with navigation */}
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold text-white flex-1">Dashboard Tygodniowy</h1>
+        <h1 className="text-2xl font-bold flex-1" style={{ color: "var(--text-primary)" }}>Dashboard Tygodniowy</h1>
 
         <div className="flex items-center gap-2">
           <button
@@ -254,7 +254,8 @@ export default function TygodniowyPage() {
               setSelectedWeek(w);
               setSelectedYear(y);
             }}
-            className="p-2 bg-[#1E293B] border border-[#334155] rounded-xl text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-xl transition-colors hover:text-white"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
           >
             ←
           </button>
@@ -266,7 +267,8 @@ export default function TygodniowyPage() {
               setSelectedWeek(w);
               setSelectedYear(y);
             }}
-            className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm max-w-[260px]"
+            className="rounded-xl px-3 py-2 text-sm max-w-[260px]"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
           >
             {weekOptions.map((o) => (
               <option key={`${o.week}-${o.year}`} value={`${o.week}-${o.year}`}>
@@ -285,14 +287,15 @@ export default function TygodniowyPage() {
               setSelectedYear(y);
             }}
             disabled={selectedWeek === todayWeek && selectedYear === todayYear}
-            className="p-2 bg-[#1E293B] border border-[#334155] rounded-xl text-slate-400 hover:text-white disabled:opacity-40 transition-colors"
+            className="p-2 rounded-xl disabled:opacity-40 transition-colors hover:text-white"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
           >
             →
           </button>
         </div>
       </div>
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-sm" style={{ color: "var(--text-muted)" }}>
         {`Tydzień ${selectedWeek} · ${formatDateShort(weekBounds.start)} – ${formatDateShort(weekBounds.end)} ${selectedYear}`}
         {isLocked && (
           <span className="ml-3 text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded-lg">
@@ -332,17 +335,18 @@ export default function TygodniowyPage() {
       </div>
 
       {/* Chart */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-white">Wyniki dzienne w tygodniu</h2>
+          <h2 className="font-bold" style={{ color: "var(--text-primary)" }}>Wyniki dzienne w tygodniu</h2>
           <div className="flex gap-2">
             <button
               onClick={() => setChartMetric("revenue")}
               className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
                 chartMetric === "revenue"
                   ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
-                  : "border-[#334155] text-slate-400 hover:text-white"
+                  : ""
               }`}
+              style={chartMetric !== "revenue" ? { border: "1px solid var(--border-card)", color: "var(--text-muted)" } : undefined}
             >
               Przychód
             </button>
@@ -351,8 +355,9 @@ export default function TygodniowyPage() {
               className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
                 chartMetric === "meetings"
                   ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
-                  : "border-[#334155] text-slate-400 hover:text-white"
+                  : ""
               }`}
+              style={chartMetric !== "meetings" ? { border: "1px solid var(--border-card)", color: "var(--text-muted)" } : undefined}
             >
               Spotkania
             </button>
@@ -360,9 +365,9 @@ export default function TygodniowyPage() {
         </div>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis dataKey="name" stroke="#94A3B8" tick={{ fontSize: 12 }} />
-            <YAxis stroke="#94A3B8" tick={{ fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+            <XAxis dataKey="name" stroke="#627a6d" tick={{ fontSize: 12 }} />
+            <YAxis stroke="#627a6d" tick={{ fontSize: 12 }} />
             <Tooltip
               contentStyle={{ background: "#1E293B", border: "1px solid #334155", borderRadius: "12px" }}
               labelStyle={{ color: "#F1F5F9" }}
@@ -380,8 +385,8 @@ export default function TygodniowyPage() {
 
       {/* Comparison with previous week */}
       {prevWeeklyForm && (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-          <h2 className="font-bold text-white mb-4">
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold mb-4" style={{ color: "var(--text-primary)" }}>
             Porównanie: Tydzień {selectedWeek} vs Tydzień{" "}
             {selectedWeek > 1 ? selectedWeek - 1 : 52}
           </h2>
@@ -408,9 +413,9 @@ export default function TygodniowyPage() {
                   const isPositive = diff >= 0;
                   return (
                     <tr key={row.label}>
-                      <td className="text-slate-300 font-medium">{row.label}</td>
-                      <td className="text-slate-400">{formatNumber(row.prev, 1)}</td>
-                      <td className="text-white">{formatNumber(row.curr, 1)}</td>
+                      <td style={{ color: "var(--text-secondary)" }} className="font-medium">{row.label}</td>
+                      <td style={{ color: "var(--text-muted)" }}>{formatNumber(row.prev, 1)}</td>
+                      <td style={{ color: "var(--text-primary)" }}>{formatNumber(row.curr, 1)}</td>
                       <td>
                         <span className={`text-sm font-semibold ${isPositive ? "text-green-400" : "text-red-400"}`}>
                           {isPositive ? "↑" : "↓"} {Math.abs(diff).toFixed(1)}%
@@ -427,8 +432,8 @@ export default function TygodniowyPage() {
 
       {/* Weekly Form (Lider/Admin) */}
       {(isAdmin || isLider) && (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-          <h2 className="font-bold text-white mb-5">
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold mb-5" style={{ color: "var(--text-primary)" }}>
             Formularz tygodniowy
             {isLocked && (
               <span className="ml-2 text-xs text-yellow-400">(zablokowany)</span>
@@ -436,19 +441,20 @@ export default function TygodniowyPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Liczba leadów w tygodniu</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Liczba leadów w tygodniu</label>
               <input
                 type="number"
                 value={totalLeads}
                 onChange={(e) => setTotalLeads(e.target.value)}
                 disabled={isLocked}
                 min="0"
-                className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm disabled:opacity-50"
+                className="w-full rounded-xl px-3 py-2 text-sm disabled:opacity-50"
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
                 placeholder="0"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Wydatki na reklamy (PLN)</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Wydatki na reklamy (PLN)</label>
               <input
                 type="number"
                 value={adSpend}
@@ -456,13 +462,17 @@ export default function TygodniowyPage() {
                 disabled={isLocked}
                 min="0"
                 step="0.01"
-                className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm disabled:opacity-50"
+                className="w-full rounded-xl px-3 py-2 text-sm disabled:opacity-50"
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
                 placeholder="0.00"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">CPL (auto)</label>
-              <div className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-slate-400 text-sm">
+              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>CPL (auto)</label>
+              <div
+                className="w-full rounded-xl px-3 py-2 text-sm"
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
+              >
                 {totalLeads && adSpend && parseInt(totalLeads) > 0
                   ? formatPLN(parseFloat(adSpend) / parseInt(totalLeads))
                   : "— obliczany automatycznie"}
@@ -470,20 +480,22 @@ export default function TygodniowyPage() {
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-xs text-slate-400 mb-1">Notatka</label>
+            <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Notatka</label>
             <textarea
               value={formNotes}
               onChange={(e) => setFormNotes(e.target.value)}
               disabled={isLocked}
               rows={2}
-              className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm resize-none disabled:opacity-50"
+              className="w-full rounded-xl px-3 py-2 text-sm resize-none disabled:opacity-50"
+              style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
             />
           </div>
           <div className="flex gap-3">
             <button
               onClick={() => handleSave(false)}
               disabled={loading || isLocked}
-              className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm transition-colors"
+              className="hover:bg-indigo-600 disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm transition-colors"
+              style={{ background: "var(--neon)", color: "#000" }}
             >
               Zapisz dane
             </button>

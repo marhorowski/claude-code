@@ -155,32 +155,34 @@ export default function DziennyPage() {
         <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />
       )}
 
-      <h1 className="text-2xl font-bold text-white">
+      <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
         Dashboard Dzienny — {formatDate(new Date())}
       </h1>
 
       {/* Form */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-        <h2 className="text-lg font-bold text-white mb-5">Formularz dzienny</h2>
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+        <h2 className="text-lg font-bold mb-5" style={{ color: "var(--text-primary)" }}>Formularz dzienny</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">Data</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Data</label>
               <input
                 type="date"
                 value={today}
                 readOnly
-                className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+                className="w-full rounded-xl px-3 py-2 text-sm"
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
               />
             </div>
 
             {(isAdmin || isLider) && (
               <div>
-                <label className="block text-xs text-slate-400 mb-1">Wypełnij za użytkownika</label>
+                <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Wypełnij za użytkownika</label>
                 <select
                   value={targetUserId}
                   onChange={(e) => setTargetUserId(e.target.value)}
-                  className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+                  className="w-full rounded-xl px-3 py-2 text-sm"
+                  style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
                 >
                   <option value="">— Moje dane —</option>
                   {users.map((u) => (
@@ -195,7 +197,7 @@ export default function DziennyPage() {
 
           {showCloserForm && (
             <div>
-              <div className="text-sm font-semibold text-indigo-400 mb-3">👥 Closing</div>
+              <div className="text-sm font-semibold mb-3" style={{ color: "var(--neon)" }}>👥 Closing</div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <FormField
                   label="Zaplanowane spotkania"
@@ -228,7 +230,7 @@ export default function DziennyPage() {
 
           {showSetterForm && (
             <div>
-              <div className="text-sm font-semibold text-indigo-400 mb-3">📞 Setting</div>
+              <div className="text-sm font-semibold mb-3" style={{ color: "var(--neon)" }}>📞 Setting</div>
               <div className="grid grid-cols-2 gap-3">
                 <FormField
                   label="Wykonane telefony"
@@ -247,12 +249,13 @@ export default function DziennyPage() {
           )}
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Notatka (opcjonalnie)</label>
+            <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Notatka (opcjonalnie)</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm resize-none"
+              className="w-full rounded-xl px-3 py-2 text-sm resize-none"
+              style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
               placeholder="Opcjonalna notatka..."
             />
           </div>
@@ -260,7 +263,8 @@ export default function DziennyPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-6 py-2.5 text-sm transition-colors"
+            className="hover:bg-indigo-600 disabled:opacity-60 font-semibold rounded-xl px-6 py-2.5 text-sm transition-colors"
+            style={{ background: "var(--neon)", color: "#000" }}
           >
             {loading ? "Zapisywanie..." : "Zapisz dane"}
           </button>
@@ -278,9 +282,9 @@ export default function DziennyPage() {
 
           {/* Closer table */}
           {closerForms.length > 0 && (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#334155]">
-                <h2 className="font-bold text-white">👥 Closerzy — dzisiaj</h2>
+            <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+              <div className="px-6 py-4" style={{ borderBottom: "1px solid var(--border-card)" }}>
+                <h2 className="font-bold" style={{ color: "var(--text-primary)" }}>👥 Closerzy — dzisiaj</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full kpi-table">
@@ -301,28 +305,28 @@ export default function DziennyPage() {
                       const cp = calcCP(f.closings ?? 0, f.attendedMeetings ?? 0);
                       return (
                         <tr key={f.id}>
-                          <td className="text-white font-medium">{f.user.name}</td>
-                          <td className="text-slate-300">{f.plannedMeetings ?? "—"}</td>
-                          <td className="text-slate-300">{f.attendedMeetings ?? "—"}</td>
+                          <td className="font-medium" style={{ color: "var(--text-primary)" }}>{f.user.name}</td>
+                          <td style={{ color: "var(--text-secondary)" }}>{f.plannedMeetings ?? "—"}</td>
+                          <td style={{ color: "var(--text-secondary)" }}>{f.attendedMeetings ?? "—"}</td>
                           <td style={{ color: getStatusColor(getKpiStatus(sur, 90)) }}>
                             {formatPercent(sur)}
                           </td>
-                          <td className="text-slate-300">{f.closings ?? "—"}</td>
+                          <td style={{ color: "var(--text-secondary)" }}>{f.closings ?? "—"}</td>
                           <td style={{ color: getStatusColor(getKpiStatus(cp, 60)) }}>
                             {formatPercent(cp)}
                           </td>
-                          <td className="text-slate-300">{formatPLN(f.revenue ?? 0)}</td>
+                          <td style={{ color: "var(--text-secondary)" }}>{formatPLN(f.revenue ?? 0)}</td>
                         </tr>
                       );
                     })}
                     <tr className="font-bold">
-                      <td className="text-indigo-400">SUMA</td>
-                      <td className="text-white">{totalPlanned}</td>
-                      <td className="text-white">{totalAttended}</td>
+                      <td style={{ color: "var(--neon)" }}>SUMA</td>
+                      <td style={{ color: "var(--text-primary)" }}>{totalPlanned}</td>
+                      <td style={{ color: "var(--text-primary)" }}>{totalAttended}</td>
                       <td style={{ color: surColor }}>{formatPercent(sur)}</td>
-                      <td className="text-white">{totalClosings}</td>
+                      <td style={{ color: "var(--text-primary)" }}>{totalClosings}</td>
                       <td style={{ color: cpColor }}>{formatPercent(cp)}</td>
-                      <td className="text-white">{formatPLN(totalRevenue)}</td>
+                      <td style={{ color: "var(--text-primary)" }}>{formatPLN(totalRevenue)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -332,9 +336,9 @@ export default function DziennyPage() {
 
           {/* Setter table */}
           {setterForms.length > 0 && (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#334155]">
-                <h2 className="font-bold text-white">📞 Setterzy — dzisiaj</h2>
+            <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+              <div className="px-6 py-4" style={{ borderBottom: "1px solid var(--border-card)" }}>
+                <h2 className="font-bold" style={{ color: "var(--text-primary)" }}>📞 Setterzy — dzisiaj</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full kpi-table">
@@ -351,10 +355,10 @@ export default function DziennyPage() {
                       const br = f.callsMade ? ((f.meetingsBooked ?? 0) / f.callsMade) * 100 : 0;
                       return (
                         <tr key={f.id}>
-                          <td className="text-white font-medium">{f.user.name}</td>
-                          <td className="text-slate-300">{f.callsMade ?? "—"}</td>
-                          <td className="text-slate-300">{f.meetingsBooked ?? "—"}</td>
-                          <td className="text-slate-300">{formatPercent(br)}</td>
+                          <td className="font-medium" style={{ color: "var(--text-primary)" }}>{f.user.name}</td>
+                          <td style={{ color: "var(--text-secondary)" }}>{f.callsMade ?? "—"}</td>
+                          <td style={{ color: "var(--text-secondary)" }}>{f.meetingsBooked ?? "—"}</td>
+                          <td style={{ color: "var(--text-secondary)" }}>{formatPercent(br)}</td>
                         </tr>
                       );
                     })}
@@ -384,14 +388,15 @@ function FormField({
 }) {
   return (
     <div>
-      <label className="block text-xs text-slate-400 mb-1">{label}</label>
+      <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         step={step}
         min="0"
-        className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+        className="w-full rounded-xl px-3 py-2 text-sm"
+        style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
         placeholder="0"
       />
     </div>
@@ -408,9 +413,9 @@ function StatCard({
   color?: string;
 }) {
   return (
-    <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4">
-      <div className="text-xs text-slate-400 mb-1">{label}</div>
-      <div className="text-2xl font-bold" style={{ color: color || "#F1F5F9" }}>
+    <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+      <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>{label}</div>
+      <div className="text-2xl font-bold" style={{ color: color || "var(--text-primary)" }}>
         {value}
       </div>
     </div>

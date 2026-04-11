@@ -17,17 +17,23 @@ export function Toast({ message, type = "success", onClose }: ToastProps) {
   return (
     <div className="fixed bottom-4 right-4 z-50 fade-in">
       <div
-        className={`flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg text-sm font-medium ${
-          type === "success"
-            ? "bg-green-500/20 border-green-500/40 text-green-400"
-            : "bg-red-500/20 border-red-500/40 text-red-400"
-        }`}
+        style={{
+          background: type === "success" ? "rgba(0,255,136,0.1)" : "rgba(255,85,85,0.1)",
+          border: `1px solid ${type === "success" ? "var(--neon-border)" : "rgba(255,85,85,0.35)"}`,
+          color: type === "success" ? "var(--neon)" : "var(--red)",
+          padding: "0.75rem 1rem",
+          borderRadius: "0.75rem",
+          fontSize: "0.875rem",
+          fontWeight: 500,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.75rem",
+          boxShadow: `0 4px 20px ${type === "success" ? "rgba(0,255,136,0.15)" : "rgba(255,85,85,0.15)"}`,
+        }}
       >
         <span>{type === "success" ? "✓" : "✕"}</span>
         <span>{message}</span>
-        <button onClick={onClose} className="ml-2 opacity-60 hover:opacity-100">
-          ×
-        </button>
+        <button onClick={onClose} style={{ opacity: 0.6, marginLeft: "0.5rem", cursor: "pointer" }}>×</button>
       </div>
     </div>
   );

@@ -32,15 +32,34 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { email, password, name, role, clientIds } = body;
+  const { email: rawEmail, password: rawPassword, name, role, clientIds, virtual } = body;
+
+  // LIDER restriction applies to all user creation
+  if (session.user.role === "LIDER" && role !== "CLOSER" && role !== "SETTER") {
+    return NextResponse.json({ error: "Lider może dodawać tylko Closerów i Setterów" }, { status: 403 });
+  }
+
+  // Virtual closer: no login credentials needed
+  if (virtual) {
+    if (!name || !role) {
+      return NextResponse.json({ error: "Brak wymaganych pól" }, { status: 400 });
+    }
+    const autoEmail = `virtual.${Date.now()}.${Math.random().toString(36).slice(2, 8)}@team.local`;
+    const hashed = await bcrypt.hash(Math.random().toString(36), 10);
+    const user = await prisma.user.create({ data: { email: autoEmail, password: hashed, name, role } });
+    if (clientIds && clientIds.length > 0) {
+      for (const clientId of clientIds) {
+        await prisma.clientAccess.create({ data: { userId: user.id, clientId } }).catch(() => {});
+      }
+    }
+    return NextResponse.json({ id: user.id, email: user.email, name: user.name, role: user.role });
+  }
+
+  const email = rawEmail;
+  const password = rawPassword;
 
   if (!email || !password || !name || !role) {
     return NextResponse.json({ error: "Brak wymaganych pól" }, { status: 400 });
-  }
-
-  // LIDER can only create CLOSER/SETTER
-  if (session.user.role === "LIDER" && role !== "CLOSER" && role !== "SETTER") {
-    return NextResponse.json({ error: "Lider może dodawać tylko Closerów i Setterów" }, { status: 403 });
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });

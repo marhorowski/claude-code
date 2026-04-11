@@ -201,14 +201,15 @@ export default function MiesięcznyPage() {
 
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold text-white flex-1">Dashboard Miesięczny</h1>
+        <h1 className="text-2xl font-bold flex-1" style={{ color: "var(--text-primary)" }}>Dashboard Miesięczny</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
               if (selectedMonth === 1) { setSelectedMonth(12); setSelectedYear(y => y - 1); }
               else setSelectedMonth(m => m - 1);
             }}
-            className="p-2 bg-[#1E293B] border border-[#334155] rounded-xl text-slate-400 hover:text-white"
+            className="p-2 rounded-xl"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
           >←</button>
 
           <select
@@ -218,7 +219,8 @@ export default function MiesięcznyPage() {
               setSelectedMonth(m);
               setSelectedYear(y);
             }}
-            className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+            className="rounded-xl px-3 py-2 text-sm"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
           >
             {monthOptions.map((o) => (
               <option key={`${o.month}-${o.year}`} value={`${o.month}-${o.year}`}>
@@ -234,16 +236,17 @@ export default function MiesięcznyPage() {
               else setSelectedMonth(m => m + 1);
             }}
             disabled={selectedMonth === now.getMonth() + 1 && selectedYear === now.getFullYear()}
-            className="p-2 bg-[#1E293B] border border-[#334155] rounded-xl text-slate-400 hover:text-white disabled:opacity-40"
+            className="p-2 rounded-xl disabled:opacity-40"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
           >→</button>
         </div>
       </div>
 
-      <div className="text-slate-400 text-sm">{getMonthName(selectedMonth)} {selectedYear}</div>
+      <div className="text-sm" style={{ color: "var(--text-muted)" }}>{getMonthName(selectedMonth)} {selectedYear}</div>
 
       {/* Aggregated from weeks */}
       <div>
-        <h2 className="text-lg font-bold text-white mb-4">Wyniki z tygodni</h2>
+        <h2 className="text-lg font-bold mb-4" style={{ color: "var(--text-primary)" }}>Wyniki z tygodni</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {[
             { label: "Leady", value: totalLeads, code: "LEADS" },
@@ -272,8 +275,8 @@ export default function MiesięcznyPage() {
 
       {/* Weekly chart */}
       {chartData.length > 0 && (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-          <h2 className="font-bold text-white mb-4">Przychód tygodniowy</h2>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold mb-4" style={{ color: "var(--text-primary)" }}>Przychód tygodniowy</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -293,11 +296,12 @@ export default function MiesięcznyPage() {
       {/* Strategic KPIs */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white">KPI strategiczne</h2>
+          <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>KPI strategiczne</h2>
           {isAdmin && (
             <button
               onClick={() => setShowForm(!showForm)}
-              className="bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/30 text-sm font-medium rounded-xl px-4 py-2 transition-colors"
+              className="bg-indigo-500/20 border border-indigo-500/40 hover:bg-indigo-500/30 text-sm font-medium rounded-xl px-4 py-2 transition-colors"
+              style={{ color: "var(--neon)" }}
             >
               {showForm ? "Zamknij" : "Uzupełnij dane strategiczne"}
             </button>
@@ -325,8 +329,8 @@ export default function MiesięcznyPage() {
 
       {/* Strategic form */}
       {isAdmin && showForm && (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-          <h2 className="font-bold text-white mb-5">Dane strategiczne — {getMonthName(selectedMonth)} {selectedYear}</h2>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold mb-5" style={{ color: "var(--text-primary)" }}>Dane strategiczne — {getMonthName(selectedMonth)} {selectedYear}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             {[
               { key: "enge", label: "Engagement Rate IG (%)" },
@@ -340,31 +344,34 @@ export default function MiesięcznyPage() {
               { key: "leadToClose", label: "Lead to Close (%)" },
             ].map(({ key, label }) => (
               <div key={key}>
-                <label className="block text-xs text-slate-400 mb-1">{label}</label>
+                <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>{label}</label>
                 <input
                   type="number"
                   step="0.01"
                   value={(mForm as any)[key] ?? ""}
                   onChange={(e) => setMForm((f) => ({ ...f, [key]: e.target.value ? parseFloat(e.target.value) : null }))}
-                  className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+                  className="w-full rounded-xl px-3 py-2 text-sm"
+                  style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
                   placeholder="0"
                 />
               </div>
             ))}
           </div>
           <div className="mb-4">
-            <label className="block text-xs text-slate-400 mb-1">Notatka</label>
+            <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Notatka</label>
             <textarea
               value={mForm.notes ?? ""}
               onChange={(e) => setMForm((f) => ({ ...f, notes: e.target.value }))}
               rows={2}
-              className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm resize-none"
+              className="w-full rounded-xl px-3 py-2 text-sm resize-none"
+              style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
             />
           </div>
           <button
             onClick={handleSaveMonthly}
             disabled={loading}
-            className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm"
+            className="disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm"
+            style={{ background: "var(--neon)", color: "#000" }}
           >
             Zapisz
           </button>
@@ -373,8 +380,8 @@ export default function MiesięcznyPage() {
 
       {/* Month-to-month comparison */}
       {prevMonthlyForm && (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-          <h2 className="font-bold text-white mb-4">
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold mb-4" style={{ color: "var(--text-primary)" }}>
             Porównanie: {getMonthName(selectedMonth)} vs {getMonthName(prevMonth)}
           </h2>
           <div className="overflow-x-auto">
@@ -402,9 +409,9 @@ export default function MiesięcznyPage() {
                     : null;
                   return (
                     <tr key={row.label}>
-                      <td className="text-slate-300 font-medium">{row.label}</td>
-                      <td className="text-slate-400">{row.prev != null ? formatNumber(row.prev, 2) : "—"}</td>
-                      <td className="text-white">{row.curr != null ? formatNumber(row.curr, 2) : "—"}</td>
+                      <td className="font-medium" style={{ color: "var(--text-secondary)" }}>{row.label}</td>
+                      <td style={{ color: "var(--text-muted)" }}>{row.prev != null ? formatNumber(row.prev, 2) : "—"}</td>
+                      <td style={{ color: "var(--text-primary)" }}>{row.curr != null ? formatNumber(row.curr, 2) : "—"}</td>
                       <td>
                         {diff != null ? (
                           <span className={`text-sm font-semibold ${diff >= 0 ? "text-green-400" : "text-red-400"}`}>

@@ -120,16 +120,20 @@ export default function ZespolSettingPage() {
   return (
     <div className="space-y-6 fade-in">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold text-white flex-1">Zespół — Setting</h1>
+        <h1 className="text-2xl font-bold flex-1" style={{ color: "var(--text-primary)" }}>Zespół — Setting</h1>
 
-        <div className="flex gap-1 bg-[#0F172A] rounded-xl p-1 border border-[#334155]">
+        <div className="flex gap-1 rounded-xl p-1" style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)" }}>
           {(["week", "month", "quarter"] as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                period === p ? "bg-indigo-500 text-white" : "text-slate-400 hover:text-white"
+                period === p ? "" : "hover:text-white"
               }`}
+              style={period === p
+                ? { background: "var(--neon)", color: "#000" }
+                : { color: "var(--text-muted)" }
+              }
             >
               {p === "week" ? "Tydzień" : p === "month" ? "Miesiąc" : "Kwartał"}
             </button>
@@ -144,7 +148,8 @@ export default function ZespolSettingPage() {
               setSelectedWeek(w);
               setSelectedYear(y);
             }}
-            className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+            className="rounded-xl px-3 py-2 text-sm"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
           >
             {weekOptions.map((o) => (
               <option key={`${o.week}-${o.year}`} value={`${o.week}-${o.year}`}>{o.label}</option>
@@ -160,7 +165,8 @@ export default function ZespolSettingPage() {
               setSelectedMonth(m);
               setSelectedYear(y);
             }}
-            className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+            className="rounded-xl px-3 py-2 text-sm"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
           >
             {monthOptions.map((o) => (
               <option key={`${o.m}-${o.y}`} value={`${o.m}-${o.y}`}>{getMonthName(o.m)} {o.y}</option>
@@ -176,7 +182,8 @@ export default function ZespolSettingPage() {
               setSelectedQuarter(q);
               setSelectedYear(y);
             }}
-            className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+            className="rounded-xl px-3 py-2 text-sm"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
           >
             {[1, 2, 3, 4].map((q) => (
               <option key={q} value={`${q}-${selectedYear}`}>Q{q} {selectedYear}</option>
@@ -186,16 +193,16 @@ export default function ZespolSettingPage() {
       </div>
 
       {loading ? (
-        <div className="text-center text-slate-400 py-12">Ładowanie...</div>
+        <div className="text-center py-12" style={{ color: "var(--text-muted)" }}>Ładowanie...</div>
       ) : displayStats.length === 0 ? (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-12 text-center">
-          <div className="text-slate-400">Brak danych za wybrany okres</div>
+        <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <div style={{ color: "var(--text-muted)" }}>Brak danych za wybrany okres</div>
         </div>
       ) : (
         <>
-          <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#334155]">
-              <h2 className="font-bold text-white">Wyniki setterów</h2>
+          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+            <div className="px-6 py-4" style={{ borderBottom: "1px solid var(--border-card)" }}>
+              <h2 className="font-bold" style={{ color: "var(--text-primary)" }}>Wyniki setterów</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full kpi-table">
@@ -210,9 +217,9 @@ export default function ZespolSettingPage() {
                 <tbody>
                   {displayStats.map((s) => (
                     <tr key={s.id}>
-                      <td className="text-white font-medium">{s.name}</td>
-                      <td className="text-slate-300">{s.calls}</td>
-                      <td className="text-slate-300">{s.booked}</td>
+                      <td className="font-medium" style={{ color: "var(--text-primary)" }}>{s.name}</td>
+                      <td style={{ color: "var(--text-secondary)" }}>{s.calls}</td>
+                      <td style={{ color: "var(--text-secondary)" }}>{s.booked}</td>
                       <td style={{ color: getStatusColor(getKpiStatus(s.bookingRate, 20)) }}>
                         {formatPercent(s.bookingRate)}
                       </td>
@@ -224,14 +231,14 @@ export default function ZespolSettingPage() {
           </div>
 
           {!isSetter && displayStats.length > 1 && (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-              <h2 className="font-bold text-white mb-4">Ranking — Booking Rate</h2>
+            <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+              <h2 className="font-bold mb-4" style={{ color: "var(--text-primary)" }}>Ranking — Booking Rate</h2>
               <div className="space-y-3">
                 {displayStats.map((s, i) => (
                   <div key={s.id} className="flex items-center gap-3">
-                    <span className="text-slate-400 text-sm w-5">{i + 1}.</span>
-                    <span className="text-slate-200 text-sm w-32 truncate">{s.name}</span>
-                    <div className="flex-1 h-2 bg-[#334155] rounded-full overflow-hidden">
+                    <span className="text-sm w-5" style={{ color: "var(--text-muted)" }}>{i + 1}.</span>
+                    <span className="text-sm w-32 truncate" style={{ color: "var(--text-secondary)" }}>{s.name}</span>
+                    <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: "var(--border-card)" }}>
                       <div
                         className="h-full rounded-full"
                         style={{
