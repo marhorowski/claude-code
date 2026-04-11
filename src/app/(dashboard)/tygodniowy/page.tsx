@@ -89,7 +89,7 @@ export default function TygodniowyPage() {
   const [targets, setTargets] = useState<KpiTarget[]>([]);
   const [dailyForms, setDailyForms] = useState<DailyForm[]>([]);
   const [monthlyRevGoal, setMonthlyRevGoal] = useState<number | null>(null);
-  const [salesSettings, setSalesSettings] = useState<SalesSettings>({ dealSize: 0, leadToMeetingRate: 0 });
+  const [salesSettings, setSalesSettings] = useState<SalesSettings>({ dealSize: 0, leadToMeetingRate: 0, setterBookingRate: 0, vslConversionRate: 0 });
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
   const [chartMetric, setChartMetric] = useState<"revenue" | "meetings">("revenue");
