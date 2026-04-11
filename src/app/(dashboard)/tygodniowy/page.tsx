@@ -155,11 +155,11 @@ export default function TygodniowyPage() {
   const surTarget = getTarget("SUR")?.target ?? 0;
   const cpTarget = getTarget("CP")?.target ?? 0;
   const dealSize = salesSettings.dealSize;
-  // Combined lead→meeting rate: setter% × vsl% (sequential funnel), or legacy single rate
+  // Combined lead→meeting rate: setter + vsl (two parallel channels), or legacy single rate
   const setterRate = salesSettings.setterBookingRate;
   const vslRate = salesSettings.vslConversionRate;
-  const combinedLtmRate = setterRate > 0 && vslRate > 0
-    ? (setterRate / 100) * (vslRate / 100) * 100  // result in %
+  const combinedLtmRate = setterRate > 0 || vslRate > 0
+    ? setterRate + vslRate
     : salesSettings.leadToMeetingRate;
   const hasGoalBasis = monthlyRevGoal !== null && dealSize > 0;
   const derivedClosings = hasGoalBasis && weeklyRevTarget > 0 ? Math.ceil(weeklyRevTarget / dealSize) : 0;

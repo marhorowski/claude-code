@@ -197,11 +197,11 @@ export default function MiesięcznyPage() {
   const surTarget = getTarget("SUR", "WEEKLY")?.target ?? 0;
   const cpTarget = getTarget("CP", "WEEKLY")?.target ?? 0;
   const dealSize = salesSettings.dealSize;
-  // Combined lead→meeting rate: setter% × vsl% sequential funnel, or legacy single rate
+  // Combined lead→meeting rate: setter + vsl (two parallel channels), or legacy single rate
   const setterRate = salesSettings.setterBookingRate;
   const vslRate = salesSettings.vslConversionRate;
-  const combinedLtmRate = setterRate > 0 && vslRate > 0
-    ? (setterRate / 100) * (vslRate / 100) * 100
+  const combinedLtmRate = setterRate > 0 || vslRate > 0
+    ? setterRate + vslRate
     : salesSettings.leadToMeetingRate;
   const hasGoalBasis = monthlyForm?.targetRevenue != null && dealSize > 0;
   const monthlyClosings = hasGoalBasis && monthRevTarget > 0 ? Math.ceil(monthRevTarget / dealSize) : 0;
