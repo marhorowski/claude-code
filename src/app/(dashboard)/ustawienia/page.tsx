@@ -471,7 +471,7 @@ export default function UstawieniaPage() {
                               className="text-xs px-2.5 py-1 rounded-lg transition-colors flex-shrink-0"
                               style={copiedTokenId === t.id
                                 ? { background: "rgba(0,255,136,0.1)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.3)" }
-                                : { background: "#0F172A", color: "#888", border: "1px solid #334155" }
+                                : { background: "var(--bg-input)", color: "#888", border: "1px solid var(--border-card)" }
                               }
                             >
                               {copiedTokenId === t.id ? "Skopiowano ✓" : "Kopiuj"}
