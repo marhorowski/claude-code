@@ -35,7 +35,6 @@ export async function GET(req: Request) {
       { code: "GP", label: "GP — Gross Profit Margin", target: 65, unit: "%", period: "MONTHLY", lowerIsBetter: false },
       { code: "LTV_CAC", label: "LTV:CAC Ratio", target: 4, unit: ":1", period: "MONTHLY", lowerIsBetter: false },
       { code: "LTV", label: "LTV — Lifetime Value", target: 0, unit: "PLN", period: "QUARTERLY", lowerIsBetter: false },
-      { code: "ALPVC", label: "ALPVC — Avg Lifetime Profit per Client", target: 0, unit: "PLN", period: "QUARTERLY", lowerIsBetter: false },
       { code: "CAC", label: "CAC — Customer Acquisition Cost", target: 0, unit: "PLN", period: "MONTHLY", lowerIsBetter: true },
       { code: "RPE", label: "RPE — Revenue Per Employee", target: 0, unit: "PLN", period: "MONTHLY", lowerIsBetter: false },
       // Sales

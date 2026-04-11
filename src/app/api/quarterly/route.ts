@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { clientId, quarter, year, targetRevenue, ltv, alpvc, notes } = body;
+  const { clientId, quarter, year, targetRevenue, ltv, notes } = body;
 
   if (!clientId || !quarter || !year) {
     return NextResponse.json({ error: "Brak wymaganych pól" }, { status: 400 });
@@ -45,8 +45,8 @@ export async function POST(req: NextRequest) {
 
   const form = await prisma.quarterlyForm.upsert({
     where: { clientId_quarter_year: { clientId, quarter, year } },
-    update: { targetRevenue, ltv, alpvc, notes },
-    create: { clientId, quarter, year, targetRevenue, ltv, alpvc, notes },
+    update: { targetRevenue, ltv, notes },
+    create: { clientId, quarter, year, targetRevenue, ltv, notes },
   });
 
   return NextResponse.json(form);

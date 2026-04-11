@@ -144,7 +144,7 @@ export default function TygodniowyPage() {
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const weekBounds = getWeekBounds(selectedWeek, selectedYear);
-  const getTarget = (code: string) => targets.find(t => t.code === code);
+  const getTarget = (code: string) => targets.find(t => t.code === code && t.period === "WEEKLY");
 
   // Revenue target from monthly goal
   const weeklyRevTarget = monthlyRevGoal

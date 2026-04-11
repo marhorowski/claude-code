@@ -39,7 +39,6 @@ interface QuarterlyForm {
   quarter: number;
   year: number;
   ltv: number | null;
-  alpvc: number | null;
   notes: string | null;
 }
 
@@ -72,7 +71,7 @@ export default function KwartalnyPage() {
   const [targets, setTargets] = useState<KpiTarget[]>([]);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [qForm, setQForm] = useState({ ltv: "", alpvc: "", notes: "" });
+  const [qForm, setQForm] = useState({ ltv: "", notes: "" });
 
   const quarterMonths = getMonthsForQuarter(selectedQuarter);
 
@@ -102,7 +101,6 @@ export default function KwartalnyPage() {
         setBaselineQ1(baseline || null);
         setQForm({
           ltv: String(current?.ltv ?? ""),
-          alpvc: String(current?.alpvc ?? ""),
           notes: current?.notes ?? "",
         });
         setTargets(Array.isArray(kt) ? kt : []);
@@ -164,7 +162,6 @@ export default function KwartalnyPage() {
           quarter: selectedQuarter,
           year: selectedYear,
           ltv: qForm.ltv ? parseFloat(qForm.ltv) : null,
-          alpvc: qForm.alpvc ? parseFloat(qForm.alpvc) : null,
           notes: qForm.notes || null,
         }),
       });
@@ -321,12 +318,6 @@ export default function KwartalnyPage() {
             target={getTarget("LTV", "QUARTERLY")?.target ?? 7990}
             unit="PLN"
           />
-          <KpiCard
-            label="ALPVC"
-            value={quarterlyForm.alpvc ?? 0}
-            target={getTarget("ALPVC", "QUARTERLY")?.target ?? 7271}
-            unit="PLN"
-          />
         </div>
       )}
 
@@ -368,7 +359,6 @@ export default function KwartalnyPage() {
                   { label: "SUR (%)", baseline: 57.7, current: avgSUR },
                   { label: "CP (%)", baseline: 51, current: avgCP },
                   { label: "LTV (PLN)", baseline: baselineQ1.ltv ?? 0, current: quarterlyForm?.ltv ?? 0 },
-                  { label: "ALPVC (PLN)", baseline: baselineQ1.alpvc ?? 0, current: quarterlyForm?.alpvc ?? 0 },
                 ].map((row) => {
                   const diff = row.baseline !== 0 && row.current !== 0
                     ? ((row.current - row.baseline) / Math.abs(row.baseline)) * 100
@@ -409,18 +399,6 @@ export default function KwartalnyPage() {
                 className="w-full rounded-xl px-3 py-2 text-sm"
                 style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
                 placeholder="7990"
-              />
-            </div>
-            <div>
-              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>ALPVC — Avg Lifetime Profit per Client (PLN)</label>
-              <input
-                type="number"
-                step="0.01"
-                value={qForm.alpvc}
-                onChange={(e) => setQForm((f) => ({ ...f, alpvc: e.target.value }))}
-                className="w-full rounded-xl px-3 py-2 text-sm"
-                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
-                placeholder="7271"
               />
             </div>
           </div>
