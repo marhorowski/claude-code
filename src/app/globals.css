@@ -235,12 +235,16 @@ input:focus, textarea:focus, select:focus {
 /* ===================== DASHBOARD ANIMATED BACKGROUND ===================== */
 @keyframes dbPulse {
   0%, 100% { opacity: 1; transform: scale(1) translateY(0); }
-  50% { opacity: 0.7; transform: scale(1.04) translateY(-12px); }
+  50% { opacity: 0.55; transform: scale(1.14) translateY(-22px); }
+}
+@keyframes dbPulse2 {
+  0%, 100% { opacity: 0.85; transform: scale(1) translateY(0); }
+  50% { opacity: 0.4; transform: scale(1.1) translateY(18px); }
 }
 @keyframes dbDrift {
   0%, 100% { transform: translateX(0) translateY(0) rotate(0deg); }
-  33% { transform: translateX(3%) translateY(-2%) rotate(2deg); }
-  66% { transform: translateX(-2%) translateY(3%) rotate(-1deg); }
+  33% { transform: translateX(4%) translateY(-3%) rotate(3deg); }
+  66% { transform: translateX(-3%) translateY(4%) rotate(-2deg); }
 }
 
 [data-theme="dark"] .dash-bg {
@@ -252,24 +256,24 @@ input:focus, textarea:focus, select:focus {
   pointer-events: none;
 }
 [data-theme="dark"] .dash-bg-blob-1 {
-  width: 70vw; height: 70vw;
-  bottom: -20%; right: -10%;
-  background: radial-gradient(ellipse, rgba(0,255,136,0.045) 0%, transparent 65%);
-  animation: dbPulse 12s ease-in-out infinite;
+  width: 80vw; height: 80vw;
+  bottom: -25%; right: -15%;
+  background: radial-gradient(ellipse at 40% 40%, rgba(0,255,136,0.13) 0%, rgba(0,255,136,0.04) 40%, transparent 70%);
+  animation: dbPulse 9s ease-in-out infinite;
 }
 [data-theme="dark"] .dash-bg-blob-2 {
-  width: 50vw; height: 50vw;
-  top: -10%; left: -5%;
-  background: radial-gradient(ellipse, rgba(0,255,136,0.025) 0%, transparent 65%);
-  animation: dbPulse 18s ease-in-out infinite reverse;
-  animation-delay: -5s;
+  width: 60vw; height: 60vw;
+  top: -15%; left: -10%;
+  background: radial-gradient(ellipse at 60% 60%, rgba(0,255,136,0.08) 0%, rgba(0,255,136,0.02) 45%, transparent 70%);
+  animation: dbPulse2 14s ease-in-out infinite;
+  animation-delay: -4s;
 }
 [data-theme="dark"] .dash-bg-blob-3 {
-  width: 40vw; height: 40vw;
-  top: 40%; left: 30%;
-  background: radial-gradient(ellipse, rgba(0,255,136,0.02) 0%, transparent 65%);
-  animation: dbDrift 24s ease-in-out infinite;
-  animation-delay: -8s;
+  width: 45vw; height: 45vw;
+  top: 38%; left: 28%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0,255,136,0.06) 0%, rgba(0,255,136,0.01) 50%, transparent 75%);
+  animation: dbDrift 20s ease-in-out infinite;
+  animation-delay: -7s;
 }
 /* Light theme: subtle warm green blobs */
 [data-theme="light"] .dash-bg {
@@ -281,24 +285,24 @@ input:focus, textarea:focus, select:focus {
   pointer-events: none;
 }
 [data-theme="light"] .dash-bg-blob-1 {
-  width: 60vw; height: 60vw;
+  width: 65vw; height: 65vw;
   bottom: -15%; right: -8%;
-  background: radial-gradient(ellipse, rgba(0,107,52,0.06) 0%, transparent 65%);
-  animation: dbPulse 12s ease-in-out infinite;
+  background: radial-gradient(ellipse at 40% 40%, rgba(0,107,52,0.10) 0%, rgba(0,107,52,0.03) 45%, transparent 70%);
+  animation: dbPulse 9s ease-in-out infinite;
 }
 [data-theme="light"] .dash-bg-blob-2 {
-  width: 45vw; height: 45vw;
-  top: -8%; left: -5%;
-  background: radial-gradient(ellipse, rgba(0,107,52,0.04) 0%, transparent 65%);
-  animation: dbPulse 18s ease-in-out infinite reverse;
-  animation-delay: -5s;
+  width: 50vw; height: 50vw;
+  top: -10%; left: -5%;
+  background: radial-gradient(ellipse at 60% 60%, rgba(0,107,52,0.07) 0%, rgba(0,107,52,0.02) 50%, transparent 70%);
+  animation: dbPulse2 14s ease-in-out infinite;
+  animation-delay: -4s;
 }
 [data-theme="light"] .dash-bg-blob-3 {
-  width: 35vw; height: 35vw;
-  top: 35%; left: 35%;
-  background: radial-gradient(ellipse, rgba(0,107,52,0.03) 0%, transparent 65%);
-  animation: dbDrift 24s ease-in-out infinite;
-  animation-delay: -8s;
+  width: 38vw; height: 38vw;
+  top: 35%; left: 32%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0,107,52,0.05) 0%, transparent 65%);
+  animation: dbDrift 20s ease-in-out infinite;
+  animation-delay: -7s;
 }
 
 /* Number spinners off */

@@ -86,6 +86,7 @@ export default function TygodniowyPage() {
   const [targets, setTargets] = useState<KpiTarget[]>([]);
   const [dailyForms, setDailyForms] = useState<DailyForm[]>([]);
   const [allWeeklyForms, setAllWeeklyForms] = useState<WeeklyForm[]>([]);
+  const [monthlyRevGoal, setMonthlyRevGoal] = useState<number | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -109,20 +110,26 @@ export default function TygodniowyPage() {
 
     const { start: weekStart, end: weekEnd } = getWeekBounds(selectedWeek, selectedYear);
 
+    const weekMonth = weekStart.getMonth() + 1;
+    const weekMonthYear = weekStart.getFullYear();
+
     Promise.all([
       fetch(`/api/weekly?clientId=${selectedClientId}&week=${selectedWeek}&year=${selectedYear}`).then((r) => r.json()),
       fetch(`/api/weekly?clientId=${selectedClientId}&week=${prevWeek}&year=${prevYear}`).then((r) => r.json()),
       fetch(`/api/kpi-targets?clientId=${selectedClientId}&period=WEEKLY`).then((r) => r.json()),
       fetch(`/api/daily?clientId=${selectedClientId}`).then((r) => r.json()),
       fetch(`/api/weekly?clientId=${selectedClientId}`).then((r) => r.json()),
+      fetch(`/api/monthly?clientId=${selectedClientId}&month=${weekMonth}&year=${weekMonthYear}`).then((r) => r.json()),
     ])
-      .then(([wf, pwf, kt, df, allWf]) => {
+      .then(([wf, pwf, kt, df, allWf, mf]) => {
         const current = Array.isArray(wf) ? wf[0] : null;
         const prev = Array.isArray(pwf) ? pwf[0] : null;
         setWeeklyForm(current || null);
         setPrevWeeklyForm(prev || null);
         setTargets(kt);
         setAllWeeklyForms(Array.isArray(allWf) ? allWf : []);
+        const monthGoal = Array.isArray(mf) ? mf[0] : null;
+        setMonthlyRevGoal(monthGoal?.targetRevenue ?? null);
 
         // Filter daily forms for selected week
         const weekDailyForms = (Array.isArray(df) ? df : []).filter((f: DailyForm) => {
@@ -152,6 +159,9 @@ export default function TygodniowyPage() {
   const weekBounds = getWeekBounds(selectedWeek, selectedYear);
 
   const getTarget = (code: string) => targets.find((t) => t.code === code);
+  const weeklyRevTarget = monthlyRevGoal
+    ? Math.round(monthlyRevGoal / 4.33)
+    : (targets.find((t) => t.code === "REVENUE")?.target ?? 0);
 
   // Computed KPIs
   const planned = weeklyForm?.totalPlannedMeetings ?? 0;
@@ -319,12 +329,13 @@ export default function TygodniowyPage() {
         ].map((item) => {
           const t = getTarget(item.code);
           if (!t) return null;
+          const target = item.code === "REVENUE" ? weeklyRevTarget : t.target;
           return (
             <KpiCard
               key={item.code}
               label={t.label || item.code}
               value={item.value}
-              target={t.target}
+              target={target}
               unit={t.unit}
               lowerIsBetter={t.lowerIsBetter}
               previousValue={item.prev}

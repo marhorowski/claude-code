@@ -45,6 +45,7 @@ interface WeeklyForm {
 interface MonthlyForm {
   month: number;
   year: number;
+  targetRevenue: number | null;
   enge: number | null;
   mer: number | null;
   roas: number | null;
@@ -140,7 +141,7 @@ export default function MiesięcznyPage() {
   const monthlyCPL = totalLeads > 0 && totalAdSpend > 0 ? totalAdSpend / totalLeads : 0;
 
   const weeklyRevTarget = getTarget("REVENUE", "WEEKLY")?.target ?? 0;
-  const monthRevTarget = weeklyRevTarget * 4;
+  const monthRevTarget = monthlyForm?.targetRevenue ?? (weeklyRevTarget * 4);
 
   // Week chart data
   const chartData = weeklyForms.map((w, i) => ({
@@ -258,12 +259,13 @@ export default function MiesięcznyPage() {
           ].map((item) => {
             const t = getTarget(item.code, "WEEKLY");
             if (!t) return null;
+            const target = item.code === "REVENUE" ? monthRevTarget : t.target;
             return (
               <KpiCard
                 key={item.code}
                 label={item.label}
                 value={item.value}
-                target={t.target}
+                target={target}
                 unit={t.unit}
                 lowerIsBetter={t.lowerIsBetter}
                 compact

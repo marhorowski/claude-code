@@ -18,6 +18,8 @@ const DEFAULT_KPI_TARGETS = [
   { code: "CALLS_RECEIVED_D", label: "Odebrane telefony", target: 10, unit: "szt", period: "DAILY", lowerIsBetter: false, visible: true },
   { code: "SETTING_BOOKED_D", label: "Setting — umówione spotkania", target: 5, unit: "szt", period: "DAILY", lowerIsBetter: false, visible: true },
   { code: "SETTING_FOLLOWUPS_D", label: "Follow-upy z telefonów", target: 3, unit: "szt", period: "DAILY", lowerIsBetter: false, visible: true },
+  { code: "PICKUP_RATE", label: "Odbieoralność", target: 70, unit: "%", period: "DAILY", lowerIsBetter: false, visible: true },
+  { code: "BOOKING_RATE_S", label: "Booking Rate (Setting)", target: 15, unit: "%", period: "DAILY", lowerIsBetter: false, visible: true },
   { code: "AD_SPEND_D", label: "Ad Spend", target: 200, unit: "PLN", period: "DAILY", lowerIsBetter: false, visible: true },
   { code: "CLICKS_D", label: "Kliknięcia", target: 100, unit: "szt", period: "DAILY", lowerIsBetter: false, visible: true },
   { code: "LEADS_D", label: "Leady", target: 5, unit: "szt", period: "DAILY", lowerIsBetter: false, visible: true },
