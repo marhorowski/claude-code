@@ -44,7 +44,7 @@ function isSameDay(a: Date, b: Date) {
 function toDateInput(d: Date) { return d.toISOString().split("T")[0]; }
 
 const INP = "w-full text-sm px-3 py-2 rounded-lg input-dark";
-const LBL = "block text-xs mb-1" + " " + "text-[#555]";
+const LBL = "lbl";
 
 export default function DanePage() {
   const { selectedClientId } = useClient();
@@ -74,7 +74,7 @@ export default function DanePage() {
 
   const [sPersonId, setSPersonId] = useState("");
   const [sDate, setSDate] = useState(toDateInput(now));
-  const [sForm, setSForm] = useState({ callsMade: "", meetingsBooked: "", notes: "" });
+  const [sForm, setSForm] = useState({ callsMade: "", meetingsBooked: "", callsReceived: "", followUpCount: "", notes: "" });
 
   const [mktDate, setMktDate] = useState(toDateInput(now));
   const [mktForm, setMktForm] = useState({ vslMeetingsBooked: "", dailyLeads: "", dailyAdSpend: "", dailyClicks: "", dailyImpressions: "", dailyCtr: "" });
@@ -132,10 +132,10 @@ export default function DanePage() {
 
   // Auto-fill setting form
   useEffect(() => {
-    if (!sPersonId || !sDate) { setSForm({ callsMade: "", meetingsBooked: "", notes: "" }); return; }
+    if (!sPersonId || !sDate) { setSForm({ callsMade: "", meetingsBooked: "", callsReceived: "", followUpCount: "", notes: "" }); return; }
     const ex = daily.find(f => f.userId === sPersonId && isSameDay(new Date(f.date), new Date(sDate)));
-    if (ex) setSForm({ callsMade: ex.callsMade?.toString() ?? "", meetingsBooked: ex.meetingsBooked?.toString() ?? "", notes: ex.notes ?? "" });
-    else setSForm({ callsMade: "", meetingsBooked: "", notes: "" });
+    if (ex) setSForm({ callsMade: ex.callsMade?.toString() ?? "", meetingsBooked: ex.meetingsBooked?.toString() ?? "", callsReceived: (ex as any).callsReceived?.toString() ?? "", followUpCount: (ex as any).followUpCount?.toString() ?? "", notes: ex.notes ?? "" });
+    else setSForm({ callsMade: "", meetingsBooked: "", callsReceived: "", followUpCount: "", notes: "" });
   }, [sPersonId, sDate, daily]);
 
   // Auto-fill marketing form
@@ -199,7 +199,7 @@ export default function DanePage() {
     if (!sPersonId || !sDate || !selectedClientId) return;
     setSaving(true);
     try {
-      await post("/api/daily", { clientId: selectedClientId, targetUserId: sPersonId, date: sDate, callsMade: sForm.callsMade ? +sForm.callsMade : null, meetingsBooked: sForm.meetingsBooked ? +sForm.meetingsBooked : null, notes: sForm.notes || null });
+      await post("/api/daily", { clientId: selectedClientId, targetUserId: sPersonId, date: sDate, callsMade: sForm.callsMade ? +sForm.callsMade : null, meetingsBooked: sForm.meetingsBooked ? +sForm.meetingsBooked : null, callsReceived: sForm.callsReceived ? +sForm.callsReceived : null, followUpCount: sForm.followUpCount ? +sForm.followUpCount : null, notes: sForm.notes || null });
       showMsg("Zapisano!", true); fetchAll();
     } catch (e: any) { showMsg(e.message, false); }
     setSaving(false);
@@ -423,7 +423,9 @@ export default function DanePage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div><label className={LBL}>Wykonane telefony</label><input type="number" min="0" value={sForm.callsMade} onChange={e => setSForm(p => ({ ...p, callsMade: e.target.value }))} className={INP} placeholder="0" /></div>
+                <div><label className={LBL}>Odebrane telefony</label><input type="number" min="0" value={sForm.callsReceived} onChange={e => setSForm(p => ({ ...p, callsReceived: e.target.value }))} className={INP} placeholder="0" /></div>
                 <div><label className={LBL}>Umówione spotkania</label><input type="number" min="0" value={sForm.meetingsBooked} onChange={e => setSForm(p => ({ ...p, meetingsBooked: e.target.value }))} className={INP} placeholder="0" /></div>
+                <div><label className={LBL}>Osoby do follow-up dziś</label><input type="number" min="0" value={sForm.followUpCount} onChange={e => setSForm(p => ({ ...p, followUpCount: e.target.value }))} className={INP} placeholder="0" /></div>
               </div>
               <div><label className={LBL}>Notatki</label><textarea value={sForm.notes} onChange={e => setSForm(p => ({ ...p, notes: e.target.value }))} className={`${INP} h-20 resize-none`} placeholder="Opcjonalne..." /></div>
               <button onClick={saveSetting} disabled={saving || !sPersonId || !sDate} className="btn-neon w-full py-2.5 disabled:opacity-40 disabled:cursor-not-allowed">

@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || (session.user.role !== "ADMIN" && session.user.role !== "LIDER")) {
     return NextResponse.json({ error: "Brak uprawnień" }, { status: 403 });
   }
 
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") {
+  if (!session || (session.user.role !== "ADMIN" && session.user.role !== "LIDER")) {
     return NextResponse.json({ error: "Brak uprawnień" }, { status: 403 });
   }
 
@@ -36,6 +36,11 @@ export async function POST(req: NextRequest) {
 
   if (!email || !password || !name || !role) {
     return NextResponse.json({ error: "Brak wymaganych pól" }, { status: 400 });
+  }
+
+  // LIDER can only create CLOSER/SETTER
+  if (session.user.role === "LIDER" && role !== "CLOSER" && role !== "SETTER") {
+    return NextResponse.json({ error: "Lider może dodawać tylko Closerów i Setterów" }, { status: 403 });
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });

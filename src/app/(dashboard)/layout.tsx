@@ -79,12 +79,19 @@ export default function DashboardLayout({
       }}
     >
       <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
+        {/* Animated background */}
+        <div className="dash-bg" aria-hidden="true">
+          <div className="dash-bg-blob dash-bg-blob-1" />
+          <div className="dash-bg-blob dash-bg-blob-2" />
+          <div className="dash-bg-blob dash-bg-blob-3" />
+        </div>
+
         <Sidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
-        <div className="lg:pl-56 flex flex-col min-h-screen">
+        <div className="lg:pl-56 flex flex-col min-h-screen relative z-10">
           <Header
             onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
             clientName={selectedClient?.name || ""}

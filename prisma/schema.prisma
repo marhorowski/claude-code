@@ -79,6 +79,8 @@ model DailyForm {
   dailyClicks       Int?
   dailyImpressions  Int?
   dailyCtr          Float?
+  callsReceived     Int?
+  followUpCount     Int?
   notes             String?
   createdAt         DateTime @default(now())
 }

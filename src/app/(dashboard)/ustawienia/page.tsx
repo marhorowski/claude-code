@@ -61,8 +61,9 @@ export default function UstawieniaPage() {
   const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isAdmin) { fetchClients(); fetchUsers(); }
-  }, [isAdmin]);
+    if (isAdmin) fetchClients();
+    if (isAdmin || session?.user?.role === "LIDER") fetchUsers();
+  }, [isAdmin, session?.user?.role]);
 
   useEffect(() => { if (kpiClientId) fetchKpiTargets(kpiClientId); }, [kpiClientId]);
   useEffect(() => { setKpiClientId(selectedClientId); setSalesClientId(selectedClientId); setTokenClientId(selectedClientId); }, [selectedClientId]);
@@ -206,8 +207,9 @@ export default function UstawieniaPage() {
     setLoading(false);
   }
 
-  const isAdminOrLider = isAdmin || session?.user?.role === "LIDER";
-  const tabs = isAdmin ? TABS : isAdminOrLider ? ["Tokeny", "Moje konto"] : ["Moje konto"];
+  const isLider = session?.user?.role === "LIDER";
+  const isAdminOrLider = isAdmin || isLider;
+  const tabs = isAdmin ? TABS : isLider ? ["Użytkownicy", "Tokeny", "Moje konto"] : ["Moje konto"];
   const periodOrder = ["WEEKLY", "MONTHLY", "QUARTERLY"];
   const groupedTargets = periodOrder.reduce((acc, p) => { acc[p] = kpiTargets.filter(t => t.period === p); return acc; }, {} as Record<string, KpiTarget[]>);
   const periodLabels: Record<string, string> = { WEEKLY: "Tygodniowe", MONTHLY: "Miesięczne", QUARTERLY: "Kwartalne" };
@@ -259,7 +261,7 @@ export default function UstawieniaPage() {
       )}
 
       {/* UŻYTKOWNICY */}
-      {activeTab === "Użytkownicy" && isAdmin && (
+      {activeTab === "Użytkownicy" && isAdminOrLider && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-white">Użytkownicy</h2>
@@ -276,8 +278,8 @@ export default function UstawieniaPage() {
                   <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value }))} className={INP}>
                     <option value="CLOSER">Closer</option>
                     <option value="SETTER">Setter</option>
-                    <option value="LIDER">Lider Sprzedaży</option>
-                    <option value="ADMIN">Admin</option>
+                    {isAdmin && <option value="LIDER">Lider Sprzedaży</option>}
+                    {isAdmin && <option value="ADMIN">Admin</option>}
                   </select>
                 </div>
               </div>

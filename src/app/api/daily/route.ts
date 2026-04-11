@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getISOWeek, getWeekBounds } from "@/lib/calculations";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -60,6 +61,8 @@ export async function POST(req: NextRequest) {
     dailyClicks,
     dailyImpressions,
     dailyCtr,
+    callsReceived,
+    followUpCount,
     notes,
     targetUserId,
   } = body;
@@ -99,6 +102,8 @@ export async function POST(req: NextRequest) {
     dailyClicks: dailyClicks ?? null,
     dailyImpressions: dailyImpressions ?? null,
     dailyCtr: dailyCtr ?? null,
+    callsReceived: callsReceived ?? null,
+    followUpCount: followUpCount ?? null,
     notes: notes ?? null,
   };
 
@@ -107,6 +112,60 @@ export async function POST(req: NextRequest) {
     form = await prisma.dailyForm.update({ where: { id: existing.id }, data });
   } else {
     form = await prisma.dailyForm.create({ data });
+  }
+
+  // Auto-aggregate into WeeklyForm so dashboards stay up to date
+  try {
+    const { week: weekNumber, year } = getISOWeek(parsedDate);
+    const { start: wStart, end: wEnd } = getWeekBounds(weekNumber, year);
+
+    const dailyForms = await prisma.dailyForm.findMany({
+      where: { clientId, date: { gte: wStart, lte: wEnd } },
+    });
+
+    const totalCallsMade = dailyForms.reduce((s, f) => s + (f.callsMade ?? 0), 0);
+    const totalMeetingsBooked = dailyForms.reduce((s, f) => s + (f.meetingsBooked ?? 0), 0);
+    const totalPlannedMeetings = dailyForms.reduce((s, f) => s + (f.plannedMeetings ?? 0), 0);
+    const totalAttended = dailyForms.reduce((s, f) => s + (f.attendedMeetings ?? 0), 0);
+    const totalClosings = dailyForms.reduce((s, f) => s + (f.closings ?? 0), 0);
+    const totalRevenue = dailyForms.reduce((s, f) => s + (f.revenue ?? 0), 0);
+    const totalLeads = dailyForms.reduce((s, f) => s + (f.dailyLeads ?? 0), 0);
+    const adSpend = dailyForms.reduce((s, f) => s + (f.dailyAdSpend ?? 0), 0);
+
+    const existingWeekly = await prisma.weeklyForm.findUnique({
+      where: { clientId_weekNumber_year: { clientId, weekNumber, year } },
+    });
+
+    if (existingWeekly?.lockedAt) {
+      // Don't overwrite locked weeks
+    } else {
+      const weeklyData = {
+        clientId,
+        weekNumber,
+        year,
+        weekStart: wStart,
+        weekEnd: wEnd,
+        totalLeads: existingWeekly?.totalLeads ?? totalLeads,
+        totalCallsMade,
+        totalMeetingsBooked,
+        totalPlannedMeetings,
+        totalAttended,
+        totalClosings,
+        totalRevenue,
+        adSpend: adSpend > 0 ? adSpend : existingWeekly?.adSpend ?? null,
+        cpl: (adSpend > 0 && totalLeads > 0) ? adSpend / totalLeads : existingWeekly?.cpl ?? null,
+        notes: existingWeekly?.notes ?? null,
+        lockedAt: null,
+      };
+
+      if (existingWeekly) {
+        await prisma.weeklyForm.update({ where: { id: existingWeekly.id }, data: weeklyData });
+      } else {
+        await prisma.weeklyForm.create({ data: weeklyData });
+      }
+    }
+  } catch {
+    // Weekly aggregation failure is non-fatal
   }
 
   return NextResponse.json(form);
