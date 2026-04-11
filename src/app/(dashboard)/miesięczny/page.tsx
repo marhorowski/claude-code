@@ -19,6 +19,7 @@ import {
 } from "@/lib/utils";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { Toast } from "@/components/ui/Toast";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -68,6 +69,11 @@ interface KpiTarget {
   lowerIsBetter: boolean;
 }
 
+interface SalesSettings {
+  dealSize: number;
+  leadToMeetingRate: number;
+}
+
 export default function MiesięcznyPage() {
   const { selectedClientId } = useClient();
   const { data: session } = useSession();
@@ -81,11 +87,14 @@ export default function MiesięcznyPage() {
   const [monthlyForm, setMonthlyForm] = useState<MonthlyForm | null>(null);
   const [prevMonthlyForm, setPrevMonthlyForm] = useState<MonthlyForm | null>(null);
   const [targets, setTargets] = useState<KpiTarget[]>([]);
+  const [salesSettings, setSalesSettings] = useState<SalesSettings>({ dealSize: 0, leadToMeetingRate: 0 });
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const prevMonth = selectedMonth === 1 ? 12 : selectedMonth - 1;
   const prevYear = selectedMonth === 1 ? selectedYear - 1 : selectedYear;
+
+  const isAdminOrLider = role === "ADMIN" || role === "LIDER";
 
   const fetchData = useCallback(() => {
     if (!selectedClientId) return;
@@ -96,8 +105,9 @@ export default function MiesięcznyPage() {
       fetch(`/api/monthly?clientId=${selectedClientId}&month=${selectedMonth}&year=${selectedYear}`).then((r) => r.json()),
       fetch(`/api/monthly?clientId=${selectedClientId}&month=${prevMonth}&year=${prevYear}`).then((r) => r.json()),
       fetch(`/api/kpi-targets?clientId=${selectedClientId}`).then((r) => r.json()),
+      fetch(`/api/sales-settings?clientId=${selectedClientId}`).then((r) => r.json()),
     ])
-      .then(([wf, mf, pmf, kt]) => {
+      .then(([wf, mf, pmf, kt, ss]) => {
         // Filter weekly forms for selected month
         const monthWeeks = (Array.isArray(wf) ? wf : []).filter((w: WeeklyForm) => {
           const d = new Date(w.weekStart);
@@ -110,6 +120,10 @@ export default function MiesięcznyPage() {
         setMonthlyForm(current || null);
         setPrevMonthlyForm(prev || null);
         setTargets(Array.isArray(kt) ? kt : []);
+        setSalesSettings({
+          dealSize: ss?.dealSize ?? 0,
+          leadToMeetingRate: ss?.leadToMeetingRate ?? 0,
+        });
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -140,6 +154,17 @@ export default function MiesięcznyPage() {
 
   const weeklyRevTarget = getTarget("REVENUE", "WEEKLY")?.target ?? 0;
   const monthRevTarget = monthlyForm?.targetRevenue ?? (weeklyRevTarget * 4);
+
+  // Derived monthly targets from goal cascade
+  const surTarget = getTarget("SUR", "WEEKLY")?.target ?? 0;
+  const cpTarget = getTarget("CP", "WEEKLY")?.target ?? 0;
+  const dealSize = salesSettings.dealSize;
+  const ltmRate = salesSettings.leadToMeetingRate;
+  const hasGoalBasis = monthlyForm?.targetRevenue != null && dealSize > 0;
+  const monthlyClosings = hasGoalBasis && monthRevTarget > 0 ? Math.ceil(monthRevTarget / dealSize) : 0;
+  const monthlyAttended = monthlyClosings > 0 && cpTarget > 0 ? Math.ceil(monthlyClosings / (cpTarget / 100)) : 0;
+  const monthlyBooked = monthlyAttended > 0 && surTarget > 0 ? Math.ceil(monthlyAttended / (surTarget / 100)) : 0;
+  const monthlyLeads = monthlyBooked > 0 && ltmRate > 0 ? Math.ceil(monthlyBooked / (ltmRate / 100)) : 0;
 
   // Week chart data
   const chartData = weeklyForms.map((w, i) => ({
@@ -218,21 +243,35 @@ export default function MiesięcznyPage() {
 
       <div className="text-sm" style={{ color: "var(--text-muted)" }}>{getMonthName(selectedMonth)} {selectedYear}</div>
 
+      {/* Alert banners */}
+      {isAdminOrLider && monthlyForm?.targetRevenue == null && (
+        <div className="rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2"
+          style={{ background: "rgba(255,153,34,0.12)", border: "1px solid rgba(255,153,34,0.35)", color: "#ff9922" }}>
+          ⚠ Brak celu miesięcznego — <Link href="/cele" className="underline">Ustaw w Cele →</Link>
+        </div>
+      )}
+      {isAdminOrLider && monthlyForm?.targetRevenue != null && dealSize === 0 && (
+        <div className="rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2"
+          style={{ background: "rgba(255,153,34,0.12)", border: "1px solid rgba(255,153,34,0.35)", color: "#ff9922" }}>
+          ⚠ Brak Deal Size — cele sprzedażowe nie mogą być obliczone. <Link href="/ustawienia" className="underline">Ustaw w Ustawieniach →</Link>
+        </div>
+      )}
+
       {/* Aggregated from weeks */}
       <div>
         <h2 className="text-lg font-bold mb-4" style={{ color: "var(--text-primary)" }}>Wyniki z tygodni</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {[
-            { label: "Leady", value: totalLeads, code: "LEADS" },
-            { label: "Odbyłe spotkania", value: totalAttended, code: "MEETINGS_ATTENDED" },
-            { label: "Zamknięcia", value: totalClosings, code: "CLOSINGS" },
-            { label: "Przychód", value: totalRevenue, code: "REVENUE" },
-            { label: "Show Up Rate", value: avgSUR, code: "SUR" },
-            { label: "Closing %", value: avgCP, code: "CP" },
+            { label: "Leady", value: totalLeads, code: "LEADS", derived: monthlyLeads },
+            { label: "Odbyłe spotkania", value: totalAttended, code: "MEETINGS_ATTENDED", derived: monthlyAttended },
+            { label: "Zamknięcia", value: totalClosings, code: "CLOSINGS", derived: monthlyClosings },
+            { label: "Przychód", value: totalRevenue, code: "REVENUE", derived: monthRevTarget },
+            { label: "Show Up Rate", value: avgSUR, code: "SUR", derived: 0 },
+            { label: "Closing %", value: avgCP, code: "CP", derived: 0 },
           ].map((item) => {
             const t = getTarget(item.code, "WEEKLY");
             if (!t) return null;
-            const target = item.code === "REVENUE" ? monthRevTarget : t.target;
+            const target = item.derived > 0 ? item.derived : t.target;
             return (
               <KpiCard
                 key={item.code}
@@ -254,7 +293,7 @@ export default function MiesięcznyPage() {
           <h2 className="font-bold mb-4" style={{ color: "var(--text-primary)" }}>Przychód tygodniowy</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e3a2f" />
               <XAxis dataKey="name" stroke="#94A3B8" tick={{ fontSize: 12 }} />
               <YAxis stroke="#94A3B8" tick={{ fontSize: 12 }} />
               <Tooltip
@@ -262,7 +301,7 @@ export default function MiesięcznyPage() {
                 labelStyle={{ color: "#F1F5F9" }}
                 formatter={(v: number) => [formatPLN(v), "Przychód"]}
               />
-              <Bar dataKey="revenue" fill="#6366F1" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" fill="#00ff88" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
