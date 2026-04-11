@@ -32,12 +32,12 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Brak dostępu" }, { status: 401 });
 
-  if (session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Tylko Admin może wypełniać dane miesięczne" }, { status: 403 });
+  if (session.user.role !== "ADMIN" && session.user.role !== "LIDER") {
+    return NextResponse.json({ error: "Brak uprawnień" }, { status: 403 });
   }
 
   const body = await req.json();
-  const { clientId, month, year, enge, mer, roas, cac, aov, ltvCac, gp, ar, leadToClose, notes } = body;
+  const { clientId, month, year, targetRevenue, enge, aov, ar, leadToClose, notes } = body;
 
   if (!clientId || !month || !year) {
     return NextResponse.json({ error: "Brak wymaganych pól" }, { status: 400 });
@@ -45,8 +45,8 @@ export async function POST(req: NextRequest) {
 
   const form = await prisma.monthlyForm.upsert({
     where: { clientId_month_year: { clientId, month, year } },
-    update: { enge, mer, roas, cac, aov, ltvCac, gp, ar, leadToClose, notes },
-    create: { clientId, month, year, enge, mer, roas, cac, aov, ltvCac, gp, ar, leadToClose, notes },
+    update: { targetRevenue, enge, aov, ar, leadToClose, notes },
+    create: { clientId, month, year, targetRevenue, enge, aov, ar, leadToClose, notes },
   });
 
   return NextResponse.json(form);

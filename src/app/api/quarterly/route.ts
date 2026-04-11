@@ -32,12 +32,12 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Brak dostępu" }, { status: 401 });
 
-  if (session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Tylko Admin może wypełniać dane kwartalne" }, { status: 403 });
+  if (session.user.role !== "ADMIN" && session.user.role !== "LIDER") {
+    return NextResponse.json({ error: "Brak uprawnień" }, { status: 403 });
   }
 
   const body = await req.json();
-  const { clientId, quarter, year, ltv, alpvc, notes } = body;
+  const { clientId, quarter, year, targetRevenue, ltv, alpvc, notes } = body;
 
   if (!clientId || !quarter || !year) {
     return NextResponse.json({ error: "Brak wymaganych pól" }, { status: 400 });
@@ -45,8 +45,8 @@ export async function POST(req: NextRequest) {
 
   const form = await prisma.quarterlyForm.upsert({
     where: { clientId_quarter_year: { clientId, quarter, year } },
-    update: { ltv, alpvc, notes },
-    create: { clientId, quarter, year, ltv, alpvc, notes },
+    update: { targetRevenue, ltv, alpvc, notes },
+    create: { clientId, quarter, year, targetRevenue, ltv, alpvc, notes },
   });
 
   return NextResponse.json(form);

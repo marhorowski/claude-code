@@ -31,6 +31,7 @@ model Client {
   quarterlyForms QuarterlyForm[]
   accesses       ClientAccess[]
   bottlenecks    Bottleneck[]
+  salesSettings  SalesSettings?
 }
 
 model ClientAccess {
@@ -53,6 +54,7 @@ model KpiTarget {
   unit          String
   period        String
   lowerIsBetter Boolean @default(false)
+  visible       Boolean @default(true)
 }
 
 model DailyForm {
@@ -97,38 +99,46 @@ model WeeklyForm {
 }
 
 model MonthlyForm {
-  id          String   @id @default(cuid())
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  clientId    String
-  month       Int
-  year        Int
-  enge        Float?
-  mer         Float?
-  roas        Float?
-  cac         Float?
-  aov         Float?
-  ltvCac      Float?
-  gp          Float?
-  ar          Float?
-  leadToClose Float?
-  notes       String?
-  createdAt   DateTime @default(now())
+  id            String   @id @default(cuid())
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId      String
+  month         Int
+  year          Int
+  targetRevenue Float?
+  enge          Float?
+  aov           Float?
+  ar            Float?
+  leadToClose   Float?
+  notes         String?
+  createdAt     DateTime @default(now())
 
   @@unique([clientId, month, year])
 }
 
 model QuarterlyForm {
-  id        String   @id @default(cuid())
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  clientId  String
-  quarter   Int
-  year      Int
-  ltv       Float?
-  alpvc     Float?
-  notes     String?
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId      String
+  quarter       Int
+  year          Int
+  targetRevenue Float?
+  ltv           Float?
+  alpvc         Float?
+  notes         String?
+  createdAt     DateTime @default(now())
 
   @@unique([clientId, quarter, year])
+}
+
+model SalesSettings {
+  id                  String @id @default(cuid())
+  client              Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId            String @unique
+  dealSize            Float  @default(0)
+  closerCommissionPct Float  @default(0)
+  setterCommissionPct Float  @default(0)
+  fixedMonthlyCosts   Float  @default(0)
+  leadToMeetingRate   Float  @default(0)
 }
 
 model Bottleneck {

@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// KPI codes that are always visible and cannot be hidden
+export const MANDATORY_KPI_CODES = ["SUR", "CP", "CLOSINGS", "REVENUE", "MEETINGS_ATTENDED", "MEETINGS_BOOKED", "LEADS"];
+
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Brak dostępu" }, { status: 401 });
@@ -35,10 +38,17 @@ export async function PUT(req: NextRequest) {
 
   const updated = [];
   for (const t of targets) {
-    const result = await prisma.kpiTarget.update({
-      where: { id: t.id },
-      data: { target: t.target },
-    });
+    const data: any = {};
+    if (t.target !== undefined) data.target = t.target;
+    if (t.visible !== undefined) {
+      // Mandatory KPIs are always visible
+      const current = await prisma.kpiTarget.findUnique({ where: { id: t.id } });
+      if (!current || !MANDATORY_KPI_CODES.includes(current.code)) {
+        data.visible = t.visible;
+      }
+    }
+    if (Object.keys(data).length === 0) continue;
+    const result = await prisma.kpiTarget.update({ where: { id: t.id }, data });
     updated.push(result);
   }
 

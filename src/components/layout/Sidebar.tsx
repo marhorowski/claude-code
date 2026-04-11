@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: "📊", label: "Dashboard Główny", roles: ["ADMIN", "LIDER", "CLOSER", "SETTER"] },
+  { href: "/dane", icon: "✏️", label: "Wprowadź dane", roles: ["ADMIN", "LIDER"] },
   { href: "/dzienny", icon: "📅", label: "Dzienny", roles: ["ADMIN", "LIDER", "CLOSER", "SETTER"] },
   { href: "/tygodniowy", icon: "📆", label: "Tygodniowy", roles: ["ADMIN", "LIDER", "CLOSER", "SETTER"] },
   { href: "/miesięczny", icon: "🗓️", label: "Miesięczny", roles: ["ADMIN", "LIDER", "CLOSER", "SETTER"] },
