@@ -17,6 +17,7 @@ interface KpiTarget {
 interface SalesSettings {
   dealSize: number; closerCommissionPct: number; setterCommissionPct: number;
   fixedMonthlyCosts: number; leadToMeetingRate: number;
+  setterBookingRate: number; vslConversionRate: number;
 }
 interface FormToken {
   id: string; token: string; label: string; userId: string | null; createdAt: string;
@@ -48,7 +49,7 @@ export default function UstawieniaPage() {
   const [editedTargets, setEditedTargets] = useState<Record<string, { target?: string; visible?: boolean }>>({});
 
   const [salesClientId, setSalesClientId] = useState(selectedClientId);
-  const [salesSettings, setSalesSettings] = useState<SalesSettings>({ dealSize: 0, closerCommissionPct: 0, setterCommissionPct: 0, fixedMonthlyCosts: 0, leadToMeetingRate: 0 });
+  const [salesSettings, setSalesSettings] = useState<SalesSettings>({ dealSize: 0, closerCommissionPct: 0, setterCommissionPct: 0, fixedMonthlyCosts: 0, leadToMeetingRate: 0, setterBookingRate: 0, vslConversionRate: 0 });
 
   const [myName, setMyName] = useState(session?.user?.name || "");
   const [myPassword, setMyPassword] = useState("");
@@ -395,7 +396,9 @@ export default function UstawieniaPage() {
               { key: "closerCommissionPct", label: "Prowizja closera (%)", help: "Procent od wartości sprzedaży", step: "0.1", placeholder: "10" },
               { key: "setterCommissionPct", label: "Prowizja settera (%)", help: "Procent od wartości sprzedaży", step: "0.1", placeholder: "5" },
               { key: "fixedMonthlyCosts", label: "Stałe koszty działu sprzedaży / mies. (PLN)", help: "Pensje, narzędzia, biuro itp. (bez prowizji i ad spend)", step: "100", placeholder: "8000" },
-              { key: "leadToMeetingRate", label: "Konwersja lead → spotkanie (%)", help: "Ile % leadów kończy się umówionym spotkaniem", step: "0.1", placeholder: "5" },
+              { key: "setterBookingRate", label: "Skuteczność settera (%)", help: "Ile % leadów setter umawia na spotkanie", step: "0.1", placeholder: "15" },
+              { key: "vslConversionRate", label: "Skuteczność VSL (%)", help: "Ile % leadów przechodzi przez VSL i się kwalifikuje do settera", step: "0.1", placeholder: "30" },
+              { key: "leadToMeetingRate", label: "Lead → spotkanie legacy (%) — używany gdy brak VSL/setter", help: "Używany tylko gdy powyższe pola = 0", step: "0.1", placeholder: "5" },
             ].map(f => (
               <div key={f.key}>
                 <label className={LBL} style={{ color: "var(--text-muted)" }}>{f.label}</label>

@@ -151,6 +151,8 @@ model SalesSettings {
   setterCommissionPct Float  @default(0)
   fixedMonthlyCosts   Float  @default(0)
   leadToMeetingRate   Float  @default(0)
+  setterBookingRate   Float  @default(0)
+  vslConversionRate   Float  @default(0)
 }
 
 model PublicFormToken {

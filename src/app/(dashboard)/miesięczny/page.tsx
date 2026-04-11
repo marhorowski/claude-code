@@ -72,6 +72,8 @@ interface KpiTarget {
 interface SalesSettings {
   dealSize: number;
   leadToMeetingRate: number;
+  setterBookingRate: number;
+  vslConversionRate: number;
 }
 
 export default function MiesięcznyPage() {
@@ -123,6 +125,8 @@ export default function MiesięcznyPage() {
         setSalesSettings({
           dealSize: ss?.dealSize ?? 0,
           leadToMeetingRate: ss?.leadToMeetingRate ?? 0,
+          setterBookingRate: ss?.setterBookingRate ?? 0,
+          vslConversionRate: ss?.vslConversionRate ?? 0,
         });
       })
       .catch(() => {})
@@ -159,12 +163,19 @@ export default function MiesięcznyPage() {
   const surTarget = getTarget("SUR", "WEEKLY")?.target ?? 0;
   const cpTarget = getTarget("CP", "WEEKLY")?.target ?? 0;
   const dealSize = salesSettings.dealSize;
-  const ltmRate = salesSettings.leadToMeetingRate;
+  // Combined lead→meeting rate: setter% × vsl% sequential funnel, or legacy single rate
+  const setterRate = salesSettings.setterBookingRate;
+  const vslRate = salesSettings.vslConversionRate;
+  const combinedLtmRate = setterRate > 0 && vslRate > 0
+    ? (setterRate / 100) * (vslRate / 100) * 100
+    : salesSettings.leadToMeetingRate;
   const hasGoalBasis = monthlyForm?.targetRevenue != null && dealSize > 0;
   const monthlyClosings = hasGoalBasis && monthRevTarget > 0 ? Math.ceil(monthRevTarget / dealSize) : 0;
   const monthlyAttended = monthlyClosings > 0 && cpTarget > 0 ? Math.ceil(monthlyClosings / (cpTarget / 100)) : 0;
   const monthlyBooked = monthlyAttended > 0 && surTarget > 0 ? Math.ceil(monthlyAttended / (surTarget / 100)) : 0;
-  const monthlyLeads = monthlyBooked > 0 && ltmRate > 0 ? Math.ceil(monthlyBooked / (ltmRate / 100)) : 0;
+  const monthlyLeads = monthlyBooked > 0 && combinedLtmRate > 0 ? Math.ceil(monthlyBooked / (combinedLtmRate / 100)) : 0;
+  // Daily leads target
+  const dailyLeadsTarget = monthlyLeads > 0 ? Math.ceil(monthlyLeads / 22) : 0;
 
   // Week chart data
   const chartData = weeklyForms.map((w, i) => ({
@@ -254,6 +265,22 @@ export default function MiesięcznyPage() {
         <div className="rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2"
           style={{ background: "rgba(255,153,34,0.12)", border: "1px solid rgba(255,153,34,0.35)", color: "#ff9922" }}>
           ⚠ Brak Deal Size — cele sprzedażowe nie mogą być obliczone. <Link href="/ustawienia" className="underline">Ustaw w Ustawieniach →</Link>
+        </div>
+      )}
+      {isAdminOrLider && monthlyForm?.targetRevenue != null && dealSize > 0 && combinedLtmRate === 0 && (
+        <div className="rounded-xl px-4 py-3 text-sm font-medium flex items-center gap-2"
+          style={{ background: "rgba(255,153,34,0.12)", border: "1px solid rgba(255,153,34,0.35)", color: "#ff9922" }}>
+          ⚠ Brak skuteczności settera / VSL — cel leadów nie zostanie obliczony. <Link href="/ustawienia" className="underline">Ustaw w Ustawieniach →</Link>
+        </div>
+      )}
+
+      {/* Daily targets info */}
+      {dailyLeadsTarget > 0 && (
+        <div className="rounded-xl px-4 py-3 flex flex-wrap gap-6 text-sm"
+          style={{ background: "var(--neon-dim)", border: "1px solid var(--neon-border)" }}>
+          <span style={{ color: "var(--text-muted)" }}>Cele dzienne (wyliczone z celu miesięcznego):</span>
+          <span style={{ color: "var(--neon)", fontWeight: 600 }}>Leady / dzień: {dailyLeadsTarget}</span>
+          {monthlyBooked > 0 && <span style={{ color: "var(--neon)", fontWeight: 600 }}>Umawianie / dzień: {Math.ceil(monthlyBooked / 22)}</span>}
         </div>
       )}
 

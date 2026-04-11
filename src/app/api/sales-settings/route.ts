@@ -19,6 +19,8 @@ export async function GET(req: NextRequest) {
     setterCommissionPct: 0,
     fixedMonthlyCosts: 0,
     leadToMeetingRate: 0,
+    setterBookingRate: 0,
+    vslConversionRate: 0,
   });
 }
 
@@ -29,13 +31,16 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { clientId, dealSize, closerCommissionPct, setterCommissionPct, fixedMonthlyCosts, leadToMeetingRate } = body;
+  const {
+    clientId, dealSize, closerCommissionPct, setterCommissionPct,
+    fixedMonthlyCosts, leadToMeetingRate, setterBookingRate, vslConversionRate,
+  } = body;
   if (!clientId) return NextResponse.json({ error: "Brak clientId" }, { status: 400 });
 
   const settings = await prisma.salesSettings.upsert({
     where: { clientId },
-    update: { dealSize, closerCommissionPct, setterCommissionPct, fixedMonthlyCosts, leadToMeetingRate },
-    create: { clientId, dealSize, closerCommissionPct, setterCommissionPct, fixedMonthlyCosts, leadToMeetingRate },
+    update: { dealSize, closerCommissionPct, setterCommissionPct, fixedMonthlyCosts, leadToMeetingRate, setterBookingRate, vslConversionRate },
+    create: { clientId, dealSize, closerCommissionPct, setterCommissionPct, fixedMonthlyCosts, leadToMeetingRate, setterBookingRate, vslConversionRate },
   });
 
   return NextResponse.json(settings);

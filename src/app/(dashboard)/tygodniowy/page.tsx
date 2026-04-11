@@ -68,6 +68,8 @@ interface DailyForm {
 interface SalesSettings {
   dealSize: number;
   leadToMeetingRate: number;
+  setterBookingRate: number;
+  vslConversionRate: number;
 }
 
 export default function TygodniowyPage() {
@@ -121,7 +123,12 @@ export default function TygodniowyPage() {
         setMonthlyRevGoal(monthGoal?.targetRevenue ?? null);
 
         if (ss && !ss.error) {
-          setSalesSettings({ dealSize: ss.dealSize ?? 0, leadToMeetingRate: ss.leadToMeetingRate ?? 0 });
+          setSalesSettings({
+            dealSize: ss.dealSize ?? 0,
+            leadToMeetingRate: ss.leadToMeetingRate ?? 0,
+            setterBookingRate: ss.setterBookingRate ?? 0,
+            vslConversionRate: ss.vslConversionRate ?? 0,
+          });
         }
 
         const weekDailyForms = (Array.isArray(df) ? df : []).filter((f: DailyForm) => {
@@ -148,12 +155,19 @@ export default function TygodniowyPage() {
   const surTarget = getTarget("SUR")?.target ?? 0;
   const cpTarget = getTarget("CP")?.target ?? 0;
   const dealSize = salesSettings.dealSize;
-  const ltmRate = salesSettings.leadToMeetingRate;
+  // Combined lead→meeting rate: setter% × vsl% (sequential funnel), or legacy single rate
+  const setterRate = salesSettings.setterBookingRate;
+  const vslRate = salesSettings.vslConversionRate;
+  const combinedLtmRate = setterRate > 0 && vslRate > 0
+    ? (setterRate / 100) * (vslRate / 100) * 100  // result in %
+    : salesSettings.leadToMeetingRate;
   const hasGoalBasis = monthlyRevGoal !== null && dealSize > 0;
   const derivedClosings = hasGoalBasis && weeklyRevTarget > 0 ? Math.ceil(weeklyRevTarget / dealSize) : 0;
   const derivedAttended = derivedClosings > 0 && cpTarget > 0 ? Math.ceil(derivedClosings / (cpTarget / 100)) : 0;
   const derivedBooked = derivedAttended > 0 && surTarget > 0 ? Math.ceil(derivedAttended / (surTarget / 100)) : 0;
-  const derivedLeads = derivedBooked > 0 && ltmRate > 0 ? Math.ceil(derivedBooked / (ltmRate / 100)) : 0;
+  const derivedLeads = derivedBooked > 0 && combinedLtmRate > 0 ? Math.ceil(derivedBooked / (combinedLtmRate / 100)) : 0;
+  // Daily leads target = weekly / 5 working days
+  const dailyLeadsTarget = derivedLeads > 0 ? Math.ceil(derivedLeads / 5) : 0;
 
   // Actual KPIs
   const booked = weeklyForm?.totalMeetingsBooked ?? 0;
@@ -298,6 +312,17 @@ export default function TygodniowyPage() {
               </Link>
             </div>
           )}
+          {monthlyRevGoal !== null && dealSize > 0 && combinedLtmRate === 0 && (
+            <div
+              className="px-4 py-3 rounded-xl text-sm flex flex-wrap items-center gap-2"
+              style={{ background: "rgba(255,153,34,0.07)", border: "1px solid rgba(255,153,34,0.3)", color: "var(--orange)" }}
+            >
+              ⚠ Brak skuteczności settera / VSL — cel leadów nie zostanie obliczony.
+              <Link href="/ustawienia" style={{ color: "var(--neon)", textDecoration: "underline" }}>
+                Ustaw w Ustawienia →
+              </Link>
+            </div>
+          )}
         </div>
       )}
 
@@ -331,6 +356,16 @@ export default function TygodniowyPage() {
           );
         })}
       </div>
+
+      {/* Daily breakdown */}
+      {dailyLeadsTarget > 0 && (
+        <div className="rounded-xl px-4 py-3 flex flex-wrap gap-6 text-sm"
+          style={{ background: "var(--neon-dim)", border: "1px solid var(--neon-border)" }}>
+          <span style={{ color: "var(--text-muted)" }}>Cele dzienne (wyliczone):</span>
+          <span style={{ color: "var(--neon)", fontWeight: 600 }}>Leady / dzień: {dailyLeadsTarget}</span>
+          {derivedBooked > 0 && <span style={{ color: "var(--neon)", fontWeight: 600 }}>Umawianie / dzień: {Math.ceil(derivedBooked / 5)}</span>}
+        </div>
+      )}
 
       {/* Chart */}
       <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
