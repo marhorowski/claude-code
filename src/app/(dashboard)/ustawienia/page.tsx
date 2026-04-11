@@ -213,18 +213,20 @@ export default function UstawieniaPage() {
   const periodOrder = ["WEEKLY", "MONTHLY", "QUARTERLY"];
   const groupedTargets = periodOrder.reduce((acc, p) => { acc[p] = kpiTargets.filter(t => t.period === p); return acc; }, {} as Record<string, KpiTarget[]>);
   const periodLabels: Record<string, string> = { WEEKLY: "Tygodniowe", MONTHLY: "Miesięczne", QUARTERLY: "Kwartalne" };
-  const INP = "w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm";
-  const LBL = "block text-xs text-slate-400 mb-1";
+  const INP = "w-full rounded-xl px-3 py-2 text-sm";
+  const INP_STYLE = { background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" };
+  const LBL = "block text-xs mb-1";
 
   return (
     <div className="space-y-6 fade-in">
       {toast && <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
-      <h1 className="text-2xl font-bold text-white">Ustawienia</h1>
+      <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Ustawienia</h1>
 
-      <div className="flex gap-1 bg-[#0F172A] rounded-xl p-1 border border-[#334155] overflow-x-auto">
+      <div className="flex gap-1 rounded-xl p-1 overflow-x-auto" style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)" }}>
         {tabs.map(t => (
           <button key={t} onClick={() => setActiveTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${activeTab === t ? "bg-indigo-500 text-white" : "text-slate-400 hover:text-white"}`}>
+            className="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
+            style={activeTab === t ? { background: "var(--neon)", color: "#000" } : { color: "var(--text-muted)" }}>
             {t}
           </button>
         ))}
@@ -234,26 +236,26 @@ export default function UstawieniaPage() {
       {activeTab === "Klienci" && isAdmin && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white">Klienci</h2>
-            <button onClick={() => setShowNewClientForm(!showNewClientForm)} className="bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/30 text-sm font-medium rounded-xl px-4 py-2">+ Dodaj klienta</button>
+            <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>Klienci</h2>
+            <button onClick={() => setShowNewClientForm(!showNewClientForm)} className="bg-indigo-500/20 border border-indigo-500/40 hover:bg-indigo-500/30 text-sm font-medium rounded-xl px-4 py-2" style={{ color: "var(--neon)" }}>+ Dodaj klienta</button>
           </div>
           {showNewClientForm && (
-            <div className="bg-[#1E293B] border border-indigo-500/30 rounded-2xl p-5">
+            <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div><label className={LBL}>Nazwa klienta *</label><input value={newClientName} onChange={e => setNewClientName(e.target.value)} className={INP} placeholder="Nazwa firmy" /></div>
-                <div><label className={LBL}>Strategia</label><input value={newClientStrategy} onChange={e => setNewClientStrategy(e.target.value)} className={INP} placeholder="Paid Lead Gen" /></div>
+                <div><label className={LBL} style={{ color: "var(--text-muted)" }}>Nazwa klienta *</label><input value={newClientName} onChange={e => setNewClientName(e.target.value)} className={INP} style={INP_STYLE} placeholder="Nazwa firmy" /></div>
+                <div><label className={LBL} style={{ color: "var(--text-muted)" }}>Strategia</label><input value={newClientStrategy} onChange={e => setNewClientStrategy(e.target.value)} className={INP} style={INP_STYLE} placeholder="Paid Lead Gen" /></div>
               </div>
               <div className="flex gap-3">
-                <button onClick={addClient} disabled={loading} className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm">Dodaj</button>
-                <button onClick={() => setShowNewClientForm(false)} className="text-slate-400 hover:text-white text-sm px-4 py-2.5">Anuluj</button>
+                <button onClick={addClient} disabled={loading} className="disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm" style={{ background: "var(--neon)", color: "#000" }}>Dodaj</button>
+                <button onClick={() => setShowNewClientForm(false)} className="text-sm px-4 py-2.5" style={{ color: "var(--text-muted)" }}>Anuluj</button>
               </div>
             </div>
           )}
-          <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
-            {allClients.length === 0 ? <div className="p-8 text-center text-slate-400">Brak klientów</div> : (
+          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+            {allClients.length === 0 ? <div className="p-8 text-center" style={{ color: "var(--text-muted)" }}>Brak klientów</div> : (
               <table className="w-full kpi-table">
                 <thead><tr><th>Nazwa</th><th>Strategia</th></tr></thead>
-                <tbody>{allClients.map(c => <tr key={c.id}><td className="text-white font-medium">{c.name}</td><td className="text-slate-400">{c.strategy}</td></tr>)}</tbody>
+                <tbody>{allClients.map(c => <tr key={c.id}><td className="font-medium" style={{ color: "var(--text-primary)" }}>{c.name}</td><td style={{ color: "var(--text-muted)" }}>{c.strategy}</td></tr>)}</tbody>
               </table>
             )}
           </div>
@@ -264,18 +266,18 @@ export default function UstawieniaPage() {
       {activeTab === "Użytkownicy" && isAdminOrLider && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white">Użytkownicy</h2>
-            <button onClick={() => setShowNewUserForm(!showNewUserForm)} className="bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/30 text-sm font-medium rounded-xl px-4 py-2">+ Dodaj użytkownika</button>
+            <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>Użytkownicy</h2>
+            <button onClick={() => setShowNewUserForm(!showNewUserForm)} className="bg-indigo-500/20 border border-indigo-500/40 hover:bg-indigo-500/30 text-sm font-medium rounded-xl px-4 py-2" style={{ color: "var(--neon)" }}>+ Dodaj użytkownika</button>
           </div>
           {showNewUserForm && (
-            <div className="bg-[#1E293B] border border-indigo-500/30 rounded-2xl p-5">
+            <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div><label className={LBL}>Imię i nazwisko *</label><input value={newUser.name} onChange={e => setNewUser(u => ({ ...u, name: e.target.value }))} className={INP} /></div>
-                <div><label className={LBL}>Email *</label><input type="email" value={newUser.email} onChange={e => setNewUser(u => ({ ...u, email: e.target.value }))} className={INP} /></div>
-                <div><label className={LBL}>Hasło tymczasowe *</label><input type="password" value={newUser.password} onChange={e => setNewUser(u => ({ ...u, password: e.target.value }))} className={INP} /></div>
+                <div><label className={LBL} style={{ color: "var(--text-muted)" }}>Imię i nazwisko *</label><input value={newUser.name} onChange={e => setNewUser(u => ({ ...u, name: e.target.value }))} className={INP} style={INP_STYLE} /></div>
+                <div><label className={LBL} style={{ color: "var(--text-muted)" }}>Email *</label><input type="email" value={newUser.email} onChange={e => setNewUser(u => ({ ...u, email: e.target.value }))} className={INP} style={INP_STYLE} /></div>
+                <div><label className={LBL} style={{ color: "var(--text-muted)" }}>Hasło tymczasowe *</label><input type="password" value={newUser.password} onChange={e => setNewUser(u => ({ ...u, password: e.target.value }))} className={INP} style={INP_STYLE} /></div>
                 <div>
-                  <label className={LBL}>Rola *</label>
-                  <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value }))} className={INP}>
+                  <label className={LBL} style={{ color: "var(--text-muted)" }}>Rola *</label>
+                  <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value }))} className={INP} style={INP_STYLE}>
                     <option value="CLOSER">Closer</option>
                     <option value="SETTER">Setter</option>
                     {isAdmin && <option value="LIDER">Lider Sprzedaży</option>}
@@ -284,33 +286,33 @@ export default function UstawieniaPage() {
                 </div>
               </div>
               <div className="mb-4">
-                <label className={LBL}>Przypisz do klientów</label>
+                <label className={LBL} style={{ color: "var(--text-muted)" }}>Przypisz do klientów</label>
                 <div className="flex flex-wrap gap-2">
                   {allClients.map(c => (
                     <label key={c.id} className="flex items-center gap-2 cursor-pointer">
                       <input type="checkbox" checked={newUser.clientIds.includes(c.id)} onChange={e => setNewUser(u => ({ ...u, clientIds: e.target.checked ? [...u.clientIds, c.id] : u.clientIds.filter(id => id !== c.id) }))} className="rounded" />
-                      <span className="text-sm text-slate-300">{c.name}</span>
+                      <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{c.name}</span>
                     </label>
                   ))}
                 </div>
               </div>
               <div className="flex gap-3">
-                <button onClick={addUser} disabled={loading} className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm">Dodaj</button>
-                <button onClick={() => setShowNewUserForm(false)} className="text-slate-400 hover:text-white text-sm px-4 py-2.5">Anuluj</button>
+                <button onClick={addUser} disabled={loading} className="disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm" style={{ background: "var(--neon)", color: "#000" }}>Dodaj</button>
+                <button onClick={() => setShowNewUserForm(false)} className="text-sm px-4 py-2.5" style={{ color: "var(--text-muted)" }}>Anuluj</button>
               </div>
             </div>
           )}
-          <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
-            {users.length === 0 ? <div className="p-8 text-center text-slate-400">Brak użytkowników</div> : (
+          <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+            {users.length === 0 ? <div className="p-8 text-center" style={{ color: "var(--text-muted)" }}>Brak użytkowników</div> : (
               <table className="w-full kpi-table">
                 <thead><tr><th>Imię</th><th>Email</th><th>Rola</th><th>Klienci</th><th></th></tr></thead>
                 <tbody>
                   {users.map(u => (
                     <tr key={u.id}>
-                      <td className="text-white font-medium">{u.name}</td>
-                      <td className="text-slate-400 text-sm">{u.email}</td>
-                      <td><span className="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-lg">{u.role}</span></td>
-                      <td className="text-slate-400 text-sm">{u.clients.map(ca => ca.client.name).join(", ") || "—"}</td>
+                      <td className="font-medium" style={{ color: "var(--text-primary)" }}>{u.name}</td>
+                      <td className="text-sm" style={{ color: "var(--text-muted)" }}>{u.email}</td>
+                      <td><span className="text-xs bg-indigo-500/20 px-2 py-0.5 rounded-lg" style={{ color: "var(--neon)" }}>{u.role}</span></td>
+                      <td className="text-sm" style={{ color: "var(--text-muted)" }}>{u.clients.map(ca => ca.client.name).join(", ") || "—"}</td>
                       <td>{u.id !== session?.user?.id && <button onClick={() => deleteUser(u.id)} className="text-red-400 hover:text-red-300 text-xs">Usuń</button>}</td>
                     </tr>
                   ))}
@@ -325,19 +327,19 @@ export default function UstawieniaPage() {
       {activeTab === "Cele KPI" && isAdmin && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-bold text-white">Cele KPI</h2>
+            <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>Cele KPI</h2>
             <div className="flex items-center gap-3">
-              <select value={kpiClientId} onChange={e => setKpiClientId(e.target.value)} className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm">
+              <select value={kpiClientId} onChange={e => setKpiClientId(e.target.value)} className="rounded-xl px-3 py-2 text-sm" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}>
                 {allClients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-              <button onClick={saveKpiTargets} disabled={loading || Object.keys(editedTargets).length === 0} className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-4 py-2 text-sm">Zapisz zmiany</button>
+              <button onClick={saveKpiTargets} disabled={loading || Object.keys(editedTargets).length === 0} className="disabled:opacity-60 font-semibold rounded-xl px-4 py-2 text-sm" style={{ background: "var(--neon)", color: "#000" }}>Zapisz zmiany</button>
             </div>
           </div>
-          <p className="text-xs text-slate-500">Zaznaczone KPI widoczne na dashboardzie. Szare gwiazdki (*) — zawsze widoczne, nie można ukryć.</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>Zaznaczone KPI widoczne na dashboardzie. Szare gwiazdki (*) — zawsze widoczne, nie można ukryć.</p>
           {Object.entries(groupedTargets).map(([period, targets]) => targets.length > 0 && (
-            <div key={period} className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
-              <div className="px-6 py-3 border-b border-[#334155]">
-                <h3 className="font-semibold text-white">{periodLabels[period]}</h3>
+            <div key={period} className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+              <div className="px-6 py-3" style={{ borderBottom: "1px solid var(--border-card)" }}>
+                <h3 className="font-semibold" style={{ color: "var(--text-primary)" }}>{periodLabels[period]}</h3>
               </div>
               <table className="w-full kpi-table">
                 <thead><tr><th>KPI</th><th>Kod</th><th>Cel</th><th>Jednostka</th><th>Widoczny</th></tr></thead>
@@ -348,18 +350,19 @@ export default function UstawieniaPage() {
                     const currentVisible = edited.visible !== undefined ? edited.visible : t.visible;
                     return (
                       <tr key={t.id}>
-                        <td className="text-white">{t.label}</td>
-                        <td className="text-slate-400 text-xs">{t.code}</td>
+                        <td style={{ color: "var(--text-primary)" }}>{t.label}</td>
+                        <td className="text-xs" style={{ color: "var(--text-muted)" }}>{t.code}</td>
                         <td>
                           <input type="number" step="0.01"
                             value={edited.target !== undefined ? edited.target : t.target}
                             onChange={e => setEditedTargets(p => ({ ...p, [t.id]: { ...p[t.id], target: e.target.value } }))}
-                            className="w-24 bg-[#0F172A] border border-[#334155] rounded-lg px-2 py-1 text-white text-sm" />
+                            className="w-24 rounded-lg px-2 py-1 text-sm"
+                            style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }} />
                         </td>
-                        <td className="text-slate-400">{t.unit}</td>
+                        <td style={{ color: "var(--text-muted)" }}>{t.unit}</td>
                         <td>
                           {isMandatory ? (
-                            <span className="text-xs text-slate-500">* zawsze</span>
+                            <span className="text-xs" style={{ color: "var(--text-muted)" }}>* zawsze</span>
                           ) : (
                             <input type="checkbox" checked={currentVisible}
                               onChange={e => setEditedTargets(p => ({ ...p, [t.id]: { ...p[t.id], visible: e.target.checked } }))}
@@ -380,13 +383,13 @@ export default function UstawieniaPage() {
       {activeTab === "Sprzedaż" && isAdmin && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-bold text-white">Ustawienia sprzedaży</h2>
-            <select value={salesClientId} onChange={e => setSalesClientId(e.target.value)} className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm">
+            <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>Ustawienia sprzedaży</h2>
+            <select value={salesClientId} onChange={e => setSalesClientId(e.target.value)} className="rounded-xl px-3 py-2 text-sm" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}>
               {allClients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
-          <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-5 max-w-xl">
-            <p className="text-xs text-slate-400">Te ustawienia są używane do obliczania kaskady celów i szacowanego CAC.</p>
+          <div className="rounded-2xl p-6 space-y-5 max-w-xl" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Te ustawienia są używane do obliczania kaskady celów i szacowanego CAC.</p>
             {[
               { key: "dealSize", label: "Deal size (PLN)", help: "Średnia wartość jednej sprzedaży", step: "100", placeholder: "10000" },
               { key: "closerCommissionPct", label: "Prowizja closera (%)", help: "Procent od wartości sprzedaży", step: "0.1", placeholder: "10" },
@@ -395,15 +398,15 @@ export default function UstawieniaPage() {
               { key: "leadToMeetingRate", label: "Konwersja lead → spotkanie (%)", help: "Ile % leadów kończy się umówionym spotkaniem", step: "0.1", placeholder: "5" },
             ].map(f => (
               <div key={f.key}>
-                <label className={LBL}>{f.label}</label>
+                <label className={LBL} style={{ color: "var(--text-muted)" }}>{f.label}</label>
                 <input type="number" step={f.step} min="0"
                   value={(salesSettings as any)[f.key]}
                   onChange={e => setSalesSettings(p => ({ ...p, [f.key]: parseFloat(e.target.value) || 0 }))}
-                  className={INP} placeholder={f.placeholder} />
-                <p className="text-xs text-slate-600 mt-1">{f.help}</p>
+                  className={INP} style={INP_STYLE} placeholder={f.placeholder} />
+                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{f.help}</p>
               </div>
             ))}
-            <button onClick={saveSalesSettings} disabled={loading} className="w-full bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm">
+            <button onClick={saveSalesSettings} disabled={loading} className="w-full disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm" style={{ background: "var(--neon)", color: "#000" }}>
               {loading ? "Zapisywanie..." : "Zapisz ustawienia sprzedaży"}
             </button>
           </div>
@@ -414,26 +417,26 @@ export default function UstawieniaPage() {
       {activeTab === "Tokeny" && isAdminOrLider && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-bold text-white">Publiczne linki do formularzy</h2>
+            <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>Publiczne linki do formularzy</h2>
             {allClients.length > 1 && (
-              <select value={tokenClientId} onChange={e => setTokenClientId(e.target.value)} className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm">
+              <select value={tokenClientId} onChange={e => setTokenClientId(e.target.value)} className="rounded-xl px-3 py-2 text-sm" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}>
                 {allClients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             )}
           </div>
-          <p className="text-xs text-slate-500">Linki permanentne — nie wymagają logowania. Closer lub setter może wypełniać formularz przez link. Przypisz link do konkretnego użytkownika.</p>
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>Linki permanentne — nie wymagają logowania. Closer lub setter może wypełniać formularz przez link. Przypisz link do konkretnego użytkownika.</p>
 
           {/* Add new token */}
-          <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-5 space-y-4">
-            <h3 className="font-semibold text-white text-sm">Wygeneruj nowy link</h3>
+          <div className="rounded-2xl p-5 space-y-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+            <h3 className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>Wygeneruj nowy link</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className={LBL}>Etykieta (opis linku)</label>
-                <input value={newTokenLabel} onChange={e => setNewTokenLabel(e.target.value)} className={INP} placeholder="np. Jan Kowalski — Closer" />
+                <label className={LBL} style={{ color: "var(--text-muted)" }}>Etykieta (opis linku)</label>
+                <input value={newTokenLabel} onChange={e => setNewTokenLabel(e.target.value)} className={INP} style={INP_STYLE} placeholder="np. Jan Kowalski — Closer" />
               </div>
               <div>
-                <label className={LBL}>Przypisz do użytkownika *</label>
-                <select value={newTokenUserId} onChange={e => setNewTokenUserId(e.target.value)} className={INP}>
+                <label className={LBL} style={{ color: "var(--text-muted)" }}>Przypisz do użytkownika *</label>
+                <select value={newTokenUserId} onChange={e => setNewTokenUserId(e.target.value)} className={INP} style={INP_STYLE}>
                   <option value="">— wybierz użytkownika —</option>
                   {users.filter(u => u.role === "CLOSER" || u.role === "SETTER" || u.role === "LIDER").map(u => (
                     <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
@@ -441,16 +444,16 @@ export default function UstawieniaPage() {
                 </select>
               </div>
             </div>
-            <button onClick={addToken} disabled={loading || !newTokenUserId} className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm">
+            <button onClick={addToken} disabled={loading || !newTokenUserId} className="disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm" style={{ background: "var(--neon)", color: "#000" }}>
               Wygeneruj link
             </button>
           </div>
 
           {/* Token list */}
           {tokens.length === 0 ? (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-8 text-center text-slate-400 text-sm">Brak wygenerowanych tokenów</div>
+            <div className="rounded-2xl p-8 text-center text-sm" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}>Brak wygenerowanych tokenów</div>
           ) : (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
+            <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
               <table className="w-full kpi-table">
                 <thead><tr><th>Etykieta</th><th>Link</th><th>Użytkownik</th><th>Data</th><th></th></tr></thead>
                 <tbody>
@@ -459,10 +462,10 @@ export default function UstawieniaPage() {
                     const user = users.find(u => u.id === t.userId);
                     return (
                       <tr key={t.id}>
-                        <td className="text-white font-medium">{t.label || "—"}</td>
+                        <td className="font-medium" style={{ color: "var(--text-primary)" }}>{t.label || "—"}</td>
                         <td>
                           <div className="flex items-center gap-2">
-                            <span className="text-slate-500 text-xs truncate max-w-[200px]">/f/{t.token.slice(0, 12)}…</span>
+                            <span className="text-xs truncate max-w-[200px]" style={{ color: "var(--text-muted)" }}>/f/{t.token.slice(0, 12)}…</span>
                             <button
                               onClick={() => copyToken(t.token, t.id)}
                               className="text-xs px-2.5 py-1 rounded-lg transition-colors flex-shrink-0"
@@ -475,8 +478,8 @@ export default function UstawieniaPage() {
                             </button>
                           </div>
                         </td>
-                        <td className="text-slate-400 text-sm">{user ? `${user.name} (${user.role})` : "—"}</td>
-                        <td className="text-slate-500 text-xs">{new Date(t.createdAt).toLocaleDateString("pl-PL")}</td>
+                        <td className="text-sm" style={{ color: "var(--text-muted)" }}>{user ? `${user.name} (${user.role})` : "—"}</td>
+                        <td className="text-xs" style={{ color: "var(--text-muted)" }}>{new Date(t.createdAt).toLocaleDateString("pl-PL")}</td>
                         <td>
                           {isAdmin && (
                             <button onClick={() => deleteToken(t.id)} className="text-red-400 hover:text-red-300 text-xs">Usuń</button>
@@ -494,13 +497,13 @@ export default function UstawieniaPage() {
 
       {/* MOJE KONTO */}
       {activeTab === "Moje konto" && (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 max-w-md">
-          <h2 className="text-lg font-bold text-white mb-5">Moje konto</h2>
+        <div className="rounded-2xl p-6 max-w-md" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="text-lg font-bold mb-5" style={{ color: "var(--text-primary)" }}>Moje konto</h2>
           <div className="space-y-4">
-            <div><label className={LBL}>Imię i nazwisko</label><input value={myName} onChange={e => setMyName(e.target.value)} className={INP} /></div>
-            <div><label className={LBL}>Nowe hasło (zostaw puste aby nie zmieniać)</label><input type="password" value={myPassword} onChange={e => setMyPassword(e.target.value)} className={INP} placeholder="••••••••" /></div>
-            {myPassword && <div><label className={LBL}>Potwierdź hasło</label><input type="password" value={myPasswordConfirm} onChange={e => setMyPasswordConfirm(e.target.value)} className={INP} placeholder="••••••••" /></div>}
-            <button onClick={saveMyAccount} disabled={loading} className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm">Zapisz</button>
+            <div><label className={LBL} style={{ color: "var(--text-muted)" }}>Imię i nazwisko</label><input value={myName} onChange={e => setMyName(e.target.value)} className={INP} style={INP_STYLE} /></div>
+            <div><label className={LBL} style={{ color: "var(--text-muted)" }}>Nowe hasło (zostaw puste aby nie zmieniać)</label><input type="password" value={myPassword} onChange={e => setMyPassword(e.target.value)} className={INP} style={INP_STYLE} placeholder="••••••••" /></div>
+            {myPassword && <div><label className={LBL} style={{ color: "var(--text-muted)" }}>Potwierdź hasło</label><input type="password" value={myPasswordConfirm} onChange={e => setMyPasswordConfirm(e.target.value)} className={INP} style={INP_STYLE} placeholder="••••••••" /></div>}
+            <button onClick={saveMyAccount} disabled={loading} className="disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm" style={{ background: "var(--neon)", color: "#000" }}>Zapisz</button>
           </div>
         </div>
       )}

@@ -193,14 +193,15 @@ export default function KwartalnyPage() {
 
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold text-white flex-1">Dashboard Kwartalny</h1>
+        <h1 className="text-2xl font-bold flex-1" style={{ color: "var(--text-primary)" }}>Dashboard Kwartalny</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
               if (selectedQuarter === 1) { setSelectedQuarter(4); setSelectedYear(y => y - 1); }
               else setSelectedQuarter(q => q - 1);
             }}
-            className="p-2 bg-[#1E293B] border border-[#334155] rounded-xl text-slate-400 hover:text-white"
+            className="p-2 rounded-xl"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
           >←</button>
 
           <select
@@ -210,7 +211,8 @@ export default function KwartalnyPage() {
               setSelectedQuarter(q);
               setSelectedYear(y);
             }}
-            className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+            className="rounded-xl px-3 py-2 text-sm"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
           >
             {quarterOptions.map((o) => (
               <option key={`${o.q}-${o.y}`} value={`${o.q}-${o.y}`}>
@@ -227,19 +229,20 @@ export default function KwartalnyPage() {
               else setSelectedQuarter(q => q + 1);
             }}
             disabled={selectedQuarter === getQuarterFromDate(now) && selectedYear === now.getFullYear()}
-            className="p-2 bg-[#1E293B] border border-[#334155] rounded-xl text-slate-400 hover:text-white disabled:opacity-40"
+            className="p-2 rounded-xl disabled:opacity-40"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
           >→</button>
         </div>
       </div>
 
-      <div className="text-slate-400 text-sm">
+      <div className="text-sm" style={{ color: "var(--text-muted)" }}>
         Q{selectedQuarter} {selectedYear} · {quarterMonths.map(m => getMonthName(m).slice(0, 3)).join(" – ")}
       </div>
 
       {/* Monthly breakdown table */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#334155]">
-          <h2 className="font-bold text-white">Zestawienie miesięczne</h2>
+      <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+        <div className="px-6 py-4" style={{ borderBottom: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold" style={{ color: "var(--text-primary)" }}>Zestawienie miesięczne</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full kpi-table">
@@ -260,24 +263,24 @@ export default function KwartalnyPage() {
                 const cp = calcCP(m.closings, m.attended);
                 return (
                   <tr key={m.month}>
-                    <td className="text-white font-medium">{getMonthName(m.month)}</td>
-                    <td className="text-slate-300">{m.leads}</td>
-                    <td className="text-slate-300">{m.attended}</td>
+                    <td className="font-medium" style={{ color: "var(--text-primary)" }}>{getMonthName(m.month)}</td>
+                    <td style={{ color: "var(--text-secondary)" }}>{m.leads}</td>
+                    <td style={{ color: "var(--text-secondary)" }}>{m.attended}</td>
                     <td style={{ color: getStatusColor(getKpiStatus(sur, 90)) }}>{formatPercent(sur)}</td>
-                    <td className="text-slate-300">{m.closings}</td>
+                    <td style={{ color: "var(--text-secondary)" }}>{m.closings}</td>
                     <td style={{ color: getStatusColor(getKpiStatus(cp, 60)) }}>{formatPercent(cp)}</td>
-                    <td className="text-slate-300">{formatPLN(m.revenue)}</td>
+                    <td style={{ color: "var(--text-secondary)" }}>{formatPLN(m.revenue)}</td>
                   </tr>
                 );
               })}
-              <tr className="font-bold bg-[#0F172A]">
-                <td className="text-indigo-400">SUMA</td>
-                <td className="text-white">{totalLeads}</td>
-                <td className="text-white">{totalAttended}</td>
+              <tr className="font-bold" style={{ background: "var(--bg-input)" }}>
+                <td style={{ color: "var(--neon)" }}>SUMA</td>
+                <td style={{ color: "var(--text-primary)" }}>{totalLeads}</td>
+                <td style={{ color: "var(--text-primary)" }}>{totalAttended}</td>
                 <td style={{ color: getStatusColor(getKpiStatus(avgSUR, 90)) }}>{formatPercent(avgSUR)}</td>
-                <td className="text-white">{totalClosings}</td>
+                <td style={{ color: "var(--text-primary)" }}>{totalClosings}</td>
                 <td style={{ color: getStatusColor(getKpiStatus(avgCP, 60)) }}>{formatPercent(avgCP)}</td>
-                <td className="text-white">{formatPLN(totalRevenue)}</td>
+                <td style={{ color: "var(--text-primary)" }}>{formatPLN(totalRevenue)}</td>
               </tr>
             </tbody>
           </table>
@@ -286,23 +289,23 @@ export default function KwartalnyPage() {
 
       {/* Quarterly KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4">
-          <div className="text-xs text-slate-400 mb-1">Przychód kwartalny</div>
-          <div className="text-2xl font-bold text-white">{formatPLN(totalRevenue)}</div>
-          <div className="text-xs text-slate-400 mt-1">Cel: {formatPLN(quarterRevenueTarget)}</div>
+        <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Przychód kwartalny</div>
+          <div className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{formatPLN(totalRevenue)}</div>
+          <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Cel: {formatPLN(quarterRevenueTarget)}</div>
         </div>
-        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4">
-          <div className="text-xs text-slate-400 mb-1">Zamknięcia</div>
-          <div className="text-2xl font-bold text-white">{totalClosings}</div>
+        <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Zamknięcia</div>
+          <div className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{totalClosings}</div>
         </div>
-        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4">
-          <div className="text-xs text-slate-400 mb-1">Śr. Show Up Rate</div>
+        <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Śr. Show Up Rate</div>
           <div className="text-2xl font-bold" style={{ color: getStatusColor(getKpiStatus(avgSUR, 90)) }}>
             {formatPercent(avgSUR)}
           </div>
         </div>
-        <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4">
-          <div className="text-xs text-slate-400 mb-1">Śr. Closing %</div>
+        <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Śr. Closing %</div>
           <div className="text-2xl font-bold" style={{ color: getStatusColor(getKpiStatus(avgCP, 60)) }}>
             {formatPercent(avgCP)}
           </div>
@@ -328,8 +331,8 @@ export default function KwartalnyPage() {
       )}
 
       {/* Monthly chart */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-        <h2 className="font-bold text-white mb-4">Przychód miesięczny w kwartale</h2>
+      <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+        <h2 className="font-bold mb-4" style={{ color: "var(--text-primary)" }}>Przychód miesięczny w kwartale</h2>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -346,8 +349,8 @@ export default function KwartalnyPage() {
 
       {/* Baseline comparison */}
       {baselineQ1 && (selectedQuarter !== 1 || selectedYear !== 2026) && (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-          <h2 className="font-bold text-white mb-4">Porównanie z baseline Q1 2026</h2>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold mb-4" style={{ color: "var(--text-primary)" }}>Porównanie z baseline Q1 2026</h2>
           <div className="overflow-x-auto">
             <table className="w-full kpi-table">
               <thead>
@@ -372,9 +375,9 @@ export default function KwartalnyPage() {
                     : null;
                   return (
                     <tr key={row.label}>
-                      <td className="text-slate-300 font-medium">{row.label}</td>
-                      <td className="text-slate-400">{formatNumber(row.baseline, 1)}</td>
-                      <td className="text-white">{formatNumber(row.current, 1)}</td>
+                      <td className="font-medium" style={{ color: "var(--text-secondary)" }}>{row.label}</td>
+                      <td style={{ color: "var(--text-muted)" }}>{formatNumber(row.baseline, 1)}</td>
+                      <td style={{ color: "var(--text-primary)" }}>{formatNumber(row.current, 1)}</td>
                       <td>
                         {diff != null ? (
                           <span className={`text-sm font-semibold ${diff >= 0 ? "text-green-400" : "text-red-400"}`}>
@@ -393,45 +396,49 @@ export default function KwartalnyPage() {
 
       {/* Quarterly form (Admin only) */}
       {isAdmin && (
-        <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6">
-          <h2 className="font-bold text-white mb-5">Dane kwartalne — Q{selectedQuarter} {selectedYear}</h2>
+        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
+          <h2 className="font-bold mb-5" style={{ color: "var(--text-primary)" }}>Dane kwartalne — Q{selectedQuarter} {selectedYear}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-xs text-slate-400 mb-1">LTV — Lifetime Value (PLN)</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>LTV — Lifetime Value (PLN)</label>
               <input
                 type="number"
                 step="0.01"
                 value={qForm.ltv}
                 onChange={(e) => setQForm((f) => ({ ...f, ltv: e.target.value }))}
-                className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+                className="w-full rounded-xl px-3 py-2 text-sm"
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
                 placeholder="7990"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1">ALPVC — Avg Lifetime Profit per Client (PLN)</label>
+              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>ALPVC — Avg Lifetime Profit per Client (PLN)</label>
               <input
                 type="number"
                 step="0.01"
                 value={qForm.alpvc}
                 onChange={(e) => setQForm((f) => ({ ...f, alpvc: e.target.value }))}
-                className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm"
+                className="w-full rounded-xl px-3 py-2 text-sm"
+                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
                 placeholder="7271"
               />
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-xs text-slate-400 mb-1">Notatka</label>
+            <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Notatka</label>
             <textarea
               value={qForm.notes}
               onChange={(e) => setQForm((f) => ({ ...f, notes: e.target.value }))}
               rows={2}
-              className="w-full bg-[#0F172A] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm resize-none"
+              className="w-full rounded-xl px-3 py-2 text-sm resize-none"
+              style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
             />
           </div>
           <button
             onClick={handleSaveQuarterly}
             disabled={loading}
-            className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm"
+            className="disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm"
+            style={{ background: "var(--neon)", color: "#000" }}
           >
             Zapisz
           </button>
