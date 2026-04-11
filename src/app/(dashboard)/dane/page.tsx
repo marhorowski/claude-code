@@ -524,7 +524,21 @@ function CascadeCard({ label, value, sub }: { label: string; value: string; sub:
   );
 }
 
-function MissingPanel({ tab, missingC, missingS, missingW, missingM, missingQ, onSelectC, onSelectS, onSelectW, onSelectM, onSelectQ }: any) {
+interface MissingPanelProps {
+  tab: Tab;
+  missingC: { person: TeamMember; date: Date }[];
+  missingS: { person: TeamMember; date: Date }[];
+  missingW: { week: number; year: number; label: string }[];
+  missingM: { month: number; year: number }[];
+  missingQ: { quarter: number; year: number }[];
+  onSelectC: (id: string, date: Date) => void;
+  onSelectS: (id: string, date: Date) => void;
+  onSelectW: (week: number, year: number) => void;
+  onSelectM: (month: number, year: number) => void;
+  onSelectQ: (quarter: number, year: number) => void;
+}
+
+function MissingPanel({ tab, missingC, missingS, missingW, missingM, missingQ, onSelectC, onSelectS, onSelectW, onSelectM, onSelectQ }: MissingPanelProps) {
   const items =
     tab === "closing" ? missingC.map((m: any) => ({ label: m.person.name, sub: m.date.toLocaleDateString("pl-PL"), action: () => onSelectC(m.person.id, m.date) })) :
     tab === "setting" ? missingS.map((m: any) => ({ label: m.person.name, sub: m.date.toLocaleDateString("pl-PL"), action: () => onSelectS(m.person.id, m.date) })) :
