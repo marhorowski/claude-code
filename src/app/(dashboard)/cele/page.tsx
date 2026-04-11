@@ -14,6 +14,8 @@ interface MonthlyFormData {
 interface SalesSettings {
   dealSize: number;
   leadToMeetingRate: number;
+  setterBookingRate: number;
+  vslConversionRate: number;
 }
 
 interface KpiTarget {
@@ -68,7 +70,7 @@ export default function CelePage() {
   const months = getNextMonths(3);
   const [monthForms, setMonthForms] = useState<Record<string, string>>({});
   const [savedForms, setSavedForms] = useState<MonthlyFormData[]>([]);
-  const [settings, setSettings] = useState<SalesSettings>({ dealSize: 0, leadToMeetingRate: 0 });
+  const [settings, setSettings] = useState<SalesSettings>({ dealSize: 0, leadToMeetingRate: 0, setterBookingRate: 0, vslConversionRate: 0 });
   const [kpiTargets, setKpiTargets] = useState<KpiTarget[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState<Record<string, boolean>>({});
