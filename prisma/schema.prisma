@@ -76,6 +76,9 @@ model DailyForm {
   vslMeetingsBooked Int?
   dailyLeads        Int?
   dailyAdSpend      Float?
+  dailyClicks       Int?
+  dailyImpressions  Int?
+  dailyCtr          Float?
   notes             String?
   createdAt         DateTime @default(now())
 }

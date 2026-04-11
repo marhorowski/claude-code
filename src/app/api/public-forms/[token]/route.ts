@@ -50,6 +50,9 @@ export async function POST(
     vslMeetingsBooked,
     dailyLeads,
     dailyAdSpend,
+    dailyClicks,
+    dailyImpressions,
+    dailyCtr,
     notes,
   } = body;
 
@@ -80,6 +83,9 @@ export async function POST(
     vslMeetingsBooked: vslMeetingsBooked ?? null,
     dailyLeads: dailyLeads ?? null,
     dailyAdSpend: dailyAdSpend ?? null,
+    dailyClicks: dailyClicks ?? null,
+    dailyImpressions: dailyImpressions ?? null,
+    dailyCtr: dailyCtr ?? null,
     notes: notes ?? null,
   };
 

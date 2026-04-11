@@ -57,6 +57,9 @@ export async function POST(req: NextRequest) {
     vslMeetingsBooked,
     dailyLeads,
     dailyAdSpend,
+    dailyClicks,
+    dailyImpressions,
+    dailyCtr,
     notes,
     targetUserId,
   } = body;
@@ -93,6 +96,9 @@ export async function POST(req: NextRequest) {
     vslMeetingsBooked: vslMeetingsBooked ?? null,
     dailyLeads: dailyLeads ?? null,
     dailyAdSpend: dailyAdSpend ?? null,
+    dailyClicks: dailyClicks ?? null,
+    dailyImpressions: dailyImpressions ?? null,
+    dailyCtr: dailyCtr ?? null,
     notes: notes ?? null,
   };
 

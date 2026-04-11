@@ -17,6 +17,13 @@ interface Bottleneck {
   resolvedAt: string | null;
 }
 
+interface AiSuggestion {
+  kpiCode: string;
+  title: string;
+  description: string;
+  actions: string[];
+}
+
 const STATUS_LABELS = {
   ACTIVE: "Aktywny",
   IN_PROGRESS: "W toku",
@@ -40,6 +47,9 @@ export default function BottleneckiPage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [showAddForm, setShowAddForm] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("ACTIVE");
+  const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [showAiPanel, setShowAiPanel] = useState(false);
 
   // Add form state
   const [newKpiCode, setNewKpiCode] = useState("");
@@ -111,6 +121,48 @@ export default function BottleneckiPage() {
     }
   }
 
+  async function generateAiSuggestions() {
+    if (!selectedClientId) return;
+    setAiLoading(true);
+    setShowAiPanel(true);
+    try {
+      const res = await fetch("/api/ai-suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: selectedClientId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Błąd AI");
+      setAiSuggestions(data.suggestions || []);
+    } catch (err: any) {
+      setToast({ msg: err.message || "Błąd generowania propozycji AI", type: "error" });
+      setShowAiPanel(false);
+    }
+    setAiLoading(false);
+  }
+
+  async function saveAiSuggestion(s: AiSuggestion) {
+    try {
+      const res = await fetch("/api/bottlenecks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId: selectedClientId,
+          kpiCode: s.kpiCode,
+          title: s.title,
+          description: s.description,
+          actions: s.actions,
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setToast({ msg: "Bottleneck zapisany ✓", type: "success" });
+      setAiSuggestions(prev => prev.filter(x => x.title !== s.title));
+      fetchData();
+    } catch {
+      setToast({ msg: "Błąd zapisu", type: "error" });
+    }
+  }
+
   function toggleExpand(id: string) {
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -152,14 +204,84 @@ export default function BottleneckiPage() {
         </div>
 
         {isAdmin && (
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/30 text-sm font-medium rounded-xl px-4 py-2 transition-colors"
-          >
-            + Dodaj bottleneck
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={generateAiSuggestions}
+              disabled={aiLoading}
+              className="text-sm font-medium rounded-xl px-4 py-2 transition-colors flex items-center gap-2 disabled:opacity-50"
+              style={{ background: "rgba(0,255,136,0.1)", border: "1px solid rgba(0,255,136,0.3)", color: "#00ff88" }}
+            >
+              {aiLoading ? (
+                <span className="animate-pulse">Analizuję...</span>
+              ) : (
+                <>✦ Generuj z AI</>
+              )}
+            </button>
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="bg-[#111] border border-[#222] text-[#888] hover:text-white text-sm font-medium rounded-xl px-4 py-2 transition-colors"
+            >
+              + Dodaj ręcznie
+            </button>
+          </div>
         )}
       </div>
+
+      {/* AI Suggestions Panel */}
+      {showAiPanel && (
+        <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(0,255,136,0.25)", background: "#0a0a0a" }}>
+          <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(0,255,136,0.15)" }}>
+            <div>
+              <span className="font-bold text-white text-sm">✦ Propozycje AI</span>
+              <span className="ml-2 text-xs" style={{ color: "#555" }}>na podstawie danych z ostatnich 28 dni</span>
+            </div>
+            <button onClick={() => setShowAiPanel(false)} className="text-xs" style={{ color: "#444" }}>✕ Zamknij</button>
+          </div>
+          {aiLoading ? (
+            <div className="p-10 text-center">
+              <div className="text-2xl mb-2 animate-pulse">✦</div>
+              <div className="text-sm" style={{ color: "#555" }}>Analizuję dane KPI...</div>
+            </div>
+          ) : aiSuggestions.length === 0 ? (
+            <div className="p-8 text-center">
+              <div className="text-2xl mb-2">✅</div>
+              <div className="text-sm font-medium" style={{ color: "#00ff88" }}>Wszystkie KPI wyglądają dobrze!</div>
+              <div className="text-xs mt-1" style={{ color: "#444" }}>AI nie wykryło krytycznych problemów</div>
+            </div>
+          ) : (
+            <div className="divide-y" style={{ borderColor: "#1a1a1a" }}>
+              {aiSuggestions.map((s, i) => (
+                <div key={i} className="p-5">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-lg" style={{ background: "rgba(0,255,136,0.1)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.2)" }}>{s.kpiCode}</span>
+                        <span className="font-semibold text-white text-sm">{s.title}</span>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: "#777" }}>{s.description}</p>
+                    </div>
+                    <button
+                      onClick={() => saveAiSuggestion(s)}
+                      className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+                      style={{ background: "rgba(0,255,136,0.12)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.3)" }}
+                    >
+                      + Zapisz
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    {s.actions.map((action, j) => (
+                      <div key={j} className="flex items-start gap-2 text-xs">
+                        <span className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center mt-0.5 font-bold" style={{ background: "rgba(0,255,136,0.1)", color: "#00ff88", fontSize: "9px" }}>{j + 1}</span>
+                        <span style={{ color: "#aaa" }}>{action}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add form */}
       {isAdmin && showAddForm && (

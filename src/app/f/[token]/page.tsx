@@ -31,6 +31,9 @@ export default function PublicFormPage({ params }: { params: { token: string } }
     vslMeetingsBooked: "",
     dailyLeads: "",
     dailyAdSpend: "",
+    dailyClicks: "",
+    dailyImpressions: "",
+    dailyCtr: "",
     notes: "",
   });
 
@@ -66,6 +69,9 @@ export default function PublicFormPage({ params }: { params: { token: string } }
           vslMeetingsBooked: n(form.vslMeetingsBooked),
           dailyLeads: n(form.dailyLeads),
           dailyAdSpend: n(form.dailyAdSpend),
+          dailyClicks: n(form.dailyClicks),
+          dailyImpressions: n(form.dailyImpressions),
+          dailyCtr: form.dailyCtr ? n(form.dailyCtr) : (form.dailyClicks && form.dailyImpressions ? (n(form.dailyClicks)! / n(form.dailyImpressions)!) * 100 : null),
           notes: form.notes || null,
         }),
       });
@@ -282,6 +288,18 @@ export default function PublicFormPage({ params }: { params: { token: string } }
                   onChange={(e) => setForm((p) => ({ ...p, dailyAdSpend: e.target.value }))}
                   className={`${INP} ${inpFocusStyle}`} style={inpStyle} placeholder="0.00"
                 />
+              </div>
+              <div>
+                <label className={LBL}>Ilość kliknięć</label>
+                <input type="number" min="0" value={form.dailyClicks}
+                  onChange={(e) => setForm((p) => ({ ...p, dailyClicks: e.target.value }))}
+                  className={`${INP} ${inpFocusStyle}`} style={inpStyle} placeholder="0" />
+              </div>
+              <div>
+                <label className={LBL}>Ilość wyświetleń reklamy</label>
+                <input type="number" min="0" value={form.dailyImpressions}
+                  onChange={(e) => setForm((p) => ({ ...p, dailyImpressions: e.target.value }))}
+                  className={`${INP} ${inpFocusStyle}`} style={inpStyle} placeholder="0" />
               </div>
             </div>
           </div>

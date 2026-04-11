@@ -13,6 +13,7 @@ interface DailyFormData {
   closings: number | null; revenue: number | null;
   callsMade: number | null; meetingsBooked: number | null;
   vslMeetingsBooked: number | null; dailyLeads: number | null; dailyAdSpend: number | null;
+  dailyClicks: number | null; dailyImpressions: number | null; dailyCtr: number | null;
   notes: string | null;
   user: { id: string; name: string; role: string };
 }
@@ -76,7 +77,7 @@ export default function DanePage() {
   const [sForm, setSForm] = useState({ callsMade: "", meetingsBooked: "", notes: "" });
 
   const [mktDate, setMktDate] = useState(toDateInput(now));
-  const [mktForm, setMktForm] = useState({ vslMeetingsBooked: "", dailyLeads: "", dailyAdSpend: "" });
+  const [mktForm, setMktForm] = useState({ vslMeetingsBooked: "", dailyLeads: "", dailyAdSpend: "", dailyClicks: "", dailyImpressions: "", dailyCtr: "" });
 
   const [wWeek, setWWeek] = useState(defWeek);
   const [wYear, setWYear] = useState(defWeekYear);
@@ -141,8 +142,8 @@ export default function DanePage() {
   useEffect(() => {
     if (!mktDate || !session?.user?.id) return;
     const ex = daily.find(f => f.userId === session.user.id && isSameDay(new Date(f.date), new Date(mktDate)) && (f.dailyLeads !== null || f.vslMeetingsBooked !== null || f.dailyAdSpend !== null));
-    if (ex) setMktForm({ vslMeetingsBooked: ex.vslMeetingsBooked?.toString() ?? "", dailyLeads: ex.dailyLeads?.toString() ?? "", dailyAdSpend: ex.dailyAdSpend?.toString() ?? "" });
-    else setMktForm({ vslMeetingsBooked: "", dailyLeads: "", dailyAdSpend: "" });
+    if (ex) setMktForm({ vslMeetingsBooked: ex.vslMeetingsBooked?.toString() ?? "", dailyLeads: ex.dailyLeads?.toString() ?? "", dailyAdSpend: ex.dailyAdSpend?.toString() ?? "", dailyClicks: ex.dailyClicks?.toString() ?? "", dailyImpressions: ex.dailyImpressions?.toString() ?? "", dailyCtr: ex.dailyCtr?.toString() ?? "" });
+    else setMktForm({ vslMeetingsBooked: "", dailyLeads: "", dailyAdSpend: "", dailyClicks: "", dailyImpressions: "", dailyCtr: "" });
   }, [mktDate, daily, session?.user?.id]);
 
   // Auto-fill weekly form
@@ -186,7 +187,9 @@ export default function DanePage() {
     if (!mktDate || !selectedClientId || !session?.user?.id) return;
     setSaving(true);
     try {
-      await post("/api/daily", { clientId: selectedClientId, date: mktDate, vslMeetingsBooked: mktForm.vslMeetingsBooked ? +mktForm.vslMeetingsBooked : null, dailyLeads: mktForm.dailyLeads ? +mktForm.dailyLeads : null, dailyAdSpend: mktForm.dailyAdSpend ? +mktForm.dailyAdSpend : null });
+      // Auto-calculate CTR if not manually entered
+      const autoCtrl = mktForm.dailyClicks && mktForm.dailyImpressions ? (+mktForm.dailyClicks / +mktForm.dailyImpressions) * 100 : null;
+      await post("/api/daily", { clientId: selectedClientId, date: mktDate, vslMeetingsBooked: mktForm.vslMeetingsBooked ? +mktForm.vslMeetingsBooked : null, dailyLeads: mktForm.dailyLeads ? +mktForm.dailyLeads : null, dailyAdSpend: mktForm.dailyAdSpend ? +mktForm.dailyAdSpend : null, dailyClicks: mktForm.dailyClicks ? +mktForm.dailyClicks : null, dailyImpressions: mktForm.dailyImpressions ? +mktForm.dailyImpressions : null, dailyCtr: mktForm.dailyCtr ? +mktForm.dailyCtr : autoCtrl });
       showMsg("Zapisano dane marketingowe!", true); fetchAll();
     } catch (e: any) { showMsg(e.message, false); }
     setSaving(false);
@@ -337,11 +340,21 @@ export default function DanePage() {
     <div className="space-y-6 fade-in">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-white">Wprowadź dane</h1>
-        {msg && (
-          <div className={`px-4 py-2 rounded-lg text-sm font-medium ${msg.ok ? "badge-neon" : "badge-red"}`}>
-            {msg.text}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {msg && (
+            <div className={`px-4 py-2 rounded-lg text-sm font-medium ${msg.ok ? "badge-neon" : "badge-red"}`}>
+              {msg.text}
+            </div>
+          )}
+          <a
+            href="/ustawienia"
+            className="text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: "#111", border: "1px solid #1a1a1a", color: "#555" }}
+            title="Generuj publiczne linki do formularzy w Ustawieniach → Tokeny"
+          >
+            ↗ Udostępnij formularz
+          </a>
+        </div>
       </div>
 
       {/* Tab strip */}
@@ -427,10 +440,23 @@ export default function DanePage() {
                 <label className={LBL}>Data *</label>
                 <input type="date" value={mktDate} onChange={e => setMktDate(e.target.value)} max={toDateInput(now)} className={INP} />
               </div>
-              <div className="grid grid-cols-1 gap-4">
-                <div><label className={LBL}>Spotkania umówione z VSL</label><input type="number" min="0" value={mktForm.vslMeetingsBooked} onChange={e => setMktForm(p => ({ ...p, vslMeetingsBooked: e.target.value }))} className={INP} placeholder="0" /></div>
-                <div><label className={LBL}>Liczba leadów</label><input type="number" min="0" value={mktForm.dailyLeads} onChange={e => setMktForm(p => ({ ...p, dailyLeads: e.target.value }))} className={INP} placeholder="0" /></div>
-                <div><label className={LBL}>Dzienny Ad Spend (PLN)</label><input type="number" min="0" step="0.01" value={mktForm.dailyAdSpend} onChange={e => setMktForm(p => ({ ...p, dailyAdSpend: e.target.value }))} className={INP} placeholder="0.00" /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className={LBL}>Ad Spend (PLN)</label><input type="number" min="0" step="0.01" value={mktForm.dailyAdSpend} onChange={e => setMktForm(p => ({ ...p, dailyAdSpend: e.target.value }))} className={INP} placeholder="0.00" /></div>
+                <div><label className={LBL}>Ilość kliknięć</label><input type="number" min="0" value={mktForm.dailyClicks} onChange={e => setMktForm(p => ({ ...p, dailyClicks: e.target.value }))} className={INP} placeholder="0" /></div>
+                <div><label className={LBL}>Ilość leadów</label><input type="number" min="0" value={mktForm.dailyLeads} onChange={e => setMktForm(p => ({ ...p, dailyLeads: e.target.value }))} className={INP} placeholder="0" /></div>
+                <div><label className={LBL}>Zarezerwowane spotkania VSL</label><input type="number" min="0" value={mktForm.vslMeetingsBooked} onChange={e => setMktForm(p => ({ ...p, vslMeetingsBooked: e.target.value }))} className={INP} placeholder="0" /></div>
+                <div><label className={LBL}>Ilość wyświetleń reklamy</label><input type="number" min="0" value={mktForm.dailyImpressions} onChange={e => setMktForm(p => ({ ...p, dailyImpressions: e.target.value }))} className={INP} placeholder="0" /></div>
+                <div>
+                  <label className={LBL}>
+                    CTR (%)
+                    {mktForm.dailyClicks && mktForm.dailyImpressions && (
+                      <span className="ml-2 text-[#00ff88]">
+                        auto: {((+mktForm.dailyClicks / +mktForm.dailyImpressions) * 100).toFixed(2)}%
+                      </span>
+                    )}
+                  </label>
+                  <input type="number" min="0" step="0.01" value={mktForm.dailyCtr} onChange={e => setMktForm(p => ({ ...p, dailyCtr: e.target.value }))} className={INP} placeholder="auto z kliknięć/wyśw." />
+                </div>
               </div>
               <button onClick={saveMkt} disabled={saving || !mktDate} className="btn-neon w-full py-2.5 disabled:opacity-40 disabled:cursor-not-allowed">
                 {saving ? "Zapisywanie..." : "Zapisz dane marketingowe"}
