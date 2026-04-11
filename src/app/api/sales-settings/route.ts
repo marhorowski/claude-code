@@ -6,9 +6,6 @@ import { prisma } from "@/lib/prisma";
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Brak dostępu" }, { status: 401 });
-  if (session.user.role !== "ADMIN" && session.user.role !== "LIDER") {
-    return NextResponse.json({ error: "Brak uprawnień" }, { status: 403 });
-  }
 
   const { searchParams } = new URL(req.url);
   const clientId = searchParams.get("clientId");

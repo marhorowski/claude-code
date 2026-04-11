@@ -34,6 +34,7 @@ interface WeeklyForm {
   year: number;
   weekStart: string;
   totalLeads: number;
+  totalMeetingsBooked: number;
   totalPlannedMeetings: number;
   totalAttended: number;
   totalClosings: number;
@@ -71,7 +72,6 @@ export default function MiesięcznyPage() {
   const { selectedClientId } = useClient();
   const { data: session } = useSession();
   const role = session?.user?.role || "";
-  const isAdmin = role === "ADMIN";
 
   const now = new Date();
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
@@ -83,10 +83,6 @@ export default function MiesięcznyPage() {
   const [targets, setTargets] = useState<KpiTarget[]>([]);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-
-  // Monthly form state
-  const [mForm, setMForm] = useState<Partial<MonthlyForm>>({});
 
   const prevMonth = selectedMonth === 1 ? 12 : selectedMonth - 1;
   const prevYear = selectedMonth === 1 ? selectedYear - 1 : selectedYear;
@@ -113,7 +109,6 @@ export default function MiesięcznyPage() {
         const prev = Array.isArray(pmf) ? pmf[0] : null;
         setMonthlyForm(current || null);
         setPrevMonthlyForm(prev || null);
-        setMForm(current || {});
         setTargets(Array.isArray(kt) ? kt : []);
       })
       .catch(() => {})
@@ -129,13 +124,16 @@ export default function MiesięcznyPage() {
 
   // Aggregate from weekly forms
   const totalLeads = weeklyForms.reduce((s, w) => s + w.totalLeads, 0);
+  const totalBooked = weeklyForms.reduce((s, w) => s + w.totalMeetingsBooked, 0);
   const totalPlanned = weeklyForms.reduce((s, w) => s + w.totalPlannedMeetings, 0);
   const totalAttended = weeklyForms.reduce((s, w) => s + w.totalAttended, 0);
   const totalClosings = weeklyForms.reduce((s, w) => s + w.totalClosings, 0);
   const totalRevenue = weeklyForms.reduce((s, w) => s + w.totalRevenue, 0);
   const totalAdSpend = weeklyForms.reduce((s, w) => s + (w.adSpend ?? 0), 0);
 
-  const avgSUR = calcSUR(totalAttended, totalPlanned);
+  // SUR: use booked as fallback denominator when planned = 0
+  const surBase = totalPlanned > 0 ? totalPlanned : totalBooked;
+  const avgSUR = calcSUR(totalAttended, surBase);
   const avgCP = calcCP(totalClosings, totalAttended);
   const avgLTS = calcLTS(totalClosings, totalLeads);
   const monthlyCPL = totalLeads > 0 && totalAdSpend > 0 ? totalAdSpend / totalLeads : 0;
@@ -149,31 +147,6 @@ export default function MiesięcznyPage() {
     revenue: w.totalRevenue,
     leads: w.totalLeads,
   }));
-
-  async function handleSaveMonthly() {
-    if (!selectedClientId) return;
-    setLoading(true);
-    try {
-      const res = await fetch("/api/monthly", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId: selectedClientId,
-          month: selectedMonth,
-          year: selectedYear,
-          ...mForm,
-        }),
-      });
-      if (!res.ok) throw new Error();
-      setToast({ msg: "Dane zapisane ✓", type: "success" });
-      setShowForm(false);
-      fetchData();
-    } catch {
-      setToast({ msg: "Błąd zapisu danych", type: "error" });
-    } finally {
-      setLoading(false);
-    }
-  }
 
   // Month options
   const monthOptions: Array<{ month: number; year: number }> = [];
@@ -299,15 +272,6 @@ export default function MiesięcznyPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>KPI strategiczne</h2>
-          {isAdmin && (
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-indigo-500/20 border border-indigo-500/40 hover:bg-indigo-500/30 text-sm font-medium rounded-xl px-4 py-2 transition-colors"
-              style={{ color: "var(--neon)" }}
-            >
-              {showForm ? "Zamknij" : "Uzupełnij dane strategiczne"}
-            </button>
-          )}
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -328,57 +292,6 @@ export default function MiesięcznyPage() {
           })}
         </div>
       </div>
-
-      {/* Strategic form */}
-      {isAdmin && showForm && (
-        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
-          <h2 className="font-bold mb-5" style={{ color: "var(--text-primary)" }}>Dane strategiczne — {getMonthName(selectedMonth)} {selectedYear}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            {[
-              { key: "enge", label: "Engagement Rate IG (%)" },
-              { key: "mer", label: "Marketing Efficiency Ratio (x)" },
-              { key: "roas", label: "ROAS (x)" },
-              { key: "cac", label: "CAC (PLN)" },
-              { key: "aov", label: "AOV (PLN)" },
-              { key: "ltvCac", label: "LTV:CAC (:1)" },
-              { key: "gp", label: "Gross Profit Margin (%)" },
-              { key: "ar", label: "Ascension Rate (%)" },
-              { key: "leadToClose", label: "Lead to Close (%)" },
-            ].map(({ key, label }) => (
-              <div key={key}>
-                <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>{label}</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={(mForm as any)[key] ?? ""}
-                  onChange={(e) => setMForm((f) => ({ ...f, [key]: e.target.value ? parseFloat(e.target.value) : null }))}
-                  className="w-full rounded-xl px-3 py-2 text-sm"
-                  style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
-                  placeholder="0"
-                />
-              </div>
-            ))}
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Notatka</label>
-            <textarea
-              value={mForm.notes ?? ""}
-              onChange={(e) => setMForm((f) => ({ ...f, notes: e.target.value }))}
-              rows={2}
-              className="w-full rounded-xl px-3 py-2 text-sm resize-none"
-              style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
-            />
-          </div>
-          <button
-            onClick={handleSaveMonthly}
-            disabled={loading}
-            className="disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm"
-            style={{ background: "var(--neon)", color: "#000" }}
-          >
-            Zapisz
-          </button>
-        </div>
-      )}
 
       {/* Month-to-month comparison */}
       {prevMonthlyForm && (

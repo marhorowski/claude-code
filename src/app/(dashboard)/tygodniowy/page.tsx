@@ -10,18 +10,15 @@ import {
   calcCP,
   calcLTS,
   calcCPL,
-  getKpiStatus,
-  getStatusColor,
 } from "@/lib/calculations";
 import {
   formatPLN,
-  formatPercent,
   formatDateShort,
   formatNumber,
-  formatValue,
 } from "@/lib/utils";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { Toast } from "@/components/ui/Toast";
+import Link from "next/link";
 import {
   BarChart,
   Bar,
@@ -68,12 +65,16 @@ interface DailyForm {
   revenue: number | null;
 }
 
+interface SalesSettings {
+  dealSize: number;
+  leadToMeetingRate: number;
+}
+
 export default function TygodniowyPage() {
   const { selectedClientId } = useClient();
   const { data: session } = useSession();
   const role = session?.user?.role || "";
-  const isAdmin = role === "ADMIN";
-  const isLider = role === "LIDER";
+  const isAdminOrLider = role === "ADMIN" || role === "LIDER";
 
   const now = new Date();
   const { week: todayWeek, year: todayYear } = getISOWeek(now);
@@ -85,85 +86,77 @@ export default function TygodniowyPage() {
   const [prevWeeklyForm, setPrevWeeklyForm] = useState<WeeklyForm | null>(null);
   const [targets, setTargets] = useState<KpiTarget[]>([]);
   const [dailyForms, setDailyForms] = useState<DailyForm[]>([]);
-  const [allWeeklyForms, setAllWeeklyForms] = useState<WeeklyForm[]>([]);
   const [monthlyRevGoal, setMonthlyRevGoal] = useState<number | null>(null);
+  const [salesSettings, setSalesSettings] = useState<SalesSettings>({ dealSize: 0, leadToMeetingRate: 0 });
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // Form state
-  const [totalLeads, setTotalLeads] = useState("");
-  const [adSpend, setAdSpend] = useState("");
-  const [formNotes, setFormNotes] = useState("");
   const [chartMetric, setChartMetric] = useState<"revenue" | "meetings">("revenue");
 
   const fetchData = useCallback(() => {
     if (!selectedClientId) return;
     setLoading(true);
 
-    // Prev week
     let prevWeek = selectedWeek - 1;
     let prevYear = selectedYear;
-    if (prevWeek < 1) {
-      prevWeek = 52;
-      prevYear = selectedYear - 1;
-    }
+    if (prevWeek < 1) { prevWeek = 52; prevYear = selectedYear - 1; }
 
     const { start: weekStart, end: weekEnd } = getWeekBounds(selectedWeek, selectedYear);
-
     const weekMonth = weekStart.getMonth() + 1;
     const weekMonthYear = weekStart.getFullYear();
 
     Promise.all([
-      fetch(`/api/weekly?clientId=${selectedClientId}&week=${selectedWeek}&year=${selectedYear}`).then((r) => r.json()),
-      fetch(`/api/weekly?clientId=${selectedClientId}&week=${prevWeek}&year=${prevYear}`).then((r) => r.json()),
-      fetch(`/api/kpi-targets?clientId=${selectedClientId}&period=WEEKLY`).then((r) => r.json()),
-      fetch(`/api/daily?clientId=${selectedClientId}`).then((r) => r.json()),
-      fetch(`/api/weekly?clientId=${selectedClientId}`).then((r) => r.json()),
-      fetch(`/api/monthly?clientId=${selectedClientId}&month=${weekMonth}&year=${weekMonthYear}`).then((r) => r.json()),
+      fetch(`/api/weekly?clientId=${selectedClientId}&week=${selectedWeek}&year=${selectedYear}`).then(r => r.json()),
+      fetch(`/api/weekly?clientId=${selectedClientId}&week=${prevWeek}&year=${prevYear}`).then(r => r.json()),
+      fetch(`/api/kpi-targets?clientId=${selectedClientId}&period=WEEKLY`).then(r => r.json()),
+      fetch(`/api/daily?clientId=${selectedClientId}`).then(r => r.json()),
+      fetch(`/api/monthly?clientId=${selectedClientId}&month=${weekMonth}&year=${weekMonthYear}`).then(r => r.json()),
+      fetch(`/api/sales-settings?clientId=${selectedClientId}`).then(r => r.json()),
     ])
-      .then(([wf, pwf, kt, df, allWf, mf]) => {
-        const current = Array.isArray(wf) ? wf[0] : null;
-        const prev = Array.isArray(pwf) ? pwf[0] : null;
-        setWeeklyForm(current || null);
-        setPrevWeeklyForm(prev || null);
-        setTargets(kt);
-        setAllWeeklyForms(Array.isArray(allWf) ? allWf : []);
+      .then(([wf, pwf, kt, df, mf, ss]) => {
+        setWeeklyForm(Array.isArray(wf) ? wf[0] || null : null);
+        setPrevWeeklyForm(Array.isArray(pwf) ? pwf[0] || null : null);
+        setTargets(Array.isArray(kt) ? kt : []);
+
         const monthGoal = Array.isArray(mf) ? mf[0] : null;
         setMonthlyRevGoal(monthGoal?.targetRevenue ?? null);
 
-        // Filter daily forms for selected week
+        if (ss && !ss.error) {
+          setSalesSettings({ dealSize: ss.dealSize ?? 0, leadToMeetingRate: ss.leadToMeetingRate ?? 0 });
+        }
+
         const weekDailyForms = (Array.isArray(df) ? df : []).filter((f: DailyForm) => {
           const d = new Date(f.date);
           return d >= weekStart && d <= weekEnd;
         });
         setDailyForms(weekDailyForms);
-
-        if (current) {
-          setTotalLeads(String(current.totalLeads));
-          setAdSpend(current.adSpend ? String(current.adSpend) : "");
-          setFormNotes(current.notes || "");
-        } else {
-          setTotalLeads("");
-          setAdSpend("");
-          setFormNotes("");
-        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [selectedClientId, selectedWeek, selectedYear]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const weekBounds = getWeekBounds(selectedWeek, selectedYear);
+  const getTarget = (code: string) => targets.find(t => t.code === code);
 
-  const getTarget = (code: string) => targets.find((t) => t.code === code);
+  // Revenue target from monthly goal
   const weeklyRevTarget = monthlyRevGoal
     ? Math.round(monthlyRevGoal / 4.33)
-    : (targets.find((t) => t.code === "REVENUE")?.target ?? 0);
+    : (getTarget("REVENUE")?.target ?? 0);
 
-  // Computed KPIs
+  // Derived targets computed from monthly goal + sales settings + KPI rates
+  const surTarget = getTarget("SUR")?.target ?? 0;
+  const cpTarget = getTarget("CP")?.target ?? 0;
+  const dealSize = salesSettings.dealSize;
+  const ltmRate = salesSettings.leadToMeetingRate;
+  const hasGoalBasis = monthlyRevGoal !== null && dealSize > 0;
+  const derivedClosings = hasGoalBasis && weeklyRevTarget > 0 ? Math.ceil(weeklyRevTarget / dealSize) : 0;
+  const derivedAttended = derivedClosings > 0 && cpTarget > 0 ? Math.ceil(derivedClosings / (cpTarget / 100)) : 0;
+  const derivedBooked = derivedAttended > 0 && surTarget > 0 ? Math.ceil(derivedAttended / (surTarget / 100)) : 0;
+  const derivedLeads = derivedBooked > 0 && ltmRate > 0 ? Math.ceil(derivedBooked / (ltmRate / 100)) : 0;
+
+  // Actual KPIs
+  const booked = weeklyForm?.totalMeetingsBooked ?? 0;
   const planned = weeklyForm?.totalPlannedMeetings ?? 0;
   const attended = weeklyForm?.totalAttended ?? 0;
   const closings = weeklyForm?.totalClosings ?? 0;
@@ -171,13 +164,17 @@ export default function TygodniowyPage() {
   const revenue = weeklyForm?.totalRevenue ?? 0;
   const adSpendVal = weeklyForm?.adSpend ?? 0;
 
-  const sur = calcSUR(attended, planned);
+  // SUR: use booked as fallback when planned = 0
+  const surBase = planned > 0 ? planned : booked;
+  const sur = calcSUR(attended, surBase);
   const cp = calcCP(closings, attended);
   const lts = calcLTS(closings, leads);
   const cpl = calcCPL(adSpendVal, leads);
 
-  // Prev week KPIs
-  const prevSur = calcSUR(prevWeeklyForm?.totalAttended ?? 0, prevWeeklyForm?.totalPlannedMeetings ?? 0);
+  const prevBooked = prevWeeklyForm?.totalMeetingsBooked ?? 0;
+  const prevPlanned = prevWeeklyForm?.totalPlannedMeetings ?? 0;
+  const prevSurBase = prevPlanned > 0 ? prevPlanned : prevBooked;
+  const prevSur = calcSUR(prevWeeklyForm?.totalAttended ?? 0, prevSurBase);
   const prevCp = calcCP(prevWeeklyForm?.totalClosings ?? 0, prevWeeklyForm?.totalAttended ?? 0);
 
   // Daily chart data
@@ -185,7 +182,7 @@ export default function TygodniowyPage() {
   const chartData = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(weekBounds.start);
     d.setDate(d.getDate() + i);
-    const dayForms = dailyForms.filter((f) => {
+    const dayForms = dailyForms.filter(f => {
       const fd = new Date(f.date);
       return fd.toDateString() === d.toDateString();
     });
@@ -196,34 +193,6 @@ export default function TygodniowyPage() {
     };
   });
 
-  async function handleSave(lock = false) {
-    if (!selectedClientId) return;
-    setLoading(true);
-    try {
-      const res = await fetch("/api/weekly", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          clientId: selectedClientId,
-          weekNumber: selectedWeek,
-          year: selectedYear,
-          totalLeads: parseInt(totalLeads) || 0,
-          adSpend: adSpend ? parseFloat(adSpend) : null,
-          notes: formNotes || null,
-          lock,
-        }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error || "Błąd");
-      setToast({ msg: lock ? "Tydzień zamknięty ✓" : "Dane zapisane ✓", type: "success" });
-      fetchData();
-    } catch (err: any) {
-      setToast({ msg: err.message || "Błąd zapisu", type: "error" });
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Generate week options for dropdown (last 52 weeks)
   const weekOptions: Array<{ week: number; year: number; label: string }> = [];
   for (let i = 0; i < 52; i++) {
     let w = todayWeek - i;
@@ -251,57 +220,47 @@ export default function TygodniowyPage() {
     <div className="space-y-6 fade-in">
       {toast && <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
 
-      {/* Header with navigation */}
+      {/* Header */}
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold flex-1" style={{ color: "var(--text-primary)" }}>Dashboard Tygodniowy</h1>
-
+        <h1 className="text-2xl font-bold flex-1" style={{ color: "var(--text-primary)" }}>
+          Dashboard Tygodniowy
+        </h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
-              let w = selectedWeek - 1;
-              let y = selectedYear;
+              let w = selectedWeek - 1; let y = selectedYear;
               if (w < 1) { w = 52; y--; }
-              setSelectedWeek(w);
-              setSelectedYear(y);
+              setSelectedWeek(w); setSelectedYear(y);
             }}
-            className="p-2 rounded-xl transition-colors hover:text-white"
+            className="p-2 rounded-xl transition-colors"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
-          >
-            ←
-          </button>
+          >←</button>
 
           <select
             value={`${selectedWeek}-${selectedYear}`}
             onChange={(e) => {
               const [w, y] = e.target.value.split("-").map(Number);
-              setSelectedWeek(w);
-              setSelectedYear(y);
+              setSelectedWeek(w); setSelectedYear(y);
             }}
             className="rounded-xl px-3 py-2 text-sm max-w-[260px]"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
           >
-            {weekOptions.map((o) => (
-              <option key={`${o.week}-${o.year}`} value={`${o.week}-${o.year}`}>
-                {o.label}
-              </option>
+            {weekOptions.map(o => (
+              <option key={`${o.week}-${o.year}`} value={`${o.week}-${o.year}`}>{o.label}</option>
             ))}
           </select>
 
           <button
             onClick={() => {
-              let w = selectedWeek + 1;
-              let y = selectedYear;
+              let w = selectedWeek + 1; let y = selectedYear;
               if (w > 52) { w = 1; y++; }
               if (w > todayWeek || y > todayYear) return;
-              setSelectedWeek(w);
-              setSelectedYear(y);
+              setSelectedWeek(w); setSelectedYear(y);
             }}
             disabled={selectedWeek === todayWeek && selectedYear === todayYear}
-            className="p-2 rounded-xl disabled:opacity-40 transition-colors hover:text-white"
+            className="p-2 rounded-xl disabled:opacity-40 transition-colors"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
-          >
-            →
-          </button>
+          >→</button>
         </div>
       </div>
 
@@ -314,22 +273,50 @@ export default function TygodniowyPage() {
         )}
       </div>
 
+      {/* Alert banners */}
+      {isAdminOrLider && (
+        <div className="space-y-2">
+          {monthlyRevGoal === null && (
+            <div
+              className="px-4 py-3 rounded-xl text-sm flex flex-wrap items-center gap-2"
+              style={{ background: "rgba(255,153,34,0.07)", border: "1px solid rgba(255,153,34,0.3)", color: "var(--orange)" }}
+            >
+              ⚠ Brak celu miesięcznego — cele ilościowe (spotkania, zamknięcia, leady) nie zostaną obliczone.
+              <Link href="/cele" style={{ color: "var(--neon)", textDecoration: "underline" }}>
+                Ustaw w zakładce Cele →
+              </Link>
+            </div>
+          )}
+          {monthlyRevGoal !== null && dealSize === 0 && (
+            <div
+              className="px-4 py-3 rounded-xl text-sm flex flex-wrap items-center gap-2"
+              style={{ background: "rgba(255,153,34,0.07)", border: "1px solid rgba(255,153,34,0.3)", color: "var(--orange)" }}
+            >
+              ⚠ Brak Deal Size — cele zamknięć i spotkań nie zostaną obliczone.
+              <Link href="/ustawienia" style={{ color: "var(--neon)", textDecoration: "underline" }}>
+                Ustaw w Ustawienia →
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {[
-          { code: "LEADS", value: leads, prev: prevWeeklyForm?.totalLeads },
-          { code: "MEETINGS_BOOKED", value: weeklyForm?.totalMeetingsBooked ?? 0, prev: prevWeeklyForm?.totalMeetingsBooked },
-          { code: "MEETINGS_ATTENDED", value: attended, prev: prevWeeklyForm?.totalAttended },
-          { code: "CLOSINGS", value: closings, prev: prevWeeklyForm?.totalClosings },
-          { code: "REVENUE", value: revenue, prev: prevWeeklyForm?.totalRevenue },
-          { code: "SUR", value: sur, prev: prevSur },
-          { code: "CP", value: cp, prev: prevCp },
-          { code: "LTS", value: lts, prev: null },
-          ...(cpl > 0 ? [{ code: "CPL", value: cpl, prev: null }] : []),
+          { code: "LEADS",             value: leads,   prev: prevWeeklyForm?.totalLeads,         derived: derivedLeads },
+          { code: "MEETINGS_BOOKED",   value: booked,  prev: prevWeeklyForm?.totalMeetingsBooked, derived: derivedBooked },
+          { code: "MEETINGS_ATTENDED", value: attended,prev: prevWeeklyForm?.totalAttended,       derived: derivedAttended },
+          { code: "CLOSINGS",          value: closings,prev: prevWeeklyForm?.totalClosings,       derived: derivedClosings },
+          { code: "REVENUE",           value: revenue, prev: prevWeeklyForm?.totalRevenue,        derived: weeklyRevTarget },
+          { code: "SUR",               value: sur,     prev: prevSur,                             derived: 0 },
+          { code: "CP",                value: cp,      prev: prevCp,                              derived: 0 },
+          { code: "LTS",               value: lts,     prev: null,                                derived: 0 },
+          ...(cpl > 0 ? [{ code: "CPL", value: cpl, prev: null, derived: 0 }] : []),
         ].map((item) => {
           const t = getTarget(item.code);
           if (!t) return null;
-          const target = item.code === "REVENUE" ? weeklyRevTarget : t.target;
+          const target = item.derived > 0 ? item.derived : t.target;
           return (
             <KpiCard
               key={item.code}
@@ -350,43 +337,32 @@ export default function TygodniowyPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold" style={{ color: "var(--text-primary)" }}>Wyniki dzienne w tygodniu</h2>
           <div className="flex gap-2">
-            <button
-              onClick={() => setChartMetric("revenue")}
-              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
-                chartMetric === "revenue"
-                  ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
-                  : ""
-              }`}
-              style={chartMetric !== "revenue" ? { border: "1px solid var(--border-card)", color: "var(--text-muted)" } : undefined}
-            >
-              Przychód
-            </button>
-            <button
-              onClick={() => setChartMetric("meetings")}
-              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
-                chartMetric === "meetings"
-                  ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
-                  : ""
-              }`}
-              style={chartMetric !== "meetings" ? { border: "1px solid var(--border-card)", color: "var(--text-muted)" } : undefined}
-            >
-              Spotkania
-            </button>
+            {(["revenue", "meetings"] as const).map(m => (
+              <button
+                key={m}
+                onClick={() => setChartMetric(m)}
+                className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+                style={chartMetric === m
+                  ? { background: "var(--neon-dim)", border: "1px solid var(--neon-border)", color: "var(--neon)" }
+                  : { border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
+              >
+                {m === "revenue" ? "Przychód" : "Spotkania"}
+              </button>
+            ))}
           </div>
         </div>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-            <XAxis dataKey="name" stroke="#627a6d" tick={{ fontSize: 12 }} />
-            <YAxis stroke="#627a6d" tick={{ fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+            <XAxis dataKey="name" stroke="#627a6d" tick={{ fontSize: 12, fill: "#627a6d" }} />
+            <YAxis stroke="#627a6d" tick={{ fontSize: 12, fill: "#627a6d" }} />
             <Tooltip
-              contentStyle={{ background: "#1E293B", border: "1px solid #334155", borderRadius: "12px" }}
-              labelStyle={{ color: "#F1F5F9" }}
-              itemStyle={{ color: "#6366F1" }}
+              contentStyle={{ background: "#0e1210", border: "1px solid rgba(0,255,136,0.2)", borderRadius: "12px" }}
+              labelStyle={{ color: "#e8f0ec", fontWeight: 600 }}
             />
             <Bar
               dataKey={chartMetric}
-              fill="#6366F1"
+              fill="#00ff88"
               radius={[4, 4, 0, 0]}
               name={chartMetric === "revenue" ? "Przychód (PLN)" : "Spotkania"}
             />
@@ -394,12 +370,11 @@ export default function TygodniowyPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Comparison with previous week */}
+      {/* Week-to-week comparison */}
       {prevWeeklyForm && (
         <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
           <h2 className="font-bold mb-4" style={{ color: "var(--text-primary)" }}>
-            Porównanie: Tydzień {selectedWeek} vs Tydzień{" "}
-            {selectedWeek > 1 ? selectedWeek - 1 : 52}
+            Porównanie: Tydzień {selectedWeek} vs Tydzień {selectedWeek > 1 ? selectedWeek - 1 : 52}
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full kpi-table">
@@ -413,22 +388,22 @@ export default function TygodniowyPage() {
               </thead>
               <tbody>
                 {[
-                  { label: "Leady", prev: prevWeeklyForm.totalLeads, curr: leads },
+                  { label: "Leady",            prev: prevWeeklyForm.totalLeads,    curr: leads },
                   { label: "Odbyłe spotkania", prev: prevWeeklyForm.totalAttended, curr: attended },
-                  { label: "Zamknięcia", prev: prevWeeklyForm.totalClosings, curr: closings },
-                  { label: "Przychód (PLN)", prev: prevWeeklyForm.totalRevenue, curr: revenue },
-                  { label: "SUR (%)", prev: prevSur, curr: sur },
-                  { label: "CP (%)", prev: prevCp, curr: cp },
+                  { label: "Zamknięcia",        prev: prevWeeklyForm.totalClosings, curr: closings },
+                  { label: "Przychód (PLN)",    prev: prevWeeklyForm.totalRevenue,  curr: revenue },
+                  { label: "SUR (%)",           prev: prevSur,                       curr: sur },
+                  { label: "CP (%)",            prev: prevCp,                        curr: cp },
                 ].map((row) => {
                   const diff = row.prev !== 0 ? ((row.curr - row.prev) / Math.abs(row.prev)) * 100 : 0;
                   const isPositive = diff >= 0;
                   return (
                     <tr key={row.label}>
-                      <td style={{ color: "var(--text-secondary)" }} className="font-medium">{row.label}</td>
+                      <td className="font-medium" style={{ color: "var(--text-secondary)" }}>{row.label}</td>
                       <td style={{ color: "var(--text-muted)" }}>{formatNumber(row.prev, 1)}</td>
                       <td style={{ color: "var(--text-primary)" }}>{formatNumber(row.curr, 1)}</td>
                       <td>
-                        <span className={`text-sm font-semibold ${isPositive ? "text-green-400" : "text-red-400"}`}>
+                        <span style={{ color: isPositive ? "#22C55E" : "#EF4444", fontWeight: 600, fontSize: "0.875rem" }}>
                           {isPositive ? "↑" : "↓"} {Math.abs(diff).toFixed(1)}%
                         </span>
                       </td>
@@ -437,92 +412,6 @@ export default function TygodniowyPage() {
                 })}
               </tbody>
             </table>
-          </div>
-        </div>
-      )}
-
-      {/* Weekly Form (Lider/Admin) */}
-      {(isAdmin || isLider) && (
-        <div className="rounded-2xl p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border-card)" }}>
-          <h2 className="font-bold mb-5" style={{ color: "var(--text-primary)" }}>
-            Formularz tygodniowy
-            {isLocked && (
-              <span className="ml-2 text-xs text-yellow-400">(zablokowany)</span>
-            )}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div>
-              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Liczba leadów w tygodniu</label>
-              <input
-                type="number"
-                value={totalLeads}
-                onChange={(e) => setTotalLeads(e.target.value)}
-                disabled={isLocked}
-                min="0"
-                className="w-full rounded-xl px-3 py-2 text-sm disabled:opacity-50"
-                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Wydatki na reklamy (PLN)</label>
-              <input
-                type="number"
-                value={adSpend}
-                onChange={(e) => setAdSpend(e.target.value)}
-                disabled={isLocked}
-                min="0"
-                step="0.01"
-                className="w-full rounded-xl px-3 py-2 text-sm disabled:opacity-50"
-                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>CPL (auto)</label>
-              <div
-                className="w-full rounded-xl px-3 py-2 text-sm"
-                style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-muted)" }}
-              >
-                {totalLeads && adSpend && parseInt(totalLeads) > 0
-                  ? formatPLN(parseFloat(adSpend) / parseInt(totalLeads))
-                  : "— obliczany automatycznie"}
-              </div>
-            </div>
-          </div>
-          <div className="mb-4">
-            <label className="block text-xs mb-1" style={{ color: "var(--text-muted)" }}>Notatka</label>
-            <textarea
-              value={formNotes}
-              onChange={(e) => setFormNotes(e.target.value)}
-              disabled={isLocked}
-              rows={2}
-              className="w-full rounded-xl px-3 py-2 text-sm resize-none disabled:opacity-50"
-              style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }}
-            />
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => handleSave(false)}
-              disabled={loading || isLocked}
-              className="hover:bg-indigo-600 disabled:opacity-60 font-semibold rounded-xl px-5 py-2.5 text-sm transition-colors"
-              style={{ background: "var(--neon)", color: "#000" }}
-            >
-              Zapisz dane
-            </button>
-            {!isLocked && (
-              <button
-                onClick={() => {
-                  if (confirm("Czy na pewno chcesz zamknąć ten tydzień? Danych nie będzie można edytować.")) {
-                    handleSave(true);
-                  }
-                }}
-                disabled={loading}
-                className="bg-orange-500/20 border border-orange-500/40 hover:bg-orange-500/30 text-orange-400 font-semibold rounded-xl px-5 py-2.5 text-sm transition-colors"
-              >
-                🔒 Zamknij tydzień
-              </button>
-            )}
           </div>
         </div>
       )}
