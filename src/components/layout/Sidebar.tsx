@@ -16,6 +16,7 @@ const navItems = [
   { href: "/zespol-closing", icon: "◉", label: "Closing", roles: ["ADMIN", "LIDER", "CLOSER"] },
   { href: "/zespol-setting", icon: "◎", label: "Setting", roles: ["ADMIN", "LIDER", "SETTER"] },
   { href: "/bottlenecki", icon: "⚠", label: "Bottlenecki", roles: ["ADMIN", "LIDER"] },
+  { href: "/cele", icon: "⊙", label: "Cele", roles: ["ADMIN", "LIDER"] },
   { href: "/ustawienia", icon: "◌", label: "Ustawienia", roles: ["ADMIN"] },
 ];
 

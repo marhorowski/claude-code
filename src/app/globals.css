@@ -10,8 +10,8 @@
   --bg-card: #0e1210;
   --bg-elevated: #131917;
   --bg-input: #0a0d0b;
-  --border-card: #1c2320;
-  --border-bright: #273028;
+  --border-card: rgba(255,255,255,0.10);
+  --border-bright: rgba(255,255,255,0.20);
   --neon: #00ff88;
   --neon-dim: rgba(0, 255, 136, 0.12);
   --neon-border: rgba(0, 255, 136, 0.28);
@@ -36,8 +36,8 @@
   --bg-card: #ffffff;
   --bg-elevated: #e3ede8;
   --bg-input: #f4f9f6;
-  --border-card: #c2d9cc;
-  --border-bright: #a8ccbc;
+  --border-card: rgba(0,0,0,0.12);
+  --border-bright: rgba(0,0,0,0.20);
   --neon: #006b34;
   --neon-dim: rgba(0, 107, 52, 0.1);
   --neon-border: rgba(0, 107, 52, 0.32);

@@ -63,6 +63,8 @@ export async function POST(req: NextRequest) {
     dailyCtr,
     callsReceived,
     followUpCount,
+    unqualifiedMeetings,
+    meetingFollowUps,
     notes,
     targetUserId,
   } = body;
@@ -104,6 +106,8 @@ export async function POST(req: NextRequest) {
     dailyCtr: dailyCtr ?? null,
     callsReceived: callsReceived ?? null,
     followUpCount: followUpCount ?? null,
+    unqualifiedMeetings: unqualifiedMeetings ?? null,
+    meetingFollowUps: meetingFollowUps ?? null,
     notes: notes ?? null,
   };
 
