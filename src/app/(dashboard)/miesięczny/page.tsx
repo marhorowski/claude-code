@@ -58,6 +58,13 @@ interface MonthlyForm {
   ar: number | null;
   leadToClose: number | null;
   notes: string | null;
+  histRevenue: number | null;
+  histLeads: number | null;
+  histBooked: number | null;
+  histAttended: number | null;
+  histClosings: number | null;
+  histSur: number | null;
+  histCp: number | null;
 }
 
 interface KpiTarget {
@@ -86,10 +93,11 @@ export default function MiesięcznyPage() {
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
 
   const [weeklyForms, setWeeklyForms] = useState<WeeklyForm[]>([]);
+  const [prevWeeklyForms, setPrevWeeklyForms] = useState<WeeklyForm[]>([]);
   const [monthlyForm, setMonthlyForm] = useState<MonthlyForm | null>(null);
   const [prevMonthlyForm, setPrevMonthlyForm] = useState<MonthlyForm | null>(null);
   const [targets, setTargets] = useState<KpiTarget[]>([]);
-  const [salesSettings, setSalesSettings] = useState<SalesSettings>({ dealSize: 0, leadToMeetingRate: 0 });
+  const [salesSettings, setSalesSettings] = useState<SalesSettings>({ dealSize: 0, leadToMeetingRate: 0, setterBookingRate: 0, vslConversionRate: 0 });
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -110,12 +118,19 @@ export default function MiesięcznyPage() {
       fetch(`/api/sales-settings?clientId=${selectedClientId}`).then((r) => r.json()),
     ])
       .then(([wf, mf, pmf, kt, ss]) => {
+        const allWeekly = Array.isArray(wf) ? wf : [];
         // Filter weekly forms for selected month
-        const monthWeeks = (Array.isArray(wf) ? wf : []).filter((w: WeeklyForm) => {
+        const monthWeeks = allWeekly.filter((w: WeeklyForm) => {
           const d = new Date(w.weekStart);
           return d.getMonth() + 1 === selectedMonth && d.getFullYear() === selectedYear;
         });
         setWeeklyForms(monthWeeks);
+        // Filter weekly forms for previous month
+        const prevMonthWeeks = allWeekly.filter((w: WeeklyForm) => {
+          const d = new Date(w.weekStart);
+          return d.getMonth() + 1 === prevMonth && d.getFullYear() === prevYear;
+        });
+        setPrevWeeklyForms(prevMonthWeeks);
 
         const current = Array.isArray(mf) ? mf[0] : null;
         const prev = Array.isArray(pmf) ? pmf[0] : null;
@@ -155,6 +170,25 @@ export default function MiesięcznyPage() {
   const avgCP = calcCP(totalClosings, totalAttended);
   const avgLTS = calcLTS(totalClosings, totalLeads);
   const monthlyCPL = totalLeads > 0 && totalAdSpend > 0 ? totalAdSpend / totalLeads : 0;
+
+  // Previous month aggregates — from weekly forms if available, else from hist* fields
+  const prevWkRevenue = prevWeeklyForms.reduce((s, w) => s + w.totalRevenue, 0);
+  const prevWkLeads = prevWeeklyForms.reduce((s, w) => s + w.totalLeads, 0);
+  const prevWkAttended = prevWeeklyForms.reduce((s, w) => s + w.totalAttended, 0);
+  const prevWkClosings = prevWeeklyForms.reduce((s, w) => s + w.totalClosings, 0);
+  const prevWkBooked = prevWeeklyForms.reduce((s, w) => s + w.totalMeetingsBooked, 0);
+  const prevWkPlanned = prevWeeklyForms.reduce((s, w) => s + w.totalPlannedMeetings, 0);
+  const prevWkSurBase = prevWkPlanned > 0 ? prevWkPlanned : prevWkBooked;
+  const prevWkSUR = calcSUR(prevWkAttended, prevWkSurBase);
+  const prevWkCP = calcCP(prevWkClosings, prevWkAttended);
+
+  const hasPrevWk = prevWeeklyForms.length > 0;
+  const prevRevenue = hasPrevWk ? prevWkRevenue : (prevMonthlyForm?.histRevenue ?? null);
+  const prevLeads = hasPrevWk ? prevWkLeads : (prevMonthlyForm?.histLeads ?? null);
+  const prevAttended = hasPrevWk ? prevWkAttended : (prevMonthlyForm?.histAttended ?? null);
+  const prevClosings = hasPrevWk ? prevWkClosings : (prevMonthlyForm?.histClosings ?? null);
+  const prevSUR = hasPrevWk ? prevWkSUR : (prevMonthlyForm?.histSur ?? null);
+  const prevCP = hasPrevWk ? prevWkCP : (prevMonthlyForm?.histCp ?? null);
 
   const weeklyRevTarget = getTarget("REVENUE", "WEEKLY")?.target ?? 0;
   const monthRevTarget = monthlyForm?.targetRevenue ?? (weeklyRevTarget * 4);
@@ -289,12 +323,12 @@ export default function MiesięcznyPage() {
         <h2 className="text-lg font-bold mb-4" style={{ color: "var(--text-primary)" }}>Wyniki z tygodni</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {[
-            { label: "Leady", value: totalLeads, code: "LEADS", derived: monthlyLeads },
-            { label: "Odbyłe spotkania", value: totalAttended, code: "MEETINGS_ATTENDED", derived: monthlyAttended },
-            { label: "Zamknięcia", value: totalClosings, code: "CLOSINGS", derived: monthlyClosings },
-            { label: "Przychód", value: totalRevenue, code: "REVENUE", derived: monthRevTarget },
-            { label: "Show Up Rate", value: avgSUR, code: "SUR", derived: 0 },
-            { label: "Closing %", value: avgCP, code: "CP", derived: 0 },
+            { label: "Leady", value: totalLeads, code: "LEADS", derived: monthlyLeads, prev: prevLeads },
+            { label: "Odbyłe spotkania", value: totalAttended, code: "MEETINGS_ATTENDED", derived: monthlyAttended, prev: prevAttended },
+            { label: "Zamknięcia", value: totalClosings, code: "CLOSINGS", derived: monthlyClosings, prev: prevClosings },
+            { label: "Przychód", value: totalRevenue, code: "REVENUE", derived: monthRevTarget, prev: prevRevenue },
+            { label: "Show Up Rate", value: avgSUR, code: "SUR", derived: 0, prev: prevSUR },
+            { label: "Closing %", value: avgCP, code: "CP", derived: 0, prev: prevCP },
           ].map((item) => {
             const t = getTarget(item.code, "WEEKLY");
             if (!t) return null;
@@ -307,6 +341,7 @@ export default function MiesięcznyPage() {
                 target={target}
                 unit={t.unit}
                 lowerIsBetter={t.lowerIsBetter}
+                previousValue={item.prev}
                 compact
               />
             );

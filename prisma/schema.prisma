@@ -122,6 +122,15 @@ model MonthlyForm {
   ar            Float?
   leadToClose   Float?
   notes         String?
+  // Historical aggregate actuals (for months before app was used)
+  histRevenue   Float?
+  histLeads     Int?
+  histBooked    Int?
+  histAttended  Int?
+  histClosings  Int?
+  histAdSpend   Float?
+  histSur       Float?
+  histCp        Float?
   createdAt     DateTime @default(now())
 
   @@unique([clientId, month, year])

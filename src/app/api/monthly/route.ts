@@ -37,16 +37,38 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { clientId, month, year, targetRevenue, enge, aov, ar, leadToClose, notes } = body;
+  const {
+    clientId, month, year,
+    targetRevenue, enge, aov, ar, leadToClose, notes,
+    histRevenue, histLeads, histBooked, histAttended, histClosings,
+    histAdSpend, histSur, histCp,
+  } = body;
 
   if (!clientId || !month || !year) {
     return NextResponse.json({ error: "Brak wymaganych pól" }, { status: 400 });
   }
 
+  const data = {
+    targetRevenue: targetRevenue ?? undefined,
+    enge: enge ?? undefined,
+    aov: aov ?? undefined,
+    ar: ar ?? undefined,
+    leadToClose: leadToClose ?? undefined,
+    notes: notes ?? undefined,
+    histRevenue: histRevenue ?? undefined,
+    histLeads: histLeads ?? undefined,
+    histBooked: histBooked ?? undefined,
+    histAttended: histAttended ?? undefined,
+    histClosings: histClosings ?? undefined,
+    histAdSpend: histAdSpend ?? undefined,
+    histSur: histSur ?? undefined,
+    histCp: histCp ?? undefined,
+  };
+
   const form = await prisma.monthlyForm.upsert({
     where: { clientId_month_year: { clientId, month, year } },
-    update: { targetRevenue, enge, aov, ar, leadToClose, notes },
-    create: { clientId, month, year, targetRevenue, enge, aov, ar, leadToClose, notes },
+    update: data,
+    create: { clientId, month, year, ...data },
   });
 
   return NextResponse.json(form);
