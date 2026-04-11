@@ -18,9 +18,12 @@ interface SalesSettings {
   dealSize: number; closerCommissionPct: number; setterCommissionPct: number;
   fixedMonthlyCosts: number; leadToMeetingRate: number;
 }
+interface FormToken {
+  id: string; token: string; label: string; userId: string | null; createdAt: string;
+}
 
 const MANDATORY_CODES = ["SUR", "CP", "CLOSINGS", "REVENUE", "MEETINGS_ATTENDED", "MEETINGS_BOOKED", "LEADS"];
-const TABS = ["Klienci", "Użytkownicy", "Cele KPI", "Sprzedaż", "Moje konto"];
+const TABS = ["Klienci", "Użytkownicy", "Cele KPI", "Sprzedaż", "Tokeny", "Moje konto"];
 
 export default function UstawieniaPage() {
   const { selectedClientId, clients: contextClients } = useClient();
@@ -51,13 +54,20 @@ export default function UstawieniaPage() {
   const [myPassword, setMyPassword] = useState("");
   const [myPasswordConfirm, setMyPasswordConfirm] = useState("");
 
+  const [tokenClientId, setTokenClientId] = useState(selectedClientId);
+  const [tokens, setTokens] = useState<FormToken[]>([]);
+  const [newTokenLabel, setNewTokenLabel] = useState("");
+  const [newTokenUserId, setNewTokenUserId] = useState("");
+  const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
+
   useEffect(() => {
     if (isAdmin) { fetchClients(); fetchUsers(); }
   }, [isAdmin]);
 
   useEffect(() => { if (kpiClientId) fetchKpiTargets(kpiClientId); }, [kpiClientId]);
-  useEffect(() => { setKpiClientId(selectedClientId); setSalesClientId(selectedClientId); }, [selectedClientId]);
+  useEffect(() => { setKpiClientId(selectedClientId); setSalesClientId(selectedClientId); setTokenClientId(selectedClientId); }, [selectedClientId]);
   useEffect(() => { if (salesClientId) fetchSalesSettings(salesClientId); }, [salesClientId]);
+  useEffect(() => { if (tokenClientId) fetchTokens(tokenClientId); }, [tokenClientId]);
 
   async function fetchClients() {
     const r = await fetch("/api/clients");
@@ -80,6 +90,46 @@ export default function UstawieniaPage() {
   async function fetchSalesSettings(cid: string) {
     const data = await fetch(`/api/sales-settings?clientId=${cid}`).then(r => r.json());
     if (data && !data.error) setSalesSettings(data);
+  }
+
+  async function fetchTokens(cid: string) {
+    const data = await fetch(`/api/form-tokens?clientId=${cid}`).then(r => r.json());
+    setTokens(Array.isArray(data) ? data : []);
+  }
+
+  async function addToken() {
+    if (!tokenClientId) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/form-tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: tokenClientId, label: newTokenLabel, userId: newTokenUserId || null }),
+      });
+      if (!res.ok) throw new Error();
+      setToast({ msg: "Token wygenerowany ✓", type: "success" });
+      setNewTokenLabel(""); setNewTokenUserId("");
+      fetchTokens(tokenClientId);
+    } catch { setToast({ msg: "Błąd generowania tokenu", type: "error" }); }
+    setLoading(false);
+  }
+
+  async function deleteToken(id: string) {
+    if (!confirm("Usunąć ten token?")) return;
+    try {
+      const res = await fetch(`/api/form-tokens?id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setToast({ msg: "Token usunięty", type: "success" });
+      fetchTokens(tokenClientId);
+    } catch { setToast({ msg: "Błąd usuwania", type: "error" }); }
+  }
+
+  function copyToken(token: string, id: string) {
+    const url = `${window.location.origin}/f/${token}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedTokenId(id);
+      setTimeout(() => setCopiedTokenId(null), 2000);
+    });
   }
 
   async function addClient() {
@@ -156,7 +206,8 @@ export default function UstawieniaPage() {
     setLoading(false);
   }
 
-  const tabs = isAdmin ? TABS : ["Moje konto"];
+  const isAdminOrLider = isAdmin || session?.user?.role === "LIDER";
+  const tabs = isAdmin ? TABS : isAdminOrLider ? ["Tokeny", "Moje konto"] : ["Moje konto"];
   const periodOrder = ["WEEKLY", "MONTHLY", "QUARTERLY"];
   const groupedTargets = periodOrder.reduce((acc, p) => { acc[p] = kpiTargets.filter(t => t.period === p); return acc; }, {} as Record<string, KpiTarget[]>);
   const periodLabels: Record<string, string> = { WEEKLY: "Tygodniowe", MONTHLY: "Miesięczne", QUARTERLY: "Kwartalne" };
@@ -354,6 +405,88 @@ export default function UstawieniaPage() {
               {loading ? "Zapisywanie..." : "Zapisz ustawienia sprzedaży"}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* TOKENY */}
+      {activeTab === "Tokeny" && isAdminOrLider && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-bold text-white">Publiczne linki do formularzy</h2>
+            {allClients.length > 1 && (
+              <select value={tokenClientId} onChange={e => setTokenClientId(e.target.value)} className="bg-[#1E293B] border border-[#334155] rounded-xl px-3 py-2 text-white text-sm">
+                {allClients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            )}
+          </div>
+          <p className="text-xs text-slate-500">Linki permanentne — nie wymagają logowania. Closer lub setter może wypełniać formularz przez link. Przypisz link do konkretnego użytkownika.</p>
+
+          {/* Add new token */}
+          <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-5 space-y-4">
+            <h3 className="font-semibold text-white text-sm">Wygeneruj nowy link</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={LBL}>Etykieta (opis linku)</label>
+                <input value={newTokenLabel} onChange={e => setNewTokenLabel(e.target.value)} className={INP} placeholder="np. Jan Kowalski — Closer" />
+              </div>
+              <div>
+                <label className={LBL}>Przypisz do użytkownika *</label>
+                <select value={newTokenUserId} onChange={e => setNewTokenUserId(e.target.value)} className={INP}>
+                  <option value="">— wybierz użytkownika —</option>
+                  {users.filter(u => u.role === "CLOSER" || u.role === "SETTER" || u.role === "LIDER").map(u => (
+                    <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <button onClick={addToken} disabled={loading || !newTokenUserId} className="bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white font-semibold rounded-xl px-5 py-2.5 text-sm">
+              Wygeneruj link
+            </button>
+          </div>
+
+          {/* Token list */}
+          {tokens.length === 0 ? (
+            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl p-8 text-center text-slate-400 text-sm">Brak wygenerowanych tokenów</div>
+          ) : (
+            <div className="bg-[#1E293B] border border-[#334155] rounded-2xl overflow-hidden">
+              <table className="w-full kpi-table">
+                <thead><tr><th>Etykieta</th><th>Link</th><th>Użytkownik</th><th>Data</th><th></th></tr></thead>
+                <tbody>
+                  {tokens.map(t => {
+                    const url = typeof window !== "undefined" ? `${window.location.origin}/f/${t.token}` : `/f/${t.token}`;
+                    const user = users.find(u => u.id === t.userId);
+                    return (
+                      <tr key={t.id}>
+                        <td className="text-white font-medium">{t.label || "—"}</td>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <span className="text-slate-500 text-xs truncate max-w-[200px]">/f/{t.token.slice(0, 12)}…</span>
+                            <button
+                              onClick={() => copyToken(t.token, t.id)}
+                              className="text-xs px-2.5 py-1 rounded-lg transition-colors flex-shrink-0"
+                              style={copiedTokenId === t.id
+                                ? { background: "rgba(0,255,136,0.1)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.3)" }
+                                : { background: "#0F172A", color: "#888", border: "1px solid #334155" }
+                              }
+                            >
+                              {copiedTokenId === t.id ? "Skopiowano ✓" : "Kopiuj"}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="text-slate-400 text-sm">{user ? `${user.name} (${user.role})` : "—"}</td>
+                        <td className="text-slate-500 text-xs">{new Date(t.createdAt).toLocaleDateString("pl-PL")}</td>
+                        <td>
+                          {isAdmin && (
+                            <button onClick={() => deleteToken(t.id)} className="text-red-400 hover:text-red-300 text-xs">Usuń</button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 

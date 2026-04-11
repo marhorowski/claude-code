@@ -547,6 +547,7 @@ export default function DanePage() {
         <div>
           <MissingPanel
             tab={tab}
+            clientId={selectedClientId}
             missingC={missingC} missingS={missingS} missingW={missingW} missingM={missingM} missingQ={missingQ}
             onSelectC={(id, date) => { setCPersonId(id); setCDate(toDateInput(date)); }}
             onSelectS={(id, date) => { setSPersonId(id); setSDate(toDateInput(date)); }}
@@ -574,6 +575,7 @@ interface MissingItem { key: string; label: string; sub: string; action: () => v
 
 interface MissingPanelProps {
   tab: Tab;
+  clientId: string;
   missingC: { person: TeamMember; date: Date }[];
   missingS: { person: TeamMember; date: Date }[];
   missingW: { week: number; year: number; label: string }[];
@@ -586,21 +588,28 @@ interface MissingPanelProps {
   onSelectQ: (quarter: number, year: number) => void;
 }
 
-function MissingPanel({ tab, missingC, missingS, missingW, missingM, missingQ, onSelectC, onSelectS, onSelectW, onSelectM, onSelectQ }: MissingPanelProps) {
-  const [dismissed, setDismissed] = useState<Set<string>>(() => {
-    try {
-      const saved = localStorage.getItem("kpi_dismissed_alerts");
-      return new Set(saved ? JSON.parse(saved) : []);
-    } catch { return new Set(); }
-  });
+function MissingPanel({ tab, clientId, missingC, missingS, missingW, missingM, missingQ, onSelectC, onSelectS, onSelectW, onSelectM, onSelectQ }: MissingPanelProps) {
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!clientId) return;
+    fetch(`/api/dismissed-alerts?clientId=${clientId}`)
+      .then((r) => r.json())
+      .then((keys: string[]) => setDismissed(new Set(Array.isArray(keys) ? keys : [])))
+      .catch(() => {});
+  }, [clientId]);
 
   const dismiss = (key: string) => {
     setDismissed(prev => {
       const next = new Set(prev);
       next.add(key);
-      try { localStorage.setItem("kpi_dismissed_alerts", JSON.stringify([...next])); } catch {}
       return next;
     });
+    fetch("/api/dismissed-alerts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientId, alertKey: key }),
+    }).catch(() => {});
   };
 
   const allItems: MissingItem[] =
