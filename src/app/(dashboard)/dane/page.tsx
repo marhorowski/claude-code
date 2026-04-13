@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useClient } from "../layout";
 import { useSession } from "next-auth/react";
+import { DatePicker } from "@/components/ui/DatePicker";
 
 interface TeamMember { id: string; name: string; role: string }
 interface DailyFormData {
@@ -358,7 +359,7 @@ export default function DanePage() {
             {/* Date */}
             <div>
               <label className={LBL}>Data</label>
-              <input type="date" className={INP} style={inputStyle} value={cDate} onChange={e => { setCDate(e.target.value); setRevSuggested(false); }} />
+              <DatePicker value={cDate} onChange={v => { setCDate(v); setRevSuggested(false); }} max={new Date().toISOString().split("T")[0]} className={INP} style={inputStyle} />
             </div>
 
             <div className="border-t pt-4" style={{ borderColor: "var(--border-card)" }}>
@@ -466,7 +467,7 @@ export default function DanePage() {
             {/* Date */}
             <div>
               <label className={LBL}>Data</label>
-              <input type="date" className={INP} style={inputStyle} value={sDate} onChange={e => setSDate(e.target.value)} />
+              <DatePicker value={sDate} onChange={setSDate} max={new Date().toISOString().split("T")[0]} className={INP} style={inputStyle} />
             </div>
 
             <div className="border-t pt-4" style={{ borderColor: "var(--border-card)" }}>
@@ -520,7 +521,7 @@ export default function DanePage() {
             {/* Date */}
             <div>
               <label className={LBL}>Data</label>
-              <input type="date" className={INP} style={inputStyle} value={mktDate} onChange={e => setMktDate(e.target.value)} />
+              <DatePicker value={mktDate} onChange={setMktDate} max={new Date().toISOString().split("T")[0]} className={INP} style={inputStyle} />
             </div>
 
             <div className="border-t pt-4" style={{ borderColor: "var(--border-card)" }}>

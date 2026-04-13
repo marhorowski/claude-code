@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useClient } from "../layout";
 import { useSession } from "next-auth/react";
+import { DatePicker } from "@/components/ui/DatePicker";
 
 interface DailyRow {
   id: string;
@@ -218,22 +219,22 @@ export default function DaneZbiorcze() {
       >
         <div className="flex items-center gap-2">
           <span className="text-xs" style={{ color: "#555" }}>Od</span>
-          <input
-            type="date"
+          <DatePicker
             value={dateFrom}
-            onChange={(e) => setDateFrom(e.target.value)}
+            onChange={setDateFrom}
+            variant="dark"
             className="text-sm px-2 py-1.5 rounded-lg outline-none"
-            style={{ background: "#111", border: "1px solid #222", color: "#e5e5e5" }}
+            style={{ background: "#111", border: "1px solid #222", color: "#e5e5e5", minWidth: "140px" }}
           />
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs" style={{ color: "#555" }}>Do</span>
-          <input
-            type="date"
+          <DatePicker
             value={dateTo}
-            onChange={(e) => setDateTo(e.target.value)}
+            onChange={setDateTo}
+            variant="dark"
             className="text-sm px-2 py-1.5 rounded-lg outline-none"
-            style={{ background: "#111", border: "1px solid #222", color: "#e5e5e5" }}
+            style={{ background: "#111", border: "1px solid #222", color: "#e5e5e5", minWidth: "140px" }}
           />
         </div>
         <select

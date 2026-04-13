@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useClient } from "../layout";
 import { useSession } from "next-auth/react";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { calcSUR, calcCP, getISOWeek, getWeekBounds } from "@/lib/calculations";
 import { formatPLN, formatPercent, formatDateShort, getMonthName } from "@/lib/utils";
 import {
@@ -329,9 +330,10 @@ export default function ZespolClosingPage() {
 
         {/* Time range */}
         {period === "day" && (
-          <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
+          <DatePicker value={selectedDate} onChange={setSelectedDate}
+            max={new Date().toISOString().split("T")[0]}
             className="text-sm px-3 py-2 rounded-lg"
-            style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)" }} />
+            style={{ background: "var(--bg-input)", border: "1px solid var(--border-card)", color: "var(--text-primary)", minWidth: "150px" }} />
         )}
         {period === "week" && (
           <select value={`${selectedWeek}-${selectedYear}`}

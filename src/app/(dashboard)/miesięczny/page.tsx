@@ -63,6 +63,7 @@ interface MonthlyForm {
   histBooked: number | null;
   histAttended: number | null;
   histClosings: number | null;
+  histAdSpend: number | null;
   histSur: number | null;
   histCp: number | null;
 }
@@ -155,19 +156,24 @@ export default function MiesięcznyPage() {
   const getTarget = (code: string, period = "MONTHLY") =>
     targets.find((t) => t.code === code && t.period === period);
 
-  // Aggregate from weekly forms
-  const totalLeads = weeklyForms.reduce((s, w) => s + w.totalLeads, 0);
-  const totalBooked = weeklyForms.reduce((s, w) => s + w.totalMeetingsBooked, 0);
-  const totalPlanned = weeklyForms.reduce((s, w) => s + w.totalPlannedMeetings, 0);
-  const totalAttended = weeklyForms.reduce((s, w) => s + w.totalAttended, 0);
-  const totalClosings = weeklyForms.reduce((s, w) => s + w.totalClosings, 0);
-  const totalRevenue = weeklyForms.reduce((s, w) => s + w.totalRevenue, 0);
-  const totalAdSpend = weeklyForms.reduce((s, w) => s + (w.adSpend ?? 0), 0);
+  // Aggregate from weekly forms; fall back to hist* fields for historical months
+  const hasWeeklyData = weeklyForms.length > 0;
+  const totalLeads = hasWeeklyData ? weeklyForms.reduce((s, w) => s + w.totalLeads, 0) : (monthlyForm?.histLeads ?? 0);
+  const totalBooked = hasWeeklyData ? weeklyForms.reduce((s, w) => s + w.totalMeetingsBooked, 0) : (monthlyForm?.histBooked ?? 0);
+  const totalPlanned = hasWeeklyData ? weeklyForms.reduce((s, w) => s + w.totalPlannedMeetings, 0) : 0;
+  const totalAttended = hasWeeklyData ? weeklyForms.reduce((s, w) => s + w.totalAttended, 0) : (monthlyForm?.histAttended ?? 0);
+  const totalClosings = hasWeeklyData ? weeklyForms.reduce((s, w) => s + w.totalClosings, 0) : (monthlyForm?.histClosings ?? 0);
+  const totalRevenue = hasWeeklyData ? weeklyForms.reduce((s, w) => s + w.totalRevenue, 0) : (monthlyForm?.histRevenue ?? 0);
+  const totalAdSpend = hasWeeklyData ? weeklyForms.reduce((s, w) => s + (w.adSpend ?? 0), 0) : (monthlyForm?.histAdSpend ?? 0);
 
-  // SUR: use booked as fallback denominator when planned = 0
+  // SUR/CP: use hist values directly when available and no weekly data
   const surBase = totalPlanned > 0 ? totalPlanned : totalBooked;
-  const avgSUR = calcSUR(totalAttended, surBase);
-  const avgCP = calcCP(totalClosings, totalAttended);
+  const avgSUR = !hasWeeklyData && monthlyForm?.histSur != null
+    ? monthlyForm.histSur
+    : calcSUR(totalAttended, surBase);
+  const avgCP = !hasWeeklyData && monthlyForm?.histCp != null
+    ? monthlyForm.histCp
+    : calcCP(totalClosings, totalAttended);
   const avgLTS = calcLTS(totalClosings, totalLeads);
   const monthlyCPL = totalLeads > 0 && totalAdSpend > 0 ? totalAdSpend / totalLeads : 0;
 

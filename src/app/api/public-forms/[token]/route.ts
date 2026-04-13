@@ -15,18 +15,29 @@ export async function GET(
     return NextResponse.json({ error: "Nieprawidłowy token" }, { status: 404 });
   }
 
-  // Return users for this client so the form can show a closer picker
+  // Return users for this client so the form can show a user picker
   const accesses = await prisma.clientAccess.findMany({
     where: { clientId: tokenRecord.clientId },
     include: { user: { select: { id: true, name: true, role: true } } },
   });
+
+  const usersList = accesses.map((a) => ({ id: a.user.id, name: a.user.name, role: a.user.role }));
+
+  // Ensure the token's fixed user is always in the list (even if not in clientAccess)
+  if (tokenRecord.userId && !usersList.find((u) => u.id === tokenRecord.userId)) {
+    const fixedUser = await prisma.user.findUnique({
+      where: { id: tokenRecord.userId },
+      select: { id: true, name: true, role: true },
+    });
+    if (fixedUser) usersList.unshift(fixedUser);
+  }
 
   return NextResponse.json({
     clientId: tokenRecord.clientId,
     clientName: tokenRecord.client.name,
     label: tokenRecord.label,
     userId: tokenRecord.userId,
-    users: accesses.map((a) => ({ id: a.user.id, name: a.user.name, role: a.user.role })),
+    users: usersList,
   });
 }
 
@@ -67,8 +78,8 @@ export async function POST(
 
   if (!date) return NextResponse.json({ error: "Brak daty" }, { status: 400 });
 
-  // Use token's fixed userId, or the one chosen in the form
-  const userId = tokenRecord.userId || selectedUserId;
+  // Use the userId chosen in the form (allows picker override), fall back to token's fixed user
+  const userId = selectedUserId || tokenRecord.userId;
   if (!userId) {
     return NextResponse.json({ error: "Wybierz użytkownika" }, { status: 400 });
   }

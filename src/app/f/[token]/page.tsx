@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { DatePicker } from "@/components/ui/DatePicker";
 
 function toDateInput(d: Date) {
   return d.toISOString().split("T")[0];
@@ -200,9 +201,8 @@ export default function PublicFormPage({ params }: { params: { token: string } }
           <div className={CARD} style={cardStyle}>
             <div>
               <label className={LBL}>Data *</label>
-              <input type="date" required value={date} max={toDateInput(new Date())}
-                onChange={(e) => setDate(e.target.value)}
-                className={INP} style={inpStyle} />
+              <DatePicker value={date} onChange={setDate} max={toDateInput(new Date())} required
+                variant="dark" className={INP} style={inpStyle} />
             </div>
           </div>
 
@@ -227,10 +227,10 @@ export default function PublicFormPage({ params }: { params: { token: string } }
               </div>
             </div>
 
-            {/* Closer picker — only when token has no fixed user */}
-            {!tokenInfo.userId && (
-              <div>
-                <label className={LBL}>Użytkownik *</label>
+            {/* User picker — always visible so submitter can confirm who they're filling for */}
+            <div>
+              <label className={LBL}>Użytkownik *</label>
+              {tokenInfo.users.length > 0 ? (
                 <select
                   required
                   value={selectedUserId}
@@ -243,8 +243,10 @@ export default function PublicFormPage({ params }: { params: { token: string } }
                     <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
                   ))}
                 </select>
-              </div>
-            )}
+              ) : (
+                <div className={INP} style={{ ...inpStyle, opacity: 0.5 }}>Brak użytkowników przypisanych do klienta</div>
+              )}
+            </div>
           </div>
 
           {/* === SPRZEDAŻ === */}
