@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { fmtClock } from "@/lib/dates";
+import { Play, Pause, SkipForward, Square } from "lucide-react";
 
 /** Silnik + pasek aktywnego timera Pomodoro (widoczny globalnie). */
 export default function TimerWidget({
@@ -77,14 +78,30 @@ export default function TimerWidget({
         <button
           className="btn-outline px-2.5"
           onClick={() => (timer.running ? pauseTimer() : resumeTimer())}
+          title={timer.running ? "Pauza" : "Wznów"}
+          aria-label={timer.running ? "Pauza" : "Wznów"}
         >
-          {timer.running ? "❚❚" : "▶"}
+          {timer.running ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="h-4 w-4" />
+          )}
         </button>
-        <button className="btn-ghost px-2 text-xs" onClick={skipPhase} title="Pomiń fazę">
-          ⏭
+        <button
+          className="btn-ghost px-2"
+          onClick={skipPhase}
+          title="Pomiń fazę"
+          aria-label="Pomiń fazę"
+        >
+          <SkipForward className="h-4 w-4" />
         </button>
-        <button className="btn-ghost px-2 text-xs" onClick={stopTimer} title="Zatrzymaj">
-          ■
+        <button
+          className="btn-ghost px-2"
+          onClick={stopTimer}
+          title="Zatrzymaj timer"
+          aria-label="Zatrzymaj timer"
+        >
+          <Square className="h-4 w-4" />
         </button>
       </div>
     </div>

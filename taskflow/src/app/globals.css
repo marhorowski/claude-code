@@ -46,7 +46,7 @@ body {
 }
 
 .card {
-  @apply bg-ink-850 border border-ink-700 rounded-xl shadow-card;
+  @apply bg-ink-850 border border-ink-700 rounded-lg shadow-card;
 }
 
 .btn {
@@ -70,7 +70,7 @@ body {
 }
 
 .label {
-  @apply block text-xs uppercase tracking-wider text-stone2-400 mb-1.5;
+  @apply block text-xs uppercase text-stone2-400 mb-1.5;
 }
 
 .chip {

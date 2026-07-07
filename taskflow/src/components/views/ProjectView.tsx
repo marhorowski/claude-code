@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import { fmtHM } from "@/lib/dates";
 import TaskItem from "../TaskItem";
 import QuickAdd from "../QuickAdd";
+import { ChevronLeft, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 
 export default function ProjectView({
   projectId,
@@ -34,7 +35,8 @@ export default function ProjectView({
   return (
     <div className="space-y-4">
       <button className="btn-ghost -ml-2 text-xs" onClick={onBack}>
-        ← Wszystkie projekty
+        <ChevronLeft className="h-4 w-4" />
+        Wszystkie projekty
       </button>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -60,12 +62,13 @@ export default function ProjectView({
             <option value="">— bez celu —</option>
             {goals.map((g) => (
               <option key={g.id} value={g.id}>
-                🎯 {g.title}
+                {g.title}
               </option>
             ))}
           </select>
           <button
             className="btn-danger text-xs"
+            title="Usuń projekt (zadania wrócą do skrzynki)"
             onClick={() => {
               if (confirm("Usunąć projekt? Zadania wrócą do skrzynki.")) {
                 deleteProject(project.id);
@@ -73,6 +76,7 @@ export default function ProjectView({
               }
             }}
           >
+            <Trash2 className="h-3.5 w-3.5" />
             Usuń
           </button>
         </div>
@@ -107,7 +111,12 @@ export default function ProjectView({
             className="btn-ghost text-xs"
             onClick={() => setShowDone(!showDone)}
           >
-            {showDone ? "▾" : "▸"} Ukończone ({done.length})
+            {showDone ? (
+              <ChevronDown className="h-3.5 w-3.5" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5" />
+            )}
+            Ukończone ({done.length})
           </button>
           {showDone && (
             <div className="mt-2 space-y-1.5 opacity-60">

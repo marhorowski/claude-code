@@ -5,6 +5,7 @@ import Modal from "./Modal";
 import { useStore } from "@/lib/store";
 import { OnTime } from "@/lib/types";
 import { fmtHM } from "@/lib/dates";
+import { Trophy, Zap, Check, Turtle, Archive, Repeat } from "lucide-react";
 
 const PRAISE = [
   "Νίκη! Kolejne zadanie za Tobą.",
@@ -48,7 +49,7 @@ export default function CompleteModal({
   return (
     <Modal onClose={onClose}>
       <div className="text-center">
-        <div className="mx-auto mb-2 text-5xl">🏆</div>
+        <Trophy className="mx-auto mb-2 h-12 w-12 text-bronze-400" strokeWidth={1.5} />
         <div className="font-display text-3xl text-bronze-300">
           Gratulacje!
         </div>
@@ -58,9 +59,9 @@ export default function CompleteModal({
           <div className="mt-0.5 text-xs text-stone2-400">
             czas pracy: {fmtHM(task.timeSpentSec)}
             {task.estimateMin ? ` · estymacja: ${task.estimateMin} min` : ""}
-            {autoOnTime === "faster" && " · ⚡ szybciej niż plan!"}
+            {autoOnTime === "faster" && " · szybciej niż plan!"}
             {autoOnTime === "slower" && " · dłużej niż plan"}
-            {autoOnTime === "onTime" && " · ✓ w punkt"}
+            {autoOnTime === "onTime" && " · w punkt"}
           </div>
         </div>
       </div>
@@ -82,11 +83,11 @@ export default function CompleteModal({
           <div className="flex gap-2">
             {(
               [
-                ["faster", "⚡ Szybciej"],
-                ["onTime", "✓ Zgodnie z planem"],
-                ["slower", "🐌 Dłużej"],
-              ] as [OnTime, string][]
-            ).map(([val, label]) => (
+                ["faster", "Szybciej", Zap],
+                ["onTime", "Zgodnie z planem", Check],
+                ["slower", "Dłużej", Turtle],
+              ] as [OnTime, string, typeof Zap][]
+            ).map(([val, label, Icon]) => (
               <button
                 key={val}
                 className={`chip border px-3 py-1.5 ${
@@ -96,6 +97,7 @@ export default function CompleteModal({
                 }`}
                 onClick={() => setOnTime(val)}
               >
+                <Icon className="h-3.5 w-3.5" />
                 {label}
               </button>
             ))}
@@ -115,6 +117,7 @@ export default function CompleteModal({
               }`}
               onClick={() => setRecur(true)}
             >
+              <Repeat className="h-3.5 w-3.5" />
               Tak — stwórz z tego proces
             </button>
             <button
@@ -141,7 +144,8 @@ export default function CompleteModal({
             Anuluj
           </button>
           <button className="btn-primary" onClick={finish}>
-            🌿 Do archiwum
+            <Archive className="h-4 w-4" />
+            Do archiwum
           </button>
         </div>
       </div>

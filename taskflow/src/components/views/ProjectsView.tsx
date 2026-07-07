@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { fmtHM } from "@/lib/dates";
+import { Plus, Target } from "lucide-react";
 
 export default function ProjectsView({
   onOpenProject,
@@ -25,7 +26,7 @@ export default function ProjectsView({
     <div className="space-y-4">
       <h2 className="font-display text-3xl text-stone2-100">Projekty</h2>
       <div className="card flex items-center gap-2 p-2">
-        <span className="pl-2 text-bronze-400 text-lg leading-none">+</span>
+        <Plus className="ml-2 h-4 w-4 shrink-0 text-bronze-400" />
         <input
           className="flex-1 bg-transparent px-1 py-1.5 text-sm text-stone2-100 placeholder:text-stone2-400/50 focus:outline-none"
           placeholder="Nazwa nowego projektu… (Enter)"
@@ -64,7 +65,8 @@ export default function ProjectsView({
               </div>
               {goal && (
                 <div className="mt-2 chip border border-ink-600 bg-ink-900 text-stone2-300">
-                  🎯 {goal.title}
+                  <Target className="h-3 w-3 text-bronze-400" />
+                  {goal.title}
                 </div>
               )}
             </button>

@@ -6,6 +6,7 @@ import { useStore } from "@/lib/store";
 import { computeStats, goalSeconds } from "@/lib/stats";
 import { fmtHM, tomorrowStr, todayStr, isToday } from "@/lib/dates";
 import { format, addDays } from "date-fns";
+import { Star } from "lucide-react";
 
 interface Row {
   title: string;
@@ -96,8 +97,10 @@ export default function PlanModal({
             <ul className="space-y-2">
               {goals.map((g) => (
                 <li key={g.id} className="text-sm">
-                  <span className="text-stone2-100">
-                    {g.isMain && "★ "}
+                  <span className="inline-flex items-center gap-1 text-stone2-100">
+                    {g.isMain && (
+                      <Star className="h-3 w-3 fill-current text-bronze-400" />
+                    )}
                     {g.title}
                   </span>
                   <span className="ml-2 text-xs text-bronze-300">
@@ -206,16 +209,22 @@ export default function PlanModal({
                     : "border-ink-600 text-stone2-400"
                 }`}
                 onClick={() => setRow(i, { focus: !row.focus })}
-                title={isDay ? "Fokus dnia" : "Fokus tygodnia"}
+                title={
+                  isDay ? "Oznacz jako fokus dnia" : "Oznacz jako fokus tygodnia"
+                }
+                aria-label="Fokus"
               >
-                ★
+                <Star
+                  className={`h-3.5 w-3.5 ${row.focus ? "fill-current" : ""}`}
+                />
               </button>
             </div>
           ))}
         </div>
         <p className="mt-1.5 text-xs text-stone2-400">
-          Enter po wpisaniu tytułu dodaje kolejny wiersz. ★ oznacza zadanie
-          jako {isDay ? "fokus dnia (czerwone podświetlenie)" : "fokus tygodnia"}.
+          Enter po wpisaniu tytułu dodaje kolejny wiersz. Gwiazdka oznacza
+          zadanie jako{" "}
+          {isDay ? "fokus dnia (czerwone podświetlenie)" : "fokus tygodnia"}.
         </p>
       </div>
 

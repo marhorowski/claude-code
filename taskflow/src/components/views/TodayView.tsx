@@ -43,7 +43,7 @@ function GroupedByProject({
     <div className="space-y-4">
       {groups.map((g) => (
         <div key={g.name}>
-          <div className="mb-1.5 flex items-center gap-2 text-xs uppercase tracking-wider text-stone2-400">
+          <div className="mb-1.5 flex items-center gap-2 text-xs uppercase text-stone2-400">
             {g.color && (
               <span
                 className="h-2 w-2 rounded-full"

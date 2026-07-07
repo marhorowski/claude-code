@@ -3,6 +3,7 @@
 import { useStore } from "@/lib/store";
 import { Task } from "@/lib/types";
 import { humanDate, fmtHM, isOverdue } from "@/lib/dates";
+import { Play, Pause, ListChecks, Timer } from "lucide-react";
 
 export default function TaskItem({
   task,
@@ -72,15 +73,22 @@ export default function TaskItem({
             </span>
           )}
           {task.checklist.length > 0 && (
-            <span>
-              ☑ {checklistDone}/{task.checklist.length}
+            <span className="inline-flex items-center gap-1">
+              <ListChecks className="h-3 w-3" />
+              {checklistDone}/{task.checklist.length}
             </span>
           )}
-          {task.timeSpentSec > 0 && <span>⏱ {fmtHM(task.timeSpentSec)}</span>}
+          {task.timeSpentSec > 0 && (
+            <span className="inline-flex items-center gap-1">
+              <Timer className="h-3 w-3" />
+              {fmtHM(task.timeSpentSec)}
+            </span>
+          )}
         </div>
       </div>
       <button
-        aria-label={isActive && timer.running ? "Pauza" : "Start"}
+        aria-label={isActive && timer.running ? "Pauza" : "Start Pomodoro"}
+        title={isActive && timer.running ? "Pauza" : "Start Pomodoro"}
         onClick={(e) => {
           e.stopPropagation();
           if (isActive) {
@@ -89,14 +97,18 @@ export default function TaskItem({
             startTimer(task.id);
           }
         }}
-        className={`shrink-0 h-8 w-8 rounded-full border flex items-center justify-center text-xs transition-colors ${
+        className={`shrink-0 h-8 w-8 rounded-full border flex items-center justify-center transition-colors ${
           isActive
             ? "border-bronze-400 text-bronze-300 bg-bronze-500/15" +
               (timer.running ? " pulse-soft" : "")
             : "border-ink-600 text-stone2-400 opacity-0 group-hover:opacity-100 hover:border-bronze-500 hover:text-bronze-300"
         }`}
       >
-        {isActive && timer.running ? "❚❚" : "▶"}
+        {isActive && timer.running ? (
+          <Pause className="h-3.5 w-3.5" />
+        ) : (
+          <Play className="h-3.5 w-3.5 translate-x-px" />
+        )}
       </button>
     </div>
   );

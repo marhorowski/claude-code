@@ -15,7 +15,7 @@ function Stat({
 }) {
   return (
     <div className="card px-4 py-3">
-      <div className="text-[11px] uppercase tracking-wider text-stone2-400">
+      <div className="text-[11px] uppercase text-stone2-400">
         {label}
       </div>
       <div className="font-display text-2xl text-stone2-100">{value}</div>

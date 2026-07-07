@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { todayStr } from "@/lib/dates";
 import { ID } from "@/lib/types";
+import { Plus } from "lucide-react";
 
 export default function QuickAdd({
   defaultProjectId = null,
@@ -36,7 +37,7 @@ export default function QuickAdd({
 
   return (
     <div className="card flex flex-wrap items-center gap-2 p-2">
-      <span className="pl-2 text-bronze-400 text-lg leading-none">+</span>
+      <Plus className="ml-2 h-4 w-4 shrink-0 text-bronze-400" />
       <input
         className="min-w-[180px] flex-1 bg-transparent px-1 py-1.5 text-sm text-stone2-100 placeholder:text-stone2-400/50 focus:outline-none"
         placeholder={placeholder}

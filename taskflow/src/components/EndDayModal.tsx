@@ -5,6 +5,7 @@ import Modal from "./Modal";
 import { useStore } from "@/lib/store";
 import { todayStr, fmtHM, isToday } from "@/lib/dates";
 import { generateSummary } from "@/lib/summary";
+import { Sunset, Check, Moon } from "lucide-react";
 
 export default function EndDayModal({ onClose }: { onClose: () => void }) {
   const tasks = useStore((s) => s.tasks);
@@ -65,7 +66,7 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
   return (
     <Modal onClose={onClose} wide>
       <div className="text-center">
-        <div className="text-4xl mb-1">🌇</div>
+        <Sunset className="mx-auto mb-1 h-10 w-10 text-bronze-400" strokeWidth={1.5} />
         <div className="font-display text-3xl text-bronze-300">
           Koniec dnia pracy
         </div>
@@ -73,7 +74,7 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
 
       <div className="mt-5 grid grid-cols-2 gap-3">
         <div className="card p-4 text-center">
-          <div className="text-[11px] uppercase tracking-wider text-stone2-400">
+          <div className="text-[11px] uppercase text-stone2-400">
             Przepracowane godziny
           </div>
           <div className="font-display text-3xl text-stone2-100">
@@ -84,7 +85,7 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className="card p-4 text-center">
-          <div className="text-[11px] uppercase tracking-wider text-stone2-400">
+          <div className="text-[11px] uppercase text-stone2-400">
             Ukończone zadania
           </div>
           <div className="font-display text-3xl text-stone2-100">
@@ -102,7 +103,8 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
           <ul className="space-y-1 text-sm text-stone2-200">
             {completed.map((t) => (
               <li key={t.id} className="flex items-center gap-2">
-                <span className="text-bronze-400">✓</span> {t.title}
+                <Check className="h-3.5 w-3.5 shrink-0 text-bronze-400" />{" "}
+                {t.title}
                 {t.timeSpentSec > 0 && (
                   <span className="text-xs text-stone2-400">
                     ({fmtHM(t.timeSpentSec)})
@@ -164,7 +166,8 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
             Zamknij i wyczyść fokus dnia
           </button>
           <button className="btn-primary" onClick={onClose}>
-            🌿 Dobranoc
+            <Moon className="h-4 w-4" />
+            Dobranoc
           </button>
         </div>
       </div>

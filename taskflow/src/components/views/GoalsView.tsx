@@ -5,6 +5,7 @@ import { useStore } from "@/lib/store";
 import { goalSeconds } from "@/lib/stats";
 import { fmtHM } from "@/lib/dates";
 import { Goal } from "@/lib/types";
+import { Star, Trash2, X, Plus } from "lucide-react";
 
 function GoalCard({ goal }: { goal: Goal }) {
   const projects = useStore((s) => s.projects);
@@ -62,22 +63,27 @@ function GoalCard({ goal }: { goal: Goal }) {
               onClick={() => updateGoal(goal.id, { isMain: !goal.isMain })}
               title="Cel główny jest pokazywany w banerze na górze"
             >
-              {goal.isMain ? "★ główny" : "☆ ustaw jako główny"}
+              <Star
+                className={`h-3 w-3 ${goal.isMain ? "fill-current" : ""}`}
+              />
+              {goal.isMain ? "główny" : "ustaw jako główny"}
             </button>
             <button
               className="btn-danger text-xs"
+              title="Usuń cel"
+              aria-label="Usuń cel"
               onClick={() => {
                 if (confirm("Usunąć cel?")) deleteGoal(goal.id);
               }}
             >
-              ✕
+              <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-4 text-sm">
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-stone2-400">
+            <div className="text-[11px] uppercase text-stone2-400">
               Czas na realizację
             </div>
             <div className="font-display text-xl text-bronze-300">
@@ -85,7 +91,7 @@ function GoalCard({ goal }: { goal: Goal }) {
             </div>
           </div>
           <div className="min-w-[200px]">
-            <div className="text-[11px] uppercase tracking-wider text-stone2-400">
+            <div className="text-[11px] uppercase text-stone2-400">
               Powiązane projekty
             </div>
             {linked.length ? (
@@ -136,10 +142,12 @@ function GoalCard({ goal }: { goal: Goal }) {
                       / {kr.target} {kr.unit}
                     </span>
                     <button
-                      className="text-stone2-400/50 opacity-0 group-hover:opacity-100 hover:text-terra-400 text-xs"
+                      className="text-stone2-400/50 opacity-0 group-hover:opacity-100 hover:text-terra-400"
+                      title="Usuń miernik"
+                      aria-label="Usuń miernik"
                       onClick={() => deleteKeyResult(goal.id, kr.id)}
                     >
-                      ✕
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <div className="mt-1 h-1.5 rounded-full bg-ink-700">
@@ -171,8 +179,13 @@ function GoalCard({ goal }: { goal: Goal }) {
                 value={krUnit}
                 onChange={(e) => setKrUnit(e.target.value)}
               />
-              <button className="btn-outline" onClick={addKr}>
-                +
+              <button
+                className="btn-outline"
+                onClick={addKr}
+                title="Dodaj miernik"
+                aria-label="Dodaj miernik"
+              >
+                <Plus className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -197,7 +210,7 @@ export default function GoalsView() {
         </p>
       </div>
       <div className="card flex items-center gap-2 p-2">
-        <span className="pl-2 text-bronze-400 text-lg leading-none">+</span>
+        <Plus className="ml-2 h-4 w-4 shrink-0 text-bronze-400" />
         <input
           className="flex-1 bg-transparent px-1 py-1.5 text-sm text-stone2-100 placeholder:text-stone2-400/50 focus:outline-none"
           placeholder="np. Zarabiać 50 000 zł miesięcznie z agencji…"

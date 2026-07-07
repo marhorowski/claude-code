@@ -14,7 +14,7 @@ export default function GoalBanner({ onGoals }: { onGoals: () => void }) {
       <div className="p-4">
         {main ? (
           <button className="block w-full text-left" onClick={onGoals}>
-            <div className="text-[11px] uppercase tracking-widest text-bronze-400">
+            <div className="text-[11px] uppercase text-bronze-400">
               Twój cel
             </div>
             <div className="font-display text-xl md:text-2xl text-stone2-100 leading-snug">
@@ -38,7 +38,7 @@ export default function GoalBanner({ onGoals }: { onGoals: () => void }) {
           </button>
         ) : (
           <button className="block w-full text-left" onClick={onGoals}>
-            <div className="text-[11px] uppercase tracking-widest text-bronze-400">
+            <div className="text-[11px] uppercase text-bronze-400">
               Twój cel
             </div>
             <div className="text-sm text-stone2-400">
@@ -55,7 +55,7 @@ export default function GoalBanner({ onGoals }: { onGoals: () => void }) {
           <div className="mt-3 grid gap-2 md:grid-cols-2">
             {settings.dayFocus && (
               <div className="rounded-lg border border-terra-600/40 bg-terra-600/10 px-3 py-2">
-                <div className="text-[11px] uppercase tracking-widest text-terra-400">
+                <div className="text-[11px] uppercase text-terra-400">
                   Fokus dnia
                 </div>
                 <div className="text-sm text-stone2-100">
@@ -65,7 +65,7 @@ export default function GoalBanner({ onGoals }: { onGoals: () => void }) {
             )}
             {settings.weekFocus && (
               <div className="rounded-lg border border-bronze-500/40 bg-bronze-500/10 px-3 py-2">
-                <div className="text-[11px] uppercase tracking-widest text-bronze-400">
+                <div className="text-[11px] uppercase text-bronze-400">
                   Fokus tygodnia
                 </div>
                 <div className="text-sm text-stone2-100">

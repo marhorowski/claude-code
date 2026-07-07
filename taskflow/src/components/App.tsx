@@ -16,6 +16,18 @@ import ProjectView from "./views/ProjectView";
 import GoalsView from "./views/GoalsView";
 import ArchiveView from "./views/ArchiveView";
 import SettingsView from "./views/SettingsView";
+import {
+  Sun,
+  Inbox,
+  FolderKanban,
+  Target,
+  Archive,
+  Settings,
+  Menu,
+  CalendarRange,
+  Sunset,
+  type LucideIcon,
+} from "lucide-react";
 
 type View =
   | { kind: "today" }
@@ -26,13 +38,13 @@ type View =
   | { kind: "archive" }
   | { kind: "settings" };
 
-const NAV: { key: View["kind"]; label: string; icon: string }[] = [
-  { key: "today", label: "Plan", icon: "☀" },
-  { key: "inbox", label: "Skrzynka", icon: "▤" },
-  { key: "projects", label: "Projekty", icon: "◫" },
-  { key: "goals", label: "Cele", icon: "◎" },
-  { key: "archive", label: "Archiwum", icon: "▣" },
-  { key: "settings", label: "Ustawienia", icon: "⚙" },
+const NAV: { key: View["kind"]; label: string; icon: LucideIcon }[] = [
+  { key: "today", label: "Plan", icon: Sun },
+  { key: "inbox", label: "Skrzynka", icon: Inbox },
+  { key: "projects", label: "Projekty", icon: FolderKanban },
+  { key: "goals", label: "Cele", icon: Target },
+  { key: "archive", label: "Archiwum", icon: Archive },
+  { key: "settings", label: "Ustawienia", icon: Settings },
 ];
 
 export default function App() {
@@ -81,10 +93,10 @@ export default function App() {
       >
         <div className="flex h-full flex-col">
           <div className="px-5 pt-5 pb-3">
-            <div className="font-display text-2xl text-bronze-300 tracking-wide">
+            <div className="font-display text-2xl text-bronze-300">
               ΕRGON
             </div>
-            <div className="text-[11px] uppercase tracking-widest text-stone2-400">
+            <div className="text-[11px] uppercase text-stone2-400">
               praca · dzieło · czyn
             </div>
           </div>
@@ -101,7 +113,7 @@ export default function App() {
                 }`}
                 onClick={() => navigate(item.key)}
               >
-                <span className="w-4 text-center">{item.icon}</span>
+                <item.icon className="h-4 w-4 shrink-0" />
                 <span className="flex-1 text-left">{item.label}</span>
                 {item.key === "inbox" && inboxCount > 0 && (
                   <span className="chip bg-bronze-500/15 text-bronze-300">
@@ -113,7 +125,7 @@ export default function App() {
 
             {projects.length > 0 && (
               <div className="pt-3">
-                <div className="px-3 pb-1 text-[11px] uppercase tracking-wider text-stone2-400">
+                <div className="px-3 pb-1 text-[11px] uppercase text-stone2-400">
                   Projekty
                 </div>
                 {projects.map((p) => (
@@ -158,18 +170,35 @@ export default function App() {
             <button
               className="btn-ghost lg:hidden"
               onClick={() => setNavOpen(true)}
+              title="Menu"
+              aria-label="Otwórz menu"
             >
-              ☰
+              <Menu className="h-5 w-5" />
             </button>
             <div className="flex-1" />
-            <button className="btn-outline" onClick={() => setPlan("day")}>
-              ☀ Ustalanie dnia
+            <button
+              className="btn-outline"
+              onClick={() => setPlan("day")}
+              title="Zaplanuj jutrzejszy dzień"
+            >
+              <Sun className="h-4 w-4" />
+              Ustalanie dnia
             </button>
-            <button className="btn-outline" onClick={() => setPlan("week")}>
-              ⤒ Ustalanie tygodnia
+            <button
+              className="btn-outline"
+              onClick={() => setPlan("week")}
+              title="Zaplanuj cały tydzień"
+            >
+              <CalendarRange className="h-4 w-4" />
+              Ustalanie tygodnia
             </button>
-            <button className="btn-primary" onClick={() => setEndDay(true)}>
-              🌇 Zakończ dzień pracy
+            <button
+              className="btn-primary"
+              onClick={() => setEndDay(true)}
+              title="Podsumuj dzień pracy"
+            >
+              <Sunset className="h-4 w-4" />
+              Zakończ dzień pracy
             </button>
           </div>
         </header>

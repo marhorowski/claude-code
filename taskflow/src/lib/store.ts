@@ -16,6 +16,13 @@ import {
   OnTime,
 } from "./types";
 import { todayStr, tomorrowStr } from "./dates";
+import {
+  sndTaskAdded,
+  sndPomodoroStart,
+  sndTaskCompleted,
+  sndPhaseEnd,
+  sndFiveMinWarning,
+} from "./sounds";
 
 export function uid(): string {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
@@ -29,6 +36,7 @@ const defaultSettings: Settings = {
   dayFocus: "",
   weekFocus: "",
   targetHoursPerDay: 6,
+  soundsEnabled: true,
 };
 
 const defaultTimer: TimerState = {
@@ -127,6 +135,7 @@ export const useStore = create<AppState>()(
           onTime: null,
         };
         set((s) => ({ tasks: [task, ...s.tasks] }));
+        if (get().settings.soundsEnabled !== false) sndTaskAdded();
         return task;
       },
 
@@ -146,6 +155,7 @@ export const useStore = create<AppState>()(
         if (state.timer.taskId === id) state.stopTimer();
         const task = state.tasks.find((t) => t.id === id);
         if (!task) return;
+        if (state.settings.soundsEnabled !== false) sndTaskCompleted();
 
         set((s) => ({
           tasks: s.tasks.map((t) =>
@@ -286,6 +296,7 @@ export const useStore = create<AppState>()(
 
       startTimer: (taskId) => {
         const { settings } = get();
+        if (settings.soundsEnabled !== false) sndPomodoroStart();
         set({
           timer: {
             taskId,
@@ -352,8 +363,17 @@ export const useStore = create<AppState>()(
           }));
         }
 
+        // sygnał ostrzegawczy: 5 minut do końca odliczanej fazy
+        if (
+          timer.remainingSec === 301 &&
+          get().settings.soundsEnabled !== false
+        ) {
+          sndFiveMinWarning();
+        }
+
         if (timer.remainingSec <= 1) {
           get().skipPhase();
+          if (get().settings.soundsEnabled !== false) sndPhaseEnd();
           if (typeof window !== "undefined" && "Notification" in window) {
             if (Notification.permission === "granted") {
               const next = get().timer.phase;

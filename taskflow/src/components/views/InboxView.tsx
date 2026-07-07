@@ -33,7 +33,7 @@ export default function InboxView({
         ))}
         {!tasks.length && (
           <p className="pt-6 text-center text-sm text-stone2-400">
-            Skrzynka pusta — umysł czysty. 🌿
+            Skrzynka pusta — umysł czysty.
           </p>
         )}
       </div>

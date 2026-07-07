@@ -4,11 +4,12 @@ import { useStore } from "@/lib/store";
 import { fmtHM } from "@/lib/dates";
 import { format, parseISO } from "date-fns";
 import { pl } from "date-fns/locale";
+import { Check, Timer, RotateCcw, Trash2 } from "lucide-react";
 
 const ON_TIME_LABEL: Record<string, string> = {
-  faster: "⚡ szybciej niż plan",
-  onTime: "✓ zgodnie z planem",
-  slower: "🐌 dłużej niż plan",
+  faster: "szybciej niż plan",
+  onTime: "zgodnie z planem",
+  slower: "dłużej niż plan",
 };
 
 export default function ArchiveView() {
@@ -40,20 +41,24 @@ export default function ArchiveView() {
               className="group card px-4 py-3"
             >
               <div className="flex items-center gap-2">
-                <span className="text-bronze-400">✓</span>
+                <Check className="h-4 w-4 shrink-0 text-bronze-400" />
                 <span className="flex-1 text-sm text-stone2-200">
                   {t.title}
                 </span>
                 <button
                   className="btn-ghost text-xs opacity-0 group-hover:opacity-100"
+                  title="Przywróć zadanie do aktywnych"
                   onClick={() => restoreTask(t.id)}
                 >
+                  <RotateCcw className="h-3.5 w-3.5" />
                   Przywróć
                 </button>
                 <button
                   className="btn-danger text-xs opacity-0 group-hover:opacity-100"
+                  title="Usuń bezpowrotnie"
                   onClick={() => deleteTask(t.id)}
                 >
+                  <Trash2 className="h-3.5 w-3.5" />
                   Usuń
                 </button>
               </div>
@@ -64,7 +69,12 @@ export default function ArchiveView() {
                   })}
                 </span>
                 {p && <span>{p.name}</span>}
-                {t.timeSpentSec > 0 && <span>⏱ {fmtHM(t.timeSpentSec)}</span>}
+                {t.timeSpentSec > 0 && (
+                  <span className="inline-flex items-center gap-1">
+                    <Timer className="h-3 w-3" />
+                    {fmtHM(t.timeSpentSec)}
+                  </span>
+                )}
                 {t.onTime && <span>{ON_TIME_LABEL[t.onTime]}</span>}
               </div>
               {t.completionNote && (

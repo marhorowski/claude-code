@@ -1,6 +1,8 @@
 "use client";
 
 import { useStore } from "@/lib/store";
+import { Volume2, VolumeX } from "lucide-react";
+import { sndTaskAdded } from "@/lib/sounds";
 
 export default function SettingsView() {
   const settings = useStore((s) => s.settings);
@@ -59,6 +61,42 @@ export default function SettingsView() {
         </div>
         <p className="text-xs text-stone2-400">
           Nowe interwały obowiązują od następnego startu timera.
+        </p>
+      </section>
+
+      <section className="card p-5 space-y-3">
+        <h3 className="font-display text-xl text-bronze-300">Dźwięki</h3>
+        <label className="flex items-center justify-between gap-3 cursor-pointer">
+          <span className="flex items-center gap-2 text-sm text-stone2-200">
+            {settings.soundsEnabled !== false ? (
+              <Volume2 className="h-4 w-4 text-bronze-400" />
+            ) : (
+              <VolumeX className="h-4 w-4 text-stone2-400" />
+            )}
+            Sygnały dźwiękowe
+          </span>
+          <button
+            role="switch"
+            aria-checked={settings.soundsEnabled !== false}
+            onClick={() => {
+              const next = !(settings.soundsEnabled !== false);
+              updateSettings({ soundsEnabled: next });
+              if (next) sndTaskAdded();
+            }}
+            className={`relative h-6 w-11 rounded-full transition-colors ${
+              settings.soundsEnabled !== false ? "bg-bronze-500" : "bg-ink-600"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 h-5 w-5 rounded-full bg-ink-950 transition-all ${
+                settings.soundsEnabled !== false ? "left-[22px]" : "left-0.5"
+              }`}
+            />
+          </button>
+        </label>
+        <p className="text-xs text-stone2-400">
+          Dźwięk przy dodaniu zadania, starcie Pomodoro, 5 minut przed końcem
+          odliczania, na koniec fazy oraz po zakończeniu zadania.
         </p>
       </section>
 
