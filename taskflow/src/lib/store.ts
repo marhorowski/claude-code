@@ -37,6 +37,7 @@ const defaultSettings: Settings = {
   weekFocus: "",
   targetHoursPerDay: 6,
   soundsEnabled: true,
+  syncKey: "default",
 };
 
 const defaultTimer: TimerState = {

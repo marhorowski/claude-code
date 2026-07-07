@@ -59,6 +59,7 @@ export interface Settings {
   weekFocus: string;
   targetHoursPerDay: number;
   soundsEnabled: boolean;
+  syncKey: string;
 }
 
 export type TimerPhase = "work" | "break" | "longBreak";

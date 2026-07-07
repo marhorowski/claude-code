@@ -26,8 +26,60 @@ import {
   Menu,
   CalendarRange,
   Sunset,
+  Cloud,
+  CloudOff,
+  RefreshCw,
   type LucideIcon,
 } from "lucide-react";
+import { useCloudSync, type SyncStatus } from "@/lib/sync";
+
+function SyncIndicator({ status }: { status: SyncStatus }) {
+  const cfg: Record<
+    SyncStatus,
+    { icon: LucideIcon; label: string; cls: string; spin?: boolean }
+  > = {
+    loading: {
+      icon: RefreshCw,
+      label: "Łączenie z bazą…",
+      cls: "text-stone2-400",
+      spin: true,
+    },
+    saving: {
+      icon: RefreshCw,
+      label: "Zapisywanie w bazie…",
+      cls: "text-bronze-300",
+      spin: true,
+    },
+    synced: {
+      icon: Cloud,
+      label: "Zapisano w bazie danych",
+      cls: "text-olive-400",
+    },
+    offline: {
+      icon: CloudOff,
+      label: "Tryb offline — dane tylko w tej przeglądarce",
+      cls: "text-stone2-400",
+    },
+  };
+  const c = cfg[status];
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 text-xs ${c.cls}`}
+      title={c.label}
+    >
+      <c.icon className={`h-4 w-4 ${c.spin ? "animate-spin" : ""}`} />
+      <span className="hidden md:inline">
+        {status === "synced"
+          ? "zapisano"
+          : status === "saving"
+          ? "zapisywanie…"
+          : status === "loading"
+          ? "łączenie…"
+          : "offline"}
+      </span>
+    </span>
+  );
+}
 
 type View =
   | { kind: "today" }
@@ -60,6 +112,7 @@ export default function App() {
     (s) => s.tasks.filter((t) => !t.completedAt && !t.projectId).length
   );
   const projects = useStore((s) => s.projects);
+  const syncStatus = useCloudSync();
 
   useEffect(() => setMounted(true), []);
   if (!mounted) {
@@ -175,6 +228,7 @@ export default function App() {
             >
               <Menu className="h-5 w-5" />
             </button>
+            <SyncIndicator status={syncStatus} />
             <div className="flex-1" />
             <button
               className="btn-outline"

@@ -113,6 +113,32 @@ export default function SettingsView() {
         </div>
       </section>
 
+      <section className="card p-5 space-y-3">
+        <h3 className="font-display text-xl text-bronze-300">
+          Synchronizacja
+        </h3>
+        <div>
+          <label className="label">Klucz synchronizacji</label>
+          <input
+            className="input"
+            value={settings.syncKey ?? "default"}
+            onChange={(e) =>
+              updateSettings({
+                syncKey:
+                  e.target.value.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64) ||
+                  "default",
+              })
+            }
+          />
+        </div>
+        <p className="text-xs text-stone2-400">
+          Dane zapisują się w bazie danych pod tym kluczem. Wpisz ten sam klucz
+          na innym urządzeniu, żeby zobaczyć te same zadania. Zmień na własny,
+          trudny do odgadnięcia (np. imię-i-losowe-znaki), żeby nikt inny nie
+          trafił na Twoje dane.
+        </p>
+      </section>
+
       <section className="card p-5 space-y-4">
         <h3 className="font-display text-xl text-bronze-300">Fokus</h3>
         <div>
