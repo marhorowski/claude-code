@@ -1,0 +1,5 @@
+{
+  "installCommand": "cd taskflow && npm install",
+  "buildCommand": "cd taskflow && npm run build",
+  "outputDirectory": "taskflow/.next"
+}
