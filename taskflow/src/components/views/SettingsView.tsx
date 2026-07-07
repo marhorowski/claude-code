@@ -1,0 +1,106 @@
+"use client";
+
+import { useStore } from "@/lib/store";
+
+export default function SettingsView() {
+  const settings = useStore((s) => s.settings);
+  const updateSettings = useStore((s) => s.updateSettings);
+
+  const num =
+    (key: "workMin" | "breakMin" | "longBreakMin" | "sessionsBeforeLongBreak" | "targetHoursPerDay") =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      updateSettings({ [key]: Math.max(1, Number(e.target.value) || 1) });
+
+  return (
+    <div className="max-w-xl space-y-6">
+      <h2 className="font-display text-3xl text-stone2-100">Ustawienia</h2>
+
+      <section className="card p-5 space-y-4">
+        <h3 className="font-display text-xl text-bronze-300">
+          Pomodoro — interwały
+        </h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="label">Praca (min)</label>
+            <input
+              type="number"
+              className="input"
+              value={settings.workMin}
+              onChange={num("workMin")}
+            />
+          </div>
+          <div>
+            <label className="label">Przerwa (min)</label>
+            <input
+              type="number"
+              className="input"
+              value={settings.breakMin}
+              onChange={num("breakMin")}
+            />
+          </div>
+          <div>
+            <label className="label">Długa przerwa (min)</label>
+            <input
+              type="number"
+              className="input"
+              value={settings.longBreakMin}
+              onChange={num("longBreakMin")}
+            />
+          </div>
+          <div>
+            <label className="label">Sesje do długiej przerwy</label>
+            <input
+              type="number"
+              className="input"
+              value={settings.sessionsBeforeLongBreak}
+              onChange={num("sessionsBeforeLongBreak")}
+            />
+          </div>
+        </div>
+        <p className="text-xs text-stone2-400">
+          Nowe interwały obowiązują od następnego startu timera.
+        </p>
+      </section>
+
+      <section className="card p-5 space-y-4">
+        <h3 className="font-display text-xl text-bronze-300">Dzień pracy</h3>
+        <div>
+          <label className="label">Docelowa liczba godzin dziennie</label>
+          <input
+            type="number"
+            className="input"
+            value={settings.targetHoursPerDay}
+            onChange={num("targetHoursPerDay")}
+          />
+        </div>
+      </section>
+
+      <section className="card p-5 space-y-4">
+        <h3 className="font-display text-xl text-bronze-300">Fokus</h3>
+        <div>
+          <label className="label">Fokus dnia</label>
+          <input
+            className="input"
+            placeholder="Najważniejsza rzecz na dziś…"
+            value={settings.dayFocus}
+            onChange={(e) => updateSettings({ dayFocus: e.target.value })}
+          />
+        </div>
+        <div>
+          <label className="label">Fokus tygodnia</label>
+          <input
+            className="input"
+            placeholder="Najważniejsza rzecz w tym tygodniu…"
+            value={settings.weekFocus}
+            onChange={(e) => updateSettings({ weekFocus: e.target.value })}
+          />
+        </div>
+        <p className="text-xs text-stone2-400">
+          Fokusy ustawisz też podczas „Ustalania dnia" i „Ustalania tygodnia".
+          Zadania oznaczone fokusem dnia podświetlają się na czerwono, fokusem
+          tygodnia — na brązowo.
+        </p>
+      </section>
+    </div>
+  );
+}
