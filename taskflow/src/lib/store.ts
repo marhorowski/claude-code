@@ -21,6 +21,7 @@ import {
   OnTime,
 } from "./types";
 import { todayStr, tomorrowStr } from "./dates";
+import { JournalEntry } from "./journal";
 import {
   sndTaskAdded,
   sndPomodoroStart,
@@ -84,6 +85,7 @@ interface AppState {
   habits: Habit[];
   pulseLog: PulseEntry[];
   workSessions: WorkSession[];
+  journal: JournalEntry[];
   settings: Settings;
   timer: TimerState;
   daySummaries: DaySummary[];
@@ -123,6 +125,13 @@ interface AppState {
   // puls potencjału
   addPulse: (answer: PulseAnswer) => void;
 
+  // journal
+  upsertJournal: (
+    entry: Omit<JournalEntry, "id" | "createdAt" | "updatedAt">
+  ) => JournalEntry;
+  setJournalAi: (id: ID, text: string) => void;
+  deleteJournal: (id: ID) => void;
+
   // ustawienia
   updateSettings: (patch: Partial<Settings>) => void;
 
@@ -147,6 +156,7 @@ export const useStore = create<AppState>()(
       habits: [],
       pulseLog: [],
       workSessions: [],
+      journal: [],
       settings: defaultSettings,
       timer: defaultTimer,
       daySummaries: [],
@@ -389,6 +399,43 @@ export const useStore = create<AppState>()(
         }
       },
 
+      upsertJournal: (input) => {
+        const existing = get().journal.find(
+          (j) => j.type === input.type && j.date === input.date
+        );
+        const now = new Date().toISOString();
+        if (existing) {
+          const updated: JournalEntry = {
+            ...existing,
+            answers: input.answers,
+            aiText: input.aiText || existing.aiText,
+            updatedAt: now,
+          };
+          set((s) => ({
+            journal: s.journal.map((j) => (j.id === existing.id ? updated : j)),
+          }));
+          return updated;
+        }
+        const entry: JournalEntry = {
+          ...input,
+          id: uid(),
+          createdAt: now,
+          updatedAt: now,
+        };
+        set((s) => ({ journal: [entry, ...s.journal] }));
+        return entry;
+      },
+
+      setJournalAi: (id, text) =>
+        set((s) => ({
+          journal: s.journal.map((j) =>
+            j.id === id ? { ...j, aiText: text } : j
+          ),
+        })),
+
+      deleteJournal: (id) =>
+        set((s) => ({ journal: s.journal.filter((j) => j.id !== id) })),
+
       updateSettings: (patch) =>
         set((s) => ({ settings: { ...s.settings, ...patch } })),
 
@@ -527,6 +574,7 @@ export const useStore = create<AppState>()(
         habits: s.habits,
         pulseLog: s.pulseLog,
         workSessions: s.workSessions,
+        journal: s.journal,
         settings: s.settings,
         daySummaries: s.daySummaries,
         workLog: s.workLog,

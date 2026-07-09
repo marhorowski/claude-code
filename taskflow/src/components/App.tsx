@@ -14,6 +14,7 @@ import ProjectView from "./views/ProjectView";
 import GoalsView from "./views/GoalsView";
 import HabitsView from "./views/HabitsView";
 import DayView from "./views/DayView";
+import JournalView from "./views/JournalView";
 import DashboardView from "./views/DashboardView";
 import ArchiveView from "./views/ArchiveView";
 import SettingsView from "./views/SettingsView";
@@ -36,6 +37,7 @@ import {
   Repeat,
   CalendarClock,
   LayoutDashboard,
+  NotebookPen,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -98,6 +100,7 @@ type View =
   | { kind: "goals" }
   | { kind: "habits" }
   | { kind: "day" }
+  | { kind: "journal" }
   | { kind: "archive" }
   | { kind: "settings" };
 
@@ -108,7 +111,8 @@ const NAV: { key: View["kind"]; label: string; icon: LucideIcon }[] = [
   { key: "projects", label: "Projekty", icon: FolderKanban },
   { key: "goals", label: "Cele", icon: Target },
   { key: "habits", label: "Nawyki", icon: Repeat },
-  { key: "day", label: "Dziennik", icon: CalendarClock },
+  { key: "day", label: "Oś dnia", icon: CalendarClock },
+  { key: "journal", label: "Journal", icon: NotebookPen },
   { key: "archive", label: "Archiwum", icon: Archive },
   { key: "settings", label: "Ustawienia", icon: Settings },
 ];
@@ -328,6 +332,7 @@ function AppInner() {
           {view.kind === "goals" && <GoalsView />}
           {view.kind === "habits" && <HabitsView />}
           {view.kind === "day" && <DayView />}
+          {view.kind === "journal" && <JournalView />}
           {view.kind === "archive" && <ArchiveView />}
           {view.kind === "settings" && <SettingsView />}
         </main>

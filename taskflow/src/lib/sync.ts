@@ -17,6 +17,7 @@ const SYNC_KEYS = [
   "habits",
   "pulseLog",
   "workSessions",
+  "journal",
   "settings",
   "daySummaries",
   "workLog",
