@@ -16,6 +16,7 @@ import {
   Target,
   Flame,
   CircleSlash,
+  CalendarDays,
 } from "lucide-react";
 
 function StatTile({
@@ -23,21 +24,32 @@ function StatTile({
   value,
   sub,
   accent,
+  tile,
+  icon: Icon,
   pct,
 }: {
   label: string;
   value: string;
   sub?: string;
-  accent: string; // klasa tailwind koloru danych
+  accent: string; // pasek postępu
+  tile: string; // tło kafelka ikony
+  icon: typeof Timer;
   pct?: number | null;
 }) {
   return (
     <div className="card px-4 py-3">
-      <div className="text-[11px] uppercase text-stone2-400">{label}</div>
-      <div className="font-display text-2xl md:text-3xl text-stone2-100">
-        {value}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="text-[11px] uppercase text-stone2-400">{label}</div>
+          <div className="font-display text-2xl md:text-3xl text-stone2-100">
+            {value}
+          </div>
+          {sub && <div className="text-xs text-stone2-400">{sub}</div>}
+        </div>
+        <span className={`icon-tile ${tile}`}>
+          <Icon className="h-5 w-5" />
+        </span>
       </div>
-      {sub && <div className="text-xs text-stone2-400">{sub}</div>}
       {typeof pct === "number" && (
         <div className="mt-2 h-1.5 rounded-full bg-ink-700">
           <div
@@ -104,13 +116,27 @@ export default function DashboardView({
     <div className="space-y-5">
       <GoalBanner onGoals={() => onNavigate("goals")} />
 
+      {/* Motto */}
+      {settings.motto?.trim() ? (
+        <div className="card overflow-hidden">
+          <div className="meander" />
+          <div className="px-5 py-4 text-center">
+            <div className="font-display text-xl md:text-2xl text-bronze-300 leading-snug">
+              „{settings.motto.trim()}"
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {/* Liczniki */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile
           label="Czas pracy dziś"
           value={fmtHM(st.todaySec)}
           sub={`cel: ${settings.targetHoursPerDay} h`}
-          accent="bg-bronze-500"
+          accent="bg-bronze-400"
+          tile="bg-bronze-500/15 text-bronze-300"
+          icon={Timer}
           pct={(st.todaySec / targetSec) * 100}
         />
         <StatTile
@@ -118,6 +144,8 @@ export default function DashboardView({
           value={`${st.todayDone}/${st.todayTotal}`}
           sub={`zostało: ${st.todayRemaining}`}
           accent="bg-jade-500"
+          tile="bg-jade-500/15 text-jade-400"
+          icon={Check}
           pct={st.todayTotal ? (st.todayDone / st.todayTotal) * 100 : 0}
         />
         <StatTile
@@ -125,6 +153,8 @@ export default function DashboardView({
           value={fmtHM(st.weekSec)}
           sub={`zadania: ${st.weekDone}/${st.weekTotal}`}
           accent="bg-aegean-500"
+          tile="bg-aegean-500/15 text-aegean-400"
+          icon={CalendarDays}
           pct={(st.weekSec / (targetSec * 5)) * 100}
         />
         <StatTile
@@ -136,6 +166,12 @@ export default function DashboardView({
               : `realizuję ${realize} · marnuję ${waste}`
           }
           accent={pulsePct !== null && pulsePct < 50 ? "bg-terra-500" : "bg-jade-500"}
+          tile={
+            pulsePct !== null && pulsePct < 50
+              ? "bg-terra-500/15 text-terra-400"
+              : "bg-jade-500/15 text-jade-400"
+          }
+          icon={Activity}
           pct={pulsePct}
         />
       </div>

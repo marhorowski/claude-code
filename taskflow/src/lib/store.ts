@@ -17,6 +17,7 @@ import {
   ID,
   PROJECT_COLORS,
   PROCESS_PROJECT_NAME,
+  DEFAULT_MOTTO,
   OnTime,
 } from "./types";
 import { todayStr, tomorrowStr } from "./dates";
@@ -46,6 +47,7 @@ const defaultSettings: Settings = {
   pulseIntervalMin: 15,
   pulseFromHour: 8,
   pulseToHour: 21,
+  motto: DEFAULT_MOTTO,
 };
 
 const defaultTimer: TimerState = {

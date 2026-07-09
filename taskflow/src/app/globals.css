@@ -9,19 +9,25 @@
 body {
   @apply bg-ink-950 text-stone2-200 antialiased;
   background-image: radial-gradient(
-      ellipse 80% 50% at 50% -20%,
-      rgba(207, 160, 75, 0.08),
+      ellipse 70% 45% at 20% -10%,
+      rgba(240, 168, 61, 0.1),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 50% 35% at 90% 15%,
+      rgba(209, 138, 44, 0.06),
       transparent
     ),
     radial-gradient(
       ellipse 60% 40% at 100% 100%,
-      rgba(97, 137, 209, 0.05),
+      rgba(97, 137, 209, 0.04),
       transparent
     );
+  background-attachment: fixed;
 }
 
 :focus-visible {
-  outline: 2px solid #cfa04b;
+  outline: 2px solid #f0a83d;
   outline-offset: 1px;
 }
 
@@ -43,30 +49,42 @@ body {
 /* Grecki meander — pozioma linia dekoracyjna */
 .meander {
   height: 8px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 0h24v1.5H1.5V8H0zM3 3h21v1.5H6V8H4.5V4.5H3zM7.5 6h16.5v2H7.5z' fill='none'/%3E%3Cpath d='M0 .5h23v7M3.5 7.5v-4h16v4M7 7.5v-1h9' stroke='%23c49a4a' stroke-opacity='.45' fill='none'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 0h24v1.5H1.5V8H0zM3 3h21v1.5H6V8H4.5V4.5H3zM7.5 6h16.5v2H7.5z' fill='none'/%3E%3Cpath d='M0 .5h23v7M3.5 7.5v-4h16v4M7 7.5v-1h9' stroke='%23f0a83d' stroke-opacity='.45' fill='none'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
   background-size: 24px 8px;
 }
 
 .meander-subtle {
   height: 8px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 .5h23v7M3.5 7.5v-4h16v4M7 7.5v-1h9' stroke='%23c49a4a' stroke-opacity='.18' fill='none'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 .5h23v7M3.5 7.5v-4h16v4M7 7.5v-1h9' stroke='%23f0a83d' stroke-opacity='.18' fill='none'/%3E%3C/svg%3E");
   background-repeat: repeat-x;
   background-size: 24px 8px;
 }
 
 .card {
-  @apply bg-ink-850 border border-ink-700 rounded-lg shadow-card;
+  @apply border border-ink-700 rounded-lg shadow-card;
+  background-color: #201b15;
+  background-image: linear-gradient(
+    165deg,
+    rgba(240, 168, 61, 0.07),
+    rgba(240, 168, 61, 0.015) 45%,
+    rgba(0, 0, 0, 0) 70%
+  );
 }
 .card-hover {
-  @apply hover:border-ink-500 hover:bg-ink-800 transition-colors;
+  @apply hover:border-bronze-600/50 transition-colors;
+}
+
+.icon-tile {
+  @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-lg;
 }
 
 .btn {
-  @apply inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-bronze-400;
+  @apply inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-bronze-400;
 }
 .btn-primary {
-  @apply btn bg-bronze-400 text-ink-950 font-semibold hover:bg-bronze-300 shadow-[0_1px_8px_rgba(207,160,75,0.35)];
+  @apply btn font-semibold text-[#1d1408] shadow-glow hover:brightness-110;
+  background-image: linear-gradient(180deg, #f6bf68, #e09a30 55%, #c97e20);
 }
 .btn-ghost {
   @apply btn text-stone2-300 hover:bg-ink-700 hover:text-stone2-100;

@@ -278,17 +278,6 @@ export default function HabitsView() {
         </p>
       </div>
 
-      {/* Motto strony */}
-      <div className="card overflow-hidden">
-        <div className="meander" />
-        <div className="px-5 py-4 text-center">
-          <div className="font-display text-2xl md:text-3xl text-bronze-300 leading-snug">
-            „Kontroluję działania, nie wyniki.
-            <br className="hidden md:block" /> Dziś robię swoją część."
-          </div>
-        </div>
-      </div>
-
       {/* Dodawanie nawyku */}
       <div className="card p-4 space-y-3">
         <div className="flex flex-wrap gap-2">

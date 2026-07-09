@@ -1,12 +1,57 @@
 "use client";
 
+import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { Volume2, VolumeX } from "lucide-react";
+import { Volume2, VolumeX, BellRing, Quote } from "lucide-react";
 import { sndTaskAdded } from "@/lib/sounds";
+import { DEFAULT_MOTTO } from "@/lib/types";
 
 export default function SettingsView() {
   const settings = useStore((s) => s.settings);
   const updateSettings = useStore((s) => s.updateSettings);
+  const [notifStatus, setNotifStatus] = useState<string | null>(null);
+
+  const testNotification = async () => {
+    if (!("Notification" in window)) {
+      setNotifStatus("Ta przeglądarka nie wspiera powiadomień.");
+      return;
+    }
+    let perm = Notification.permission;
+    if (perm === "default") {
+      perm = await Notification.requestPermission();
+    }
+    if (perm !== "granted") {
+      setNotifStatus(
+        "Brak zgody na powiadomienia. Kliknij kłódkę przy adresie strony → Powiadomienia → Zezwalaj. Na Macu sprawdź też Ustawienia systemowe → Powiadomienia → przeglądarka."
+      );
+      return;
+    }
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      await reg.showNotification("Ergon — test powiadomienia", {
+        body: "Działa! Tak będzie wyglądał Puls potencjału.",
+        icon: "/icon-192.png",
+        badge: "/icon-192.png",
+        tag: "ergon-test",
+        actions: [
+          { action: "realize", title: "🔥 Realizuję" },
+          { action: "waste", title: "⊘ Marnuję" },
+        ],
+      } as unknown as NotificationOptions);
+      setNotifStatus(
+        "Wysłano ✓ Jeśli nic nie widzisz: sprawdź tryb skupienia / Nie przeszkadzać oraz zgodę na powiadomienia przeglądarki w systemie."
+      );
+    } catch {
+      try {
+        new Notification("Ergon — test powiadomienia", {
+          body: "Działa! Tak będzie wyglądał Puls potencjału.",
+        });
+        setNotifStatus("Wysłano ✓ (tryb podstawowy, bez przycisków)");
+      } catch {
+        setNotifStatus("Nie udało się wysłać powiadomienia.");
+      }
+    }
+  };
 
   const num =
     (
@@ -188,9 +233,41 @@ export default function SettingsView() {
         </div>
         <p className="text-xs text-stone2-400">
           Odpowiedzi zapisują się i zliczają w Dzienniku. Powiadomienie
-          systemowe pojawia się, gdy aplikacja działa w tle (wymaga zgody na
-          powiadomienia).
+          systemowe pojawia się na pasku powiadomień telefonu i na ekranie
+          komputera (wymaga zgody na powiadomienia).
         </p>
+        <div>
+          <button className="btn-outline" onClick={testNotification}>
+            <BellRing className="h-4 w-4" />
+            Wyślij testowe powiadomienie
+          </button>
+          {notifStatus && (
+            <p className="mt-2 text-xs text-stone2-300">{notifStatus}</p>
+          )}
+        </div>
+      </section>
+
+      <section className="card p-5 space-y-3">
+        <h3 className="flex items-center gap-2 font-display text-xl text-bronze-300">
+          <Quote className="h-4 w-4" />
+          Cytat na Pulpicie
+        </h3>
+        <textarea
+          className="input min-h-[60px] resize-y"
+          value={settings.motto ?? DEFAULT_MOTTO}
+          onChange={(e) => updateSettings({ motto: e.target.value })}
+        />
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs text-stone2-400">
+            Wyświetlany dużym drukiem na Pulpicie. Puste pole ukrywa cytat.
+          </p>
+          <button
+            className="btn-ghost text-xs shrink-0"
+            onClick={() => updateSettings({ motto: DEFAULT_MOTTO })}
+          >
+            Przywróć domyślny
+          </button>
+        </div>
       </section>
 
       <section className="card p-5 space-y-3">

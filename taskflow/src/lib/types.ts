@@ -94,7 +94,11 @@ export interface Settings {
   pulseIntervalMin: number; // co ile minut pytanie
   pulseFromHour: number; // od której godziny
   pulseToHour: number; // do której godziny
+  motto: string; // cytat pokazywany na Pulpicie
 }
+
+export const DEFAULT_MOTTO =
+  "Kontroluję działania, nie wyniki. Dziś robię swoją część.";
 
 export type TimerPhase = "work" | "break" | "longBreak";
 

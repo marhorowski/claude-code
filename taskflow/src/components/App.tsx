@@ -185,7 +185,7 @@ function AppInner() {
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                   view.kind === item.key ||
                   (item.key === "projects" && view.kind === "project")
-                    ? "bg-ink-700 text-bronze-300"
+                    ? "bg-gradient-to-r from-bronze-500/25 to-bronze-500/5 text-bronze-300 font-medium"
                     : "text-stone2-300 hover:bg-ink-800"
                 }`}
                 onClick={() => navigate(item.key)}
