@@ -5,7 +5,8 @@ import Modal from "./Modal";
 import { useStore } from "@/lib/store";
 import { todayStr, fmtHM, isToday } from "@/lib/dates";
 import { generateSummary } from "@/lib/summary";
-import { Sunset, Check, Moon } from "lucide-react";
+import { Sunset, Check, Moon, NotebookPen } from "lucide-react";
+import JournalDayForm from "./JournalDayForm";
 
 export default function EndDayModal({ onClose }: { onClose: () => void }) {
   const tasks = useStore((s) => s.tasks);
@@ -148,6 +149,14 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
             text
           )}
         </div>
+      </div>
+
+      <div className="mt-5">
+        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-bronze-300">
+          <NotebookPen className="h-4 w-4" />
+          Refleksja dnia — Journal
+        </div>
+        <JournalDayForm date={today} />
       </div>
 
       <div className="mt-5 flex items-center justify-between gap-2">

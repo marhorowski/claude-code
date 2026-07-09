@@ -106,6 +106,69 @@ export interface JournalStats {
   targetHoursPerDay: number;
 }
 
+interface StatsSource {
+  tasks: { completedAt: string | null; title: string }[];
+  habits: { log: Record<string, number>; targetCount: number }[];
+  pulseLog: { ts: string; answer: string }[];
+  workLog: Record<string, number>;
+  settings: { targetHoursPerDay: number };
+}
+
+/** Twarde dane dla trenera z podanych dni. */
+export function buildStatsForDates(
+  dates: string[],
+  s: StatsSource
+): JournalStats {
+  const totalSec = dates.reduce((a, d) => a + (s.workLog[d] ?? 0), 0);
+  const completed = s.tasks
+    .filter((t) => t.completedAt && dates.includes(t.completedAt.slice(0, 10)))
+    .map((t) => t.title);
+  const pulses = s.pulseLog.filter((p) => dates.includes(p.ts.slice(0, 10)));
+  const habitsDone = s.habits.filter((h) => {
+    const sum = dates.reduce((a, d) => a + (h.log[d] ?? 0), 0);
+    return sum >= h.targetCount;
+  }).length;
+  return {
+    totalSec,
+    tasksCompleted: completed,
+    pulseRealize: pulses.filter((p) => p.answer === "realize").length,
+    pulseWaste: pulses.filter((p) => p.answer === "waste").length,
+    habitsDone,
+    habitsTotal: s.habits.length,
+    targetHoursPerDay: s.settings.targetHoursPerDay || 6,
+  };
+}
+
+/** Zapytaj trenera AI; fallback: lokalny szczery komentarz. */
+export async function coachVerdict(
+  type: JournalType,
+  date: string,
+  answers: Record<string, string>,
+  stats: JournalStats
+): Promise<string> {
+  const questions = type === "day" ? DAY_QUESTIONS : WEEK_QUESTIONS;
+  const labeled: Record<string, string> = {};
+  for (const q of questions) {
+    if ((answers[q.id] ?? "").trim()) {
+      labeled[`[${q.section}] ${q.text}`] = answers[q.id].trim();
+    }
+  }
+  try {
+    const res = await fetch("/api/ai-journal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, date, answers: labeled, stats }),
+    });
+    if (res.ok) {
+      const d = await res.json();
+      if (d.text) return d.text as string;
+    }
+  } catch {
+    // fallback niżej
+  }
+  return localCoach(type, answers, stats);
+}
+
 /** Lokalny, szczery komentarz — działa bez klucza AI. */
 export function localCoach(
   type: JournalType,

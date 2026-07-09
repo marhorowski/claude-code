@@ -5,6 +5,7 @@ import { computeStats, goalSeconds } from "@/lib/stats";
 import { fmtHM, todayStr, isToday, weekDates } from "@/lib/dates";
 import GoalBanner from "../GoalBanner";
 import TaskItem from "../TaskItem";
+import NotifBanner from "../NotifBanner";
 import {
   Sun,
   Repeat,
@@ -114,6 +115,7 @@ export default function DashboardView({
 
   return (
     <div className="space-y-5">
+      <NotifBanner />
       <GoalBanner onGoals={() => onNavigate("goals")} />
 
       {/* Motto */}

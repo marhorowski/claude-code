@@ -237,13 +237,31 @@ export default function SettingsView() {
           komputera (wymaga zgody na powiadomienia).
         </p>
         <div>
-          <button className="btn-outline" onClick={testNotification}>
-            <BellRing className="h-4 w-4" />
-            Wyślij testowe powiadomienie
-          </button>
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <button className="btn-outline" onClick={testNotification}>
+              <BellRing className="h-4 w-4" />
+              Wyślij testowe powiadomienie
+            </button>
+            <span className="chip border border-ink-600 text-stone2-300">
+              zgoda przeglądarki:{" "}
+              {typeof window !== "undefined" && "Notification" in window
+                ? Notification.permission === "granted"
+                  ? "✓ udzielona"
+                  : Notification.permission === "denied"
+                  ? "✗ zablokowana"
+                  : "jeszcze nie pytano"
+                : "brak wsparcia"}
+            </span>
+          </div>
           {notifStatus && (
-            <p className="mt-2 text-xs text-stone2-300">{notifStatus}</p>
+            <p className="text-xs text-stone2-300">{notifStatus}</p>
           )}
+          <p className="mt-2 text-xs text-stone2-400">
+            Telefon: zainstaluj Ergon („Dodaj do ekranu głównego”) — wtedy
+            powiadomienia trafiają na pasek powiadomień Androida. Komputer:
+            po udzieleniu zgody powiadomienia pokazują się systemowo, gdy
+            aplikacja jest otwarta (może być zminimalizowana / w tle).
+          </p>
         </div>
       </section>
 

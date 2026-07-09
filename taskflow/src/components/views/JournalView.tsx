@@ -1,17 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import {
   DAY_QUESTIONS,
   WEEK_QUESTIONS,
-  localCoach,
+  buildStatsForDates,
+  coachVerdict,
   type JournalType,
-  type JournalStats,
   type JournalQuestion,
 } from "@/lib/journal";
-import { todayStr, weekDates, DAY, fmtHM } from "@/lib/dates";
-import { format, parseISO, startOfWeek } from "date-fns";
+import { todayStr, DAY } from "@/lib/dates";
+import { format, parseISO, startOfWeek, addDays } from "date-fns";
 import { pl } from "date-fns/locale";
 import {
   Sparkles,
@@ -48,75 +48,47 @@ export default function JournalView() {
 
   const [type, setType] = useState<JournalType>("day");
   const today = todayStr();
-  const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), DAY);
-  const entryDate = type === "day" ? today : weekStart;
+  const [pickedDate, setPickedDate] = useState(today); // domyślnie dziś
+  // dla tygodnia: wpis pod poniedziałkiem tygodnia wybranej daty
+  const entryDate =
+    type === "day"
+      ? pickedDate
+      : format(startOfWeek(parseISO(pickedDate), { weekStartsOn: 1 }), DAY);
+
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const existing = journal.find(
     (j) => j.type === type && j.date === entryDate
   );
-  const [answers, setAnswers] = useState<Record<string, string>>(
-    existing?.answers ?? {}
-  );
-  const [busy, setBusy] = useState(false);
-  const [expanded, setExpanded] = useState<string | null>(null);
+
+  // zmiana dnia/typu wczytuje istniejący wpis
+  useEffect(() => {
+    setAnswers(existing?.answers ?? {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, entryDate]);
 
   const questions = type === "day" ? DAY_QUESTIONS : WEEK_QUESTIONS;
   const groups = useMemo(() => groupQuestions(questions), [questions]);
 
-  const switchType = (t: JournalType) => {
-    setType(t);
-    const d = t === "day" ? today : weekStart;
-    const e = journal.find((j) => j.type === t && j.date === d);
-    setAnswers(e?.answers ?? {});
-  };
-
-  const buildStats = (): JournalStats => {
-    const dates = type === "day" ? [today] : weekDates();
-    const totalSec = dates.reduce((a, d) => a + (workLog[d] ?? 0), 0);
-    const completed = tasks
-      .filter((t) => t.completedAt && dates.includes(t.completedAt.slice(0, 10)))
-      .map((t) => t.title);
-    const pulses = pulseLog.filter((p) => dates.includes(p.ts.slice(0, 10)));
-    const habitsDone = habits.filter((h) => {
-      const sum = dates.reduce((a, d) => a + (h.log[d] ?? 0), 0);
-      return sum >= h.targetCount;
-    }).length;
-    return {
-      totalSec,
-      tasksCompleted: completed,
-      pulseRealize: pulses.filter((p) => p.answer === "realize").length,
-      pulseWaste: pulses.filter((p) => p.answer === "waste").length,
-      habitsDone,
-      habitsTotal: habits.length,
-      targetHoursPerDay: settings.targetHoursPerDay || 6,
-    };
+  const entryDates = (): string[] => {
+    if (type === "day") return [entryDate];
+    const start = parseISO(entryDate);
+    return Array.from({ length: 7 }, (_, i) => format(addDays(start, i), DAY));
   };
 
   const save = async () => {
     setBusy(true);
-    const stats = buildStats();
+    const stats = buildStatsForDates(entryDates(), {
+      tasks,
+      habits,
+      pulseLog,
+      workLog,
+      settings,
+    });
     const entry = upsertJournal({ type, date: entryDate, answers, aiText: "" });
-    let aiText = "";
-    try {
-      const labeled: Record<string, string> = {};
-      for (const q of questions) {
-        if ((answers[q.id] ?? "").trim()) {
-          labeled[`[${q.section}] ${q.text}`] = answers[q.id].trim();
-        }
-      }
-      const res = await fetch("/api/ai-journal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, date: entryDate, answers: labeled, stats }),
-      });
-      if (res.ok) {
-        const d = await res.json();
-        if (d.text) aiText = d.text as string;
-      }
-    } catch {
-      // fallback niżej
-    }
-    if (!aiText) aiText = localCoach(type, answers, stats);
+    const aiText = await coachVerdict(type, entryDate, answers, stats);
     setJournalAi(entry.id, aiText);
     setBusy(false);
     setExpanded(entry.id);
@@ -161,7 +133,7 @@ export default function JournalView() {
                   ? "bg-bronze-400 text-ink-950 font-semibold"
                   : "text-stone2-300 hover:bg-ink-700"
               }`}
-              onClick={() => switchType(val)}
+              onClick={() => setType(val)}
             >
               {label}
             </button>
@@ -171,14 +143,24 @@ export default function JournalView() {
 
       {/* Formularz */}
       <div className="card p-5 space-y-5">
-        <div className="text-sm text-stone2-400">
-          {type === "day"
-            ? format(parseISO(today), "EEEE, d MMMM yyyy", { locale: pl })
-            : `Tydzień od ${format(parseISO(weekStart), "d MMMM", {
-                locale: pl,
-              })}`}
+        <div className="flex flex-wrap items-center gap-3">
+          <input
+            type="date"
+            className="rounded-md bg-ink-900 border border-ink-600 px-2 py-1.5 text-sm text-stone2-200 focus:outline-none focus:border-bronze-400"
+            value={pickedDate}
+            max={today}
+            onChange={(e) => setPickedDate(e.target.value || today)}
+            title="Dzień, którego dotyczy wpis"
+          />
+          <span className="text-sm text-stone2-400">
+            {type === "day"
+              ? format(parseISO(entryDate), "EEEE, d MMMM yyyy", { locale: pl })
+              : `Tydzień od ${format(parseISO(entryDate), "d MMMM", {
+                  locale: pl,
+                })}`}
+          </span>
           {existing && (
-            <span className="ml-2 chip border border-ink-600 text-stone2-400">
+            <span className="chip border border-ink-600 text-stone2-400">
               edytujesz istniejący wpis
             </span>
           )}
