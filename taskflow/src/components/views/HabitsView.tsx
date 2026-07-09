@@ -72,7 +72,7 @@ function HabitCard({ habit }: { habit: Habit }) {
   return (
     <div
       className={`card p-4 border-l-4 ${
-        done ? "border-l-olive-400" : "border-l-transparent"
+        done ? "border-l-jade-400" : "border-l-transparent"
       }`}
     >
       <div className="flex flex-wrap items-start gap-3">
@@ -146,7 +146,7 @@ function HabitCard({ habit }: { habit: Habit }) {
           <span
             className={`min-w-[3.5rem] text-center font-display text-xl tabular-nums ${
               dailyDone && habit.cadence === "daily"
-                ? "text-olive-400"
+                ? "text-jade-400"
                 : "text-stone2-100"
             }`}
           >
@@ -198,7 +198,7 @@ function HabitCard({ habit }: { habit: Habit }) {
                 <span
                   className={`h-3.5 w-3.5 rounded-full ${
                     met
-                      ? "bg-olive-400"
+                      ? "bg-jade-400"
                       : partial
                       ? "bg-bronze-500/50"
                       : "bg-ink-600"
@@ -217,14 +217,14 @@ function HabitCard({ habit }: { habit: Habit }) {
           <div className="min-w-[140px] flex-1">
             <div className="flex justify-between text-xs text-stone2-400">
               <span>ten tydzień</span>
-              <span className={weeklyDone ? "text-olive-400" : ""}>
+              <span className={weeklyDone ? "text-jade-400" : ""}>
                 {weekCount}/{habit.targetCount}
               </span>
             </div>
             <div className="mt-1 h-1.5 rounded-full bg-ink-700">
               <div
                 className={`h-1.5 rounded-full transition-all ${
-                  weeklyDone ? "bg-olive-400" : "bg-bronze-500"
+                  weeklyDone ? "bg-jade-400" : "bg-bronze-500"
                 }`}
                 style={{
                   width: `${Math.min(

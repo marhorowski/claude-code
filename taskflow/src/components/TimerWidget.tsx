@@ -60,7 +60,7 @@ export default function TimerWidget({
       <div className="card flex items-center gap-3 px-4 py-2.5">
         <span
           className={`h-2.5 w-2.5 rounded-full shrink-0 ${
-            timer.phase === "work" ? "bg-terra-500" : "bg-olive-400"
+            timer.phase === "work" ? "bg-terra-500" : "bg-jade-400"
           } ${timer.running ? "pulse-soft" : ""}`}
         />
         <button

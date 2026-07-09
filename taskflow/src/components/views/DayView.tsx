@@ -119,7 +119,7 @@ export default function DayView() {
           <div className="text-[11px] uppercase text-stone2-400">
             Puls — realizuję
           </div>
-          <div className="font-display text-2xl text-olive-400">{realize}</div>
+          <div className="font-display text-2xl text-jade-400">{realize}</div>
         </div>
         <div className="card px-4 py-3">
           <div className="text-[11px] uppercase text-stone2-400">
@@ -133,13 +133,13 @@ export default function DayView() {
         <div className="card px-4 py-3">
           <div className="flex justify-between text-xs text-stone2-400">
             <span>Realizacja potencjału ({format(parseISO(date + "T00:00:00"), "d MMMM", { locale: pl })})</span>
-            <span className={pct >= 50 ? "text-olive-400" : "text-terra-400"}>
+            <span className={pct >= 50 ? "text-jade-400" : "text-terra-400"}>
               {pct}%
             </span>
           </div>
           <div className="mt-1.5 flex h-2 overflow-hidden rounded-full bg-ink-700">
             <div
-              className="bg-olive-400"
+              className="bg-jade-400"
               style={{ width: `${pct}%` }}
             />
             <div className="bg-terra-500" style={{ width: `${100 - pct}%` }} />
@@ -223,7 +223,7 @@ export default function DayView() {
                 }`}
               >
                 {p.answer === "realize" ? (
-                  <Flame className="h-4 w-4 text-olive-400" />
+                  <Flame className="h-4 w-4 text-jade-400" />
                 ) : (
                   <CircleSlash className="h-4 w-4 text-terra-400" />
                 )}

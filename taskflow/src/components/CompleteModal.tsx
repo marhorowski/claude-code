@@ -112,8 +112,8 @@ export default function CompleteModal({
             <button
               className={`chip border px-3 py-1.5 ${
                 recur === true
-                  ? "border-olive-400 bg-olive-500/15 text-olive-400"
-                  : "border-ink-600 text-stone2-400 hover:border-olive-400"
+                  ? "border-jade-400 bg-jade-500/15 text-jade-400"
+                  : "border-ink-600 text-stone2-400 hover:border-jade-400"
               }`}
               onClick={() => setRecur(true)}
             >
@@ -132,7 +132,7 @@ export default function CompleteModal({
             </button>
           </div>
           {recur === true && (
-            <p className="mt-1.5 text-xs text-olive-400">
+            <p className="mt-1.5 text-xs text-jade-400">
               Jutro w projekcie „Procesy do stworzenia" pojawi się zadanie
               „Stwórz proces: {task.title}".
             </p>

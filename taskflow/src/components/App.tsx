@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
-import GoalBanner from "./GoalBanner";
-import StatsBar from "./StatsBar";
 import TimerWidget from "./TimerWidget";
 import TaskDetail from "./TaskDetail";
 import CompleteModal from "./CompleteModal";
@@ -16,6 +14,7 @@ import ProjectView from "./views/ProjectView";
 import GoalsView from "./views/GoalsView";
 import HabitsView from "./views/HabitsView";
 import DayView from "./views/DayView";
+import DashboardView from "./views/DashboardView";
 import ArchiveView from "./views/ArchiveView";
 import SettingsView from "./views/SettingsView";
 import AuthGate, { useAuth } from "./AuthGate";
@@ -36,6 +35,7 @@ import {
   RefreshCw,
   Repeat,
   CalendarClock,
+  LayoutDashboard,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -61,7 +61,7 @@ function SyncIndicator({ status }: { status: SyncStatus }) {
     synced: {
       icon: Cloud,
       label: "Zapisano w bazie danych",
-      cls: "text-olive-400",
+      cls: "text-jade-400",
     },
     offline: {
       icon: CloudOff,
@@ -90,6 +90,7 @@ function SyncIndicator({ status }: { status: SyncStatus }) {
 }
 
 type View =
+  | { kind: "dashboard" }
   | { kind: "today" }
   | { kind: "inbox" }
   | { kind: "projects" }
@@ -101,6 +102,7 @@ type View =
   | { kind: "settings" };
 
 const NAV: { key: View["kind"]; label: string; icon: LucideIcon }[] = [
+  { key: "dashboard", label: "Pulpit", icon: LayoutDashboard },
   { key: "today", label: "Plan", icon: Sun },
   { key: "inbox", label: "Skrzynka", icon: Inbox },
   { key: "projects", label: "Projekty", icon: FolderKanban },
@@ -121,7 +123,7 @@ export default function App() {
 
 function AppInner() {
   const [mounted, setMounted] = useState(false);
-  const [view, setView] = useState<View>({ kind: "today" });
+  const [view, setView] = useState<View>({ kind: "dashboard" });
   const [detailId, setDetailId] = useState<string | null>(null);
   const [completeId, setCompleteId] = useState<string | null>(null);
   const [endDay, setEndDay] = useState(false);
@@ -297,12 +299,15 @@ function AppInner() {
         </header>
 
         <main className="mx-auto max-w-4xl px-4 py-6 lg:px-8 pb-28 space-y-6">
+          {view.kind === "dashboard" && (
+            <DashboardView
+              onOpen={openTask}
+              onComplete={askComplete}
+              onNavigate={(kind) => navigate(kind)}
+            />
+          )}
           {view.kind === "today" && (
-            <>
-              <GoalBanner onGoals={() => navigate("goals")} />
-              <StatsBar />
-              <TodayView onOpen={openTask} onComplete={askComplete} />
-            </>
+            <TodayView onOpen={openTask} onComplete={askComplete} />
           )}
           {view.kind === "inbox" && (
             <InboxView onOpen={openTask} onComplete={askComplete} />
