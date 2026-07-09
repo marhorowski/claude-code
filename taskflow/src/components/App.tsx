@@ -14,6 +14,7 @@ import InboxView from "./views/InboxView";
 import ProjectsView from "./views/ProjectsView";
 import ProjectView from "./views/ProjectView";
 import GoalsView from "./views/GoalsView";
+import HabitsView from "./views/HabitsView";
 import ArchiveView from "./views/ArchiveView";
 import SettingsView from "./views/SettingsView";
 import {
@@ -29,6 +30,7 @@ import {
   Cloud,
   CloudOff,
   RefreshCw,
+  Repeat,
   type LucideIcon,
 } from "lucide-react";
 import { useCloudSync, type SyncStatus } from "@/lib/sync";
@@ -87,6 +89,7 @@ type View =
   | { kind: "projects" }
   | { kind: "project"; id: string }
   | { kind: "goals" }
+  | { kind: "habits" }
   | { kind: "archive" }
   | { kind: "settings" };
 
@@ -95,6 +98,7 @@ const NAV: { key: View["kind"]; label: string; icon: LucideIcon }[] = [
   { key: "inbox", label: "Skrzynka", icon: Inbox },
   { key: "projects", label: "Projekty", icon: FolderKanban },
   { key: "goals", label: "Cele", icon: Target },
+  { key: "habits", label: "Nawyki", icon: Repeat },
   { key: "archive", label: "Archiwum", icon: Archive },
   { key: "settings", label: "Ustawienia", icon: Settings },
 ];
@@ -282,6 +286,7 @@ export default function App() {
             />
           )}
           {view.kind === "goals" && <GoalsView />}
+          {view.kind === "habits" && <HabitsView />}
           {view.kind === "archive" && <ArchiveView />}
           {view.kind === "settings" && <SettingsView />}
         </main>

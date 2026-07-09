@@ -50,6 +50,22 @@ export interface Goal {
   createdAt: string;
 }
 
+export type HabitCadence = "daily" | "weekly";
+export type HabitKind = "do" | "avoid";
+
+export interface Habit {
+  id: ID;
+  name: string;
+  why: string; // po co go robię, do czego ma doprowadzić
+  cadence: HabitCadence; // cel dzienny / tygodniowy
+  targetCount: number; // ile razy w okresie
+  kind: HabitKind; // wykonywanie / unikanie
+  goalId: ID | null;
+  color: string;
+  createdAt: string;
+  log: Record<string, number>; // "yyyy-MM-dd" -> liczba wykonań (avoid: 1 = utrzymane)
+}
+
 export interface Settings {
   workMin: number;
   breakMin: number;

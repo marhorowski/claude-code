@@ -10,6 +10,7 @@ import {
   Settings,
   TimerState,
   DaySummary,
+  Habit,
   ID,
   PROJECT_COLORS,
   PROCESS_PROJECT_NAME,
@@ -58,10 +59,20 @@ export interface NewTaskInput {
   description?: string;
 }
 
+export interface NewHabitInput {
+  name: string;
+  why?: string;
+  cadence?: "daily" | "weekly";
+  targetCount?: number;
+  kind?: "do" | "avoid";
+  goalId?: ID | null;
+}
+
 interface AppState {
   tasks: Task[];
   projects: Project[];
   goals: Goal[];
+  habits: Habit[];
   settings: Settings;
   timer: TimerState;
   daySummaries: DaySummary[];
@@ -92,6 +103,12 @@ interface AppState {
   updateKeyResult: (goalId: ID, krId: ID, patch: Partial<KeyResult>) => void;
   deleteKeyResult: (goalId: ID, krId: ID) => void;
 
+  // nawyki
+  addHabit: (input: NewHabitInput) => Habit;
+  updateHabit: (id: ID, patch: Partial<Habit>) => void;
+  deleteHabit: (id: ID) => void;
+  logHabit: (id: ID, date: string, delta: number) => void;
+
   // ustawienia
   updateSettings: (patch: Partial<Settings>) => void;
 
@@ -113,6 +130,7 @@ export const useStore = create<AppState>()(
       tasks: [],
       projects: [],
       goals: [],
+      habits: [],
       settings: defaultSettings,
       timer: defaultTimer,
       daySummaries: [],
@@ -292,6 +310,57 @@ export const useStore = create<AppState>()(
           ),
         })),
 
+      addHabit: (input) => {
+        const habit: Habit = {
+          id: uid(),
+          name: input.name.trim(),
+          why: (input.why ?? "").trim(),
+          cadence: input.cadence ?? "daily",
+          targetCount: Math.max(1, input.targetCount ?? 1),
+          kind: input.kind ?? "do",
+          goalId: input.goalId ?? null,
+          color:
+            PROJECT_COLORS[get().habits.length % PROJECT_COLORS.length],
+          createdAt: new Date().toISOString(),
+          log: {},
+        };
+        set((s) => ({ habits: [...s.habits, habit] }));
+        if (get().settings.soundsEnabled !== false) sndTaskAdded();
+        return habit;
+      },
+
+      updateHabit: (id, patch) =>
+        set((s) => ({
+          habits: s.habits.map((h) => (h.id === id ? { ...h, ...patch } : h)),
+        })),
+
+      deleteHabit: (id) =>
+        set((s) => ({ habits: s.habits.filter((h) => h.id !== id) })),
+
+      logHabit: (id, date, delta) => {
+        const habit = get().habits.find((h) => h.id === id);
+        if (!habit) return;
+        const prev = habit.log[date] ?? 0;
+        const next = Math.max(0, prev + delta);
+        set((s) => ({
+          habits: s.habits.map((h) => {
+            if (h.id !== id) return h;
+            const log = { ...h.log };
+            if (next === 0) delete log[date];
+            else log[date] = next;
+            return { ...h, log };
+          }),
+        }));
+        if (delta > 0 && get().settings.soundsEnabled !== false) {
+          // po osiągnięciu dziennego celu — dźwięk sukcesu, wcześniej blip
+          if (habit.cadence === "daily" && next >= habit.targetCount) {
+            sndTaskCompleted();
+          } else {
+            sndTaskAdded();
+          }
+        }
+      },
+
       updateSettings: (patch) =>
         set((s) => ({ settings: { ...s.settings, ...patch } })),
 
@@ -407,6 +476,7 @@ export const useStore = create<AppState>()(
         tasks: s.tasks,
         projects: s.projects,
         goals: s.goals,
+        habits: s.habits,
         settings: s.settings,
         daySummaries: s.daySummaries,
         workLog: s.workLog,
