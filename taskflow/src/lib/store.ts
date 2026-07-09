@@ -11,6 +11,9 @@ import {
   TimerState,
   DaySummary,
   Habit,
+  PulseEntry,
+  PulseAnswer,
+  WorkSession,
   ID,
   PROJECT_COLORS,
   PROCESS_PROJECT_NAME,
@@ -39,6 +42,10 @@ const defaultSettings: Settings = {
   targetHoursPerDay: 6,
   soundsEnabled: true,
   syncKey: "default",
+  pulseEnabled: true,
+  pulseIntervalMin: 15,
+  pulseFromHour: 8,
+  pulseToHour: 21,
 };
 
 const defaultTimer: TimerState = {
@@ -73,6 +80,8 @@ interface AppState {
   projects: Project[];
   goals: Goal[];
   habits: Habit[];
+  pulseLog: PulseEntry[];
+  workSessions: WorkSession[];
   settings: Settings;
   timer: TimerState;
   daySummaries: DaySummary[];
@@ -109,6 +118,9 @@ interface AppState {
   deleteHabit: (id: ID) => void;
   logHabit: (id: ID, date: string, delta: number) => void;
 
+  // puls potencjału
+  addPulse: (answer: PulseAnswer) => void;
+
   // ustawienia
   updateSettings: (patch: Partial<Settings>) => void;
 
@@ -131,6 +143,8 @@ export const useStore = create<AppState>()(
       projects: [],
       goals: [],
       habits: [],
+      pulseLog: [],
+      workSessions: [],
       settings: defaultSettings,
       timer: defaultTimer,
       daySummaries: [],
@@ -153,7 +167,7 @@ export const useStore = create<AppState>()(
           completionNote: "",
           onTime: null,
         };
-        set((s) => ({ tasks: [task, ...s.tasks] }));
+        set((s) => ({ tasks: [...s.tasks, task] }));
         if (get().settings.soundsEnabled !== false) sndTaskAdded();
         return task;
       },
@@ -361,6 +375,18 @@ export const useStore = create<AppState>()(
         }
       },
 
+      addPulse: (answer) => {
+        set((s) => ({
+          pulseLog: [
+            { ts: new Date().toISOString(), answer },
+            ...s.pulseLog,
+          ].slice(0, 5000),
+        }));
+        if (get().settings.soundsEnabled !== false) {
+          answer === "realize" ? sndTaskCompleted() : sndTaskAdded();
+        }
+      },
+
       updateSettings: (patch) =>
         set((s) => ({ settings: { ...s.settings, ...patch } })),
 
@@ -420,17 +446,37 @@ export const useStore = create<AppState>()(
         const { timer } = get();
         if (!timer.running || !timer.taskId) return;
 
-        // w fazie pracy: doliczamy sekundę do zadania i dziennego logu
+        // w fazie pracy: doliczamy sekundę do zadania, dziennego logu i sesji
         if (timer.phase === "work") {
           const day = todayStr();
-          set((s) => ({
-            tasks: s.tasks.map((t) =>
-              t.id === timer.taskId
-                ? { ...t, timeSpentSec: t.timeSpentSec + 1 }
-                : t
-            ),
-            workLog: { ...s.workLog, [day]: (s.workLog[day] ?? 0) + 1 },
-          }));
+          const nowIso = new Date().toISOString();
+          set((s) => {
+            const sessions = [...s.workSessions];
+            const last = sessions[sessions.length - 1];
+            if (
+              last &&
+              last.taskId === timer.taskId &&
+              Date.now() - Date.parse(last.end) <= 5000
+            ) {
+              sessions[sessions.length - 1] = { ...last, end: nowIso };
+            } else {
+              sessions.push({
+                id: uid(),
+                taskId: timer.taskId as ID,
+                start: nowIso,
+                end: nowIso,
+              });
+            }
+            return {
+              tasks: s.tasks.map((t) =>
+                t.id === timer.taskId
+                  ? { ...t, timeSpentSec: t.timeSpentSec + 1 }
+                  : t
+              ),
+              workLog: { ...s.workLog, [day]: (s.workLog[day] ?? 0) + 1 },
+              workSessions: sessions.slice(-2000),
+            };
+          });
         }
 
         // sygnał ostrzegawczy: 5 minut do końca odliczanej fazy
@@ -477,6 +523,8 @@ export const useStore = create<AppState>()(
         projects: s.projects,
         goals: s.goals,
         habits: s.habits,
+        pulseLog: s.pulseLog,
+        workSessions: s.workSessions,
         settings: s.settings,
         daySummaries: s.daySummaries,
         workLog: s.workLog,

@@ -6,6 +6,7 @@ import { fmtHM } from "@/lib/dates";
 import TaskItem from "../TaskItem";
 import QuickAdd from "../QuickAdd";
 import { ChevronLeft, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
+import SortSelect, { sortTasks, type TaskSort } from "../SortSelect";
 
 export default function ProjectView({
   projectId,
@@ -24,11 +25,15 @@ export default function ProjectView({
   const deleteProject = useStore((s) => s.deleteProject);
   const allTasks = useStore((s) => s.tasks);
   const [showDone, setShowDone] = useState(false);
+  const [sort, setSort] = useState<TaskSort>("added");
 
   if (!project) return null;
 
   const tasks = allTasks.filter((t) => t.projectId === projectId);
-  const active = tasks.filter((t) => !t.completedAt);
+  const active = sortTasks(
+    tasks.filter((t) => !t.completedAt),
+    sort
+  );
   const done = tasks.filter((t) => t.completedAt);
   const totalSec = tasks.reduce((a, t) => a + t.timeSpentSec, 0);
 
@@ -81,9 +86,12 @@ export default function ProjectView({
           </button>
         </div>
       </div>
-      <div className="text-xs text-stone2-400">
-        {active.length} aktywnych · {done.length} ukończonych · łącznie{" "}
-        {fmtHM(totalSec)} pracy
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="text-xs text-stone2-400">
+          {active.length} aktywnych · {done.length} ukończonych · łącznie{" "}
+          {fmtHM(totalSec)} pracy
+        </div>
+        <SortSelect value={sort} onChange={setSort} />
       </div>
 
       <QuickAdd defaultProjectId={projectId} showProject={false} />

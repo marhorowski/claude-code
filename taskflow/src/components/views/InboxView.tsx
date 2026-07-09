@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useStore } from "@/lib/store";
 import TaskItem from "../TaskItem";
 import QuickAdd from "../QuickAdd";
+import SortSelect, { sortTasks, type TaskSort } from "../SortSelect";
 
 export default function InboxView({
   onOpen,
@@ -11,20 +13,25 @@ export default function InboxView({
   onOpen: (id: string) => void;
   onComplete: (id: string) => void;
 }) {
-  const tasks = useStore((s) =>
+  const allTasks = useStore((s) =>
     s.tasks.filter((t) => !t.completedAt && !t.projectId)
   );
+  const [sort, setSort] = useState<TaskSort>("added");
+  const tasks = sortTasks(allTasks, sort);
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="font-display text-3xl text-stone2-100">
-          Skrzynka odbiorcza
-        </h2>
-        <p className="mt-1 text-sm text-stone2-400">
-          Zrzuć tu wszystko, co masz w głowie — posegregujesz później. Enter
-          dodaje kolejne zadanie.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="font-display text-3xl text-stone2-100">
+            Skrzynka odbiorcza
+          </h2>
+          <p className="mt-1 text-sm text-stone2-400">
+            Zrzuć tu wszystko, co masz w głowie — posegregujesz później. Enter
+            dodaje kolejne zadanie.
+          </p>
+        </div>
+        <SortSelect value={sort} onChange={setSort} />
       </div>
       <QuickAdd autoFocus placeholder="Wpisz zadanie i naciśnij Enter…" />
       <div className="space-y-1.5">

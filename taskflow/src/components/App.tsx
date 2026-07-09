@@ -15,8 +15,12 @@ import ProjectsView from "./views/ProjectsView";
 import ProjectView from "./views/ProjectView";
 import GoalsView from "./views/GoalsView";
 import HabitsView from "./views/HabitsView";
+import DayView from "./views/DayView";
 import ArchiveView from "./views/ArchiveView";
 import SettingsView from "./views/SettingsView";
+import AuthGate, { useAuth } from "./AuthGate";
+import PwaSetup from "./PwaSetup";
+import { usePulse, PulseModal } from "./Pulse";
 import {
   Sun,
   Inbox,
@@ -31,6 +35,8 @@ import {
   CloudOff,
   RefreshCw,
   Repeat,
+  CalendarClock,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { useCloudSync, type SyncStatus } from "@/lib/sync";
@@ -90,6 +96,7 @@ type View =
   | { kind: "project"; id: string }
   | { kind: "goals" }
   | { kind: "habits" }
+  | { kind: "day" }
   | { kind: "archive" }
   | { kind: "settings" };
 
@@ -99,11 +106,20 @@ const NAV: { key: View["kind"]; label: string; icon: LucideIcon }[] = [
   { key: "projects", label: "Projekty", icon: FolderKanban },
   { key: "goals", label: "Cele", icon: Target },
   { key: "habits", label: "Nawyki", icon: Repeat },
+  { key: "day", label: "Dziennik", icon: CalendarClock },
   { key: "archive", label: "Archiwum", icon: Archive },
   { key: "settings", label: "Ustawienia", icon: Settings },
 ];
 
 export default function App() {
+  return (
+    <AuthGate>
+      <AppInner />
+    </AuthGate>
+  );
+}
+
+function AppInner() {
   const [mounted, setMounted] = useState(false);
   const [view, setView] = useState<View>({ kind: "today" });
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -117,6 +133,8 @@ export default function App() {
   );
   const projects = useStore((s) => s.projects);
   const syncStatus = useCloudSync();
+  const { open: pulseOpen, close: pulseClose } = usePulse();
+  const { login, signOut } = useAuth();
 
   useEffect(() => setMounted(true), []);
   if (!mounted) {
@@ -208,8 +226,25 @@ export default function App() {
               </div>
             )}
           </nav>
-          <div className="p-4 text-center text-[11px] text-stone2-400/60">
-            „Początek jest połową całości" — Arystoteles
+          <div className="border-t border-ink-700 p-3">
+            {login && (
+              <div className="mb-2 flex items-center justify-between gap-2 px-1">
+                <span className="truncate text-xs text-stone2-400">
+                  {login}
+                </span>
+                <button
+                  className="btn-ghost px-2 py-1 text-xs"
+                  onClick={signOut}
+                  title="Wyloguj się"
+                  aria-label="Wyloguj się"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+            <div className="text-center text-[11px] text-stone2-400/60">
+              „Początek jest połową całości" — Arystoteles
+            </div>
           </div>
         </div>
       </aside>
@@ -287,12 +322,15 @@ export default function App() {
           )}
           {view.kind === "goals" && <GoalsView />}
           {view.kind === "habits" && <HabitsView />}
+          {view.kind === "day" && <DayView />}
           {view.kind === "archive" && <ArchiveView />}
           {view.kind === "settings" && <SettingsView />}
         </main>
       </div>
 
       {/* Overlays */}
+      <PwaSetup />
+      {pulseOpen && <PulseModal onClose={pulseClose} />}
       <TimerWidget onOpenTask={openTask} />
       {detailId && (
         <TaskDetail

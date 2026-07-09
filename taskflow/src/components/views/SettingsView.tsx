@@ -9,9 +9,24 @@ export default function SettingsView() {
   const updateSettings = useStore((s) => s.updateSettings);
 
   const num =
-    (key: "workMin" | "breakMin" | "longBreakMin" | "sessionsBeforeLongBreak" | "targetHoursPerDay") =>
+    (
+      key:
+        | "workMin"
+        | "breakMin"
+        | "longBreakMin"
+        | "sessionsBeforeLongBreak"
+        | "targetHoursPerDay"
+        | "pulseIntervalMin"
+    ) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
       updateSettings({ [key]: Math.max(1, Number(e.target.value) || 1) });
+
+  const hour =
+    (key: "pulseFromHour" | "pulseToHour") =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      updateSettings({
+        [key]: Math.min(24, Math.max(0, Number(e.target.value) || 0)),
+      });
 
   return (
     <div className="max-w-xl space-y-6">
@@ -111,6 +126,71 @@ export default function SettingsView() {
             onChange={num("targetHoursPerDay")}
           />
         </div>
+      </section>
+
+      <section className="card p-5 space-y-4">
+        <h3 className="font-display text-xl text-bronze-300">
+          Puls potencjału
+        </h3>
+        <label className="flex items-center justify-between gap-3 cursor-pointer">
+          <span className="text-sm text-stone2-200">
+            Pytaj „Czy realizujesz swój potencjał?"
+          </span>
+          <button
+            role="switch"
+            aria-checked={settings.pulseEnabled !== false}
+            onClick={() =>
+              updateSettings({ pulseEnabled: !(settings.pulseEnabled !== false) })
+            }
+            className={`relative h-6 w-11 rounded-full transition-colors ${
+              settings.pulseEnabled !== false ? "bg-bronze-500" : "bg-ink-600"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 h-5 w-5 rounded-full bg-ink-950 transition-all ${
+                settings.pulseEnabled !== false ? "left-[22px]" : "left-0.5"
+              }`}
+            />
+          </button>
+        </label>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="label">Co ile minut</label>
+            <input
+              type="number"
+              className="input"
+              value={settings.pulseIntervalMin ?? 15}
+              onChange={num("pulseIntervalMin")}
+            />
+          </div>
+          <div>
+            <label className="label">Od godziny</label>
+            <input
+              type="number"
+              min={0}
+              max={23}
+              className="input"
+              value={settings.pulseFromHour ?? 8}
+              onChange={hour("pulseFromHour")}
+            />
+          </div>
+          <div>
+            <label className="label">Do godziny</label>
+            <input
+              type="number"
+              min={1}
+              max={24}
+              className="input"
+              value={settings.pulseToHour ?? 21}
+              onChange={hour("pulseToHour")}
+            />
+          </div>
+        </div>
+        <p className="text-xs text-stone2-400">
+          Odpowiedzi zapisują się i zliczają w Dzienniku. Powiadomienie
+          systemowe pojawia się, gdy aplikacja działa w tle (wymaga zgody na
+          powiadomienia).
+        </p>
       </section>
 
       <section className="card p-5 space-y-3">

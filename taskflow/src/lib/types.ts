@@ -66,6 +66,20 @@ export interface Habit {
   log: Record<string, number>; // "yyyy-MM-dd" -> liczba wykonań (avoid: 1 = utrzymane)
 }
 
+export interface WorkSession {
+  id: ID;
+  taskId: ID;
+  start: string; // ISO
+  end: string; // ISO — rozszerzane co sekundę w trakcie pracy
+}
+
+export type PulseAnswer = "realize" | "waste";
+
+export interface PulseEntry {
+  ts: string; // ISO
+  answer: PulseAnswer;
+}
+
 export interface Settings {
   workMin: number;
   breakMin: number;
@@ -76,6 +90,10 @@ export interface Settings {
   targetHoursPerDay: number;
   soundsEnabled: boolean;
   syncKey: string;
+  pulseEnabled: boolean;
+  pulseIntervalMin: number; // co ile minut pytanie
+  pulseFromHour: number; // od której godziny
+  pulseToHour: number; // do której godziny
 }
 
 export type TimerPhase = "work" | "break" | "longBreak";

@@ -17,6 +17,20 @@ export const metadata: Metadata = {
   title: "Ergon — zarządzanie zadaniami",
   description:
     "Proste zarządzanie zadaniami z trackingiem czasu Pomodoro, celami i planowaniem dnia.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Ergon",
+  },
+  icons: {
+    icon: "/icon-192.png",
+    apple: "/apple-touch-icon.png",
+  },
+};
+
+export const viewport = {
+  themeColor: "#121316",
 };
 
 export default function RootLayout({
