@@ -78,6 +78,31 @@ export async function PUT(req: Request) {
     if (JSON.stringify(body.data).length > 2_000_000) {
       return NextResponse.json({ error: "too-large" }, { status: 413 });
     }
+
+    // ochrona przed nadpisaniem nowszego stanu starszym (inne urządzenie
+    // zapisało w międzyczasie): klient przysyła wersję, na której bazował
+    const base = typeof body.baseUpdatedAt === "string" ? body.baseUpdatedAt : null;
+    if (base !== null) {
+      const cur = await p.query(
+        "SELECT data, updated_at FROM ergon_state WHERE id = $1",
+        [id]
+      );
+      if (cur.rows.length) {
+        const curTs = new Date(cur.rows[0].updated_at).getTime();
+        const baseTs = Date.parse(base);
+        if (!baseTs || Math.abs(curTs - baseTs) > 1500) {
+          return NextResponse.json(
+            {
+              error: "conflict",
+              data: cur.rows[0].data,
+              updatedAt: cur.rows[0].updated_at,
+            },
+            { status: 409 }
+          );
+        }
+      }
+    }
+
     const { rows } = await p.query(
       `INSERT INTO ergon_state (id, data, updated_at)
        VALUES ($1, $2, now())

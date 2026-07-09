@@ -4,8 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "./store";
 
 /**
- * Synchronizacja stanu z bazą danych (endpoint /api/state).
- * localStorage pozostaje cache'em offline; wygrywa nowszy zapis.
+ * Synchronizacja stanu z bazą (endpoint /api/state).
+ * - pull przy starcie, co 45 s, przy powrocie do karty i po odzyskaniu sieci
+ * - push z opóźnieniem po każdej zmianie
+ * - zapis warunkowy: serwer odrzuca push oparty na nieaktualnej wersji (409),
+ *   wtedy klient przyjmuje nowszy stan z bazy
+ * localStorage pozostaje cache'em offline.
  */
 
 export type SyncStatus = "loading" | "synced" | "saving" | "offline";
@@ -45,6 +49,19 @@ function setLastModified(iso: string) {
 }
 
 let applyingRemote = false;
+// wersja stanu w bazie, na której bazuje to urządzenie
+let remoteRev: string | null =
+  typeof window !== "undefined"
+    ? window.localStorage.getItem("ergon-remote-rev")
+    : null;
+
+function setRemoteRev(rev: string | null) {
+  remoteRev = rev;
+  if (typeof window !== "undefined") {
+    if (rev) window.localStorage.setItem("ergon-remote-rev", rev);
+    else window.localStorage.removeItem("ergon-remote-rev");
+  }
+}
 
 function applyRemote(data: SyncSlice, updatedAt: string) {
   applyingRemote = true;
@@ -52,22 +69,23 @@ function applyRemote(data: SyncSlice, updatedAt: string) {
   for (const k of SYNC_KEYS) {
     if (k in data) patch[k] = data[k];
   }
-  // scal ustawienia z domyślnymi (nowe pola nie mogą zniknąć)
+  // scal ustawienia z bieżącymi (nowe pola nie mogą zniknąć)
   const cur = useStore.getState().settings;
   patch.settings = { ...cur, ...(patch.settings as object | undefined) };
   useStore.setState(patch as never);
   setLastModified(updatedAt);
+  setRemoteRev(updatedAt);
   applyingRemote = false;
 }
 
-async function pull(
+async function fetchRemote(
   ws: string
 ): Promise<{ data: SyncSlice | null; updatedAt: string | null } | null> {
   try {
     const res = await fetch(`/api/state?ws=${encodeURIComponent(ws)}`, {
       cache: "no-store",
     });
-    if (!res.ok) return null; // 501 = brak bazy, inne = błąd
+    if (!res.ok) return null;
     return (await res.json()) as {
       data: SyncSlice | null;
       updatedAt: string | null;
@@ -77,15 +95,29 @@ async function pull(
   }
 }
 
-async function push(ws: string): Promise<string | null> {
+/** Push warunkowy; zwraca nowy updatedAt, "conflict" albo null (błąd). */
+async function push(ws: string): Promise<string | "conflict" | null> {
   try {
     const res = await fetch(`/api/state?ws=${encodeURIComponent(ws)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: currentSlice() }),
+      body: JSON.stringify({
+        data: currentSlice(),
+        baseUpdatedAt: remoteRev,
+      }),
     });
+    if (res.status === 409) {
+      const body = (await res.json()) as {
+        data: SyncSlice;
+        updatedAt: string;
+      };
+      // baza ma nowszy stan z innego urządzenia — przyjmujemy go
+      applyRemote(body.data, body.updatedAt);
+      return "conflict";
+    }
     if (!res.ok) return null;
     const body = (await res.json()) as { updatedAt: string };
+    setRemoteRev(body.updatedAt);
     return body.updatedAt;
   } catch {
     return null;
@@ -99,18 +131,30 @@ export function useCloudSync(): SyncStatus {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const maxTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSerialized = useRef("");
+  const pushPending = () => timer.current !== null || maxTimer.current !== null;
 
-  // inicjalizacja / zmiana klucza: pobierz stan z chmury
+  // dociągnięcie zmian z bazy (bez nadpisywania lokalnych, niewysłanych zmian)
+  const pullLatest = useRef(async (key: string) => {
+    if (!ready.current || pushPending()) return;
+    const remote = await fetchRemote(key);
+    if (!remote || !remote.data || !remote.updatedAt) return;
+    setStatus("synced");
+    if (remote.updatedAt === remoteRev) return; // nic nowego
+    if (pushPending()) return; // w międzyczasie pojawiła się lokalna zmiana
+    applyRemote(remote.data, remote.updatedAt);
+    lastSerialized.current = JSON.stringify(currentSlice());
+  });
+
+  // inicjalizacja / zmiana klucza
   useEffect(() => {
     let alive = true;
     ready.current = false;
     setStatus("loading");
     (async () => {
-      const remote = await pull(syncKey);
+      const remote = await fetchRemote(syncKey);
       if (!alive) return;
       if (remote === null) {
         setStatus("offline");
-        ready.current = false;
         return;
       }
       if (remote.data && remote.updatedAt) {
@@ -119,12 +163,14 @@ export function useCloudSync(): SyncStatus {
         if (remoteTs + 5000 >= lastModified()) {
           applyRemote(remote.data, remote.updatedAt);
         } else {
+          setRemoteRev(remote.updatedAt);
           const at = await push(syncKey);
-          if (at) setLastModified(at);
+          if (typeof at === "string" && at !== "conflict") setLastModified(at);
         }
       } else {
+        setRemoteRev(null);
         const at = await push(syncKey);
-        if (at) setLastModified(at);
+        if (typeof at === "string" && at !== "conflict") setLastModified(at);
       }
       if (!alive) return;
       lastSerialized.current = JSON.stringify(currentSlice());
@@ -136,7 +182,7 @@ export function useCloudSync(): SyncStatus {
     };
   }, [syncKey]);
 
-  // obserwuj zmiany stanu i zapisuj z opóźnieniem (debounce 3 s, max 20 s)
+  // push po zmianach (debounce 3 s, max 20 s)
   useEffect(() => {
     const doPush = async () => {
       if (timer.current) clearTimeout(timer.current);
@@ -145,12 +191,14 @@ export function useCloudSync(): SyncStatus {
       maxTimer.current = null;
       setStatus("saving");
       const at = await push(syncKey);
-      if (at) {
+      if (at === "conflict") {
+        lastSerialized.current = JSON.stringify(currentSlice());
+        setStatus("synced");
+      } else if (at) {
         setLastModified(at);
         setStatus("synced");
       } else {
         setStatus("offline");
-        ready.current = false;
       }
     };
 
@@ -170,6 +218,24 @@ export function useCloudSync(): SyncStatus {
       unsub();
       if (timer.current) clearTimeout(timer.current);
       if (maxTimer.current) clearTimeout(maxTimer.current);
+    };
+  }, [syncKey]);
+
+  // cykliczne i zdarzeniowe dociąganie zmian z innych urządzeń
+  useEffect(() => {
+    const pull = () => void pullLatest.current(syncKey);
+    const interval = setInterval(pull, 45_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") pull();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", pull);
+    window.addEventListener("online", pull);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", pull);
+      window.removeEventListener("online", pull);
     };
   }, [syncKey]);
 
