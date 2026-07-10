@@ -1,8 +1,10 @@
 "use client";
 
 /**
- * Sygnały dźwiękowe generowane Web Audio API — bez plików audio.
- * Kontekst tworzony leniwie przy pierwszym dźwięku (wymaga gestu użytkownika).
+ * Dźwięki w duchu antycznym — synteza Web Audio, bez plików:
+ * - lira: szarpana struna (algorytm Karplusa-Stronga),
+ * - dzwon z brązu: niestrojne alikwoty o długim wybrzmieniu,
+ * - stuknięcia drewna (odliczanie).
  */
 
 let ctx: AudioContext | null = null;
@@ -19,73 +21,189 @@ function audio(): AudioContext | null {
   return ctx;
 }
 
-interface Note {
-  freq: number;
-  at: number; // s od startu
-  dur: number; // s
-  gain?: number;
-  type?: OscillatorType;
+/* ---------- lira: szarpana struna (Karplus-Strong) ---------- */
+
+const pluckCache = new Map<string, AudioBuffer>();
+
+function pluckBuffer(
+  ac: AudioContext,
+  freq: number,
+  durSec = 2.2,
+  damp = 0.995
+): AudioBuffer {
+  const key = `${Math.round(freq)}|${durSec}|${damp}`;
+  const hit = pluckCache.get(key);
+  if (hit) return hit;
+
+  const sr = ac.sampleRate;
+  const n = Math.floor(sr * durSec);
+  const buf = ac.createBuffer(1, n, sr);
+  const out = buf.getChannelData(0);
+  const period = Math.max(2, Math.round(sr / freq));
+  const line = new Float32Array(period);
+  // szarpnięcie: krótki impuls szumu
+  for (let i = 0; i < period; i++) line[i] = Math.random() * 2 - 1;
+  let idx = 0;
+  for (let i = 0; i < n; i++) {
+    const cur = line[idx];
+    const next = line[(idx + 1) % period];
+    out[i] = cur;
+    line[idx] = (cur + next) * 0.5 * damp; // tłumiony filtr uśredniający
+    idx = (idx + 1) % period;
+  }
+  pluckCache.set(key, buf);
+  return buf;
 }
 
-function play(notes: Note[]) {
+function pluck(freq: number, at = 0, gain = 0.22, durSec = 2.2) {
   const ac = audio();
   if (!ac) return;
-  const t0 = ac.currentTime;
-  for (const n of notes) {
+  const src = ac.createBufferSource();
+  src.buffer = pluckBuffer(ac, freq, durSec);
+  const g = ac.createGain();
+  g.gain.value = gain;
+  src.connect(g).connect(ac.destination);
+  src.start(ac.currentTime + at);
+}
+
+/* ---------- dzwon z brązu ---------- */
+
+function bronzeBell(freq: number, at = 0, gain = 0.16, durSec = 2.4) {
+  const ac = audio();
+  if (!ac) return;
+  const t0 = ac.currentTime + at;
+  // niestrojne alikwoty typowe dla dzwonu
+  const partials: [number, number][] = [
+    [1, 1],
+    [2.02, 0.55],
+    [2.72, 0.35],
+    [4.17, 0.2],
+  ];
+  for (const [mult, amp] of partials) {
     const osc = ac.createOscillator();
     const g = ac.createGain();
-    osc.type = n.type ?? "sine";
-    osc.frequency.value = n.freq;
-    const peak = n.gain ?? 0.12;
-    g.gain.setValueAtTime(0, t0 + n.at);
-    g.gain.linearRampToValueAtTime(peak, t0 + n.at + 0.015);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + n.at + n.dur);
+    osc.type = "sine";
+    osc.frequency.value = freq * mult;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(gain * amp, t0 + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + durSec / mult ** 0.5);
     osc.connect(g).connect(ac.destination);
-    osc.start(t0 + n.at);
-    osc.stop(t0 + n.at + n.dur + 0.05);
+    osc.start(t0);
+    osc.stop(t0 + durSec + 0.1);
   }
 }
 
-/** Krótki, przyjemny blip po dodaniu zadania. */
+/* ---------- stuknięcie drewna ---------- */
+
+export function sndTick() {
+  const ac = audio();
+  if (!ac) return;
+  const t0 = ac.currentTime;
+  const src = ac.createBufferSource();
+  const n = Math.floor(ac.sampleRate * 0.05);
+  const buf = ac.createBuffer(1, n, ac.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) {
+    d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.18));
+  }
+  src.buffer = buf;
+  const bp = ac.createBiquadFilter();
+  bp.type = "bandpass";
+  bp.frequency.value = 1500;
+  bp.Q.value = 6;
+  const g = ac.createGain();
+  g.gain.value = 0.5;
+  src.connect(bp).connect(g).connect(ac.destination);
+  src.start(t0);
+}
+
+/* ---------- sygnatury zdarzeń ---------- */
+
+// skala: E frygijska/pentatonika — antyczny charakter
+const E3 = 164.81;
+const G3 = 196.0;
+const A3 = 220.0;
+const B3 = 246.94;
+const D4 = 293.66;
+const E4 = 329.63;
+const G4 = 392.0;
+const A4 = 440.0;
+const B4 = 493.88;
+const E5 = 659.26;
+
+/** Pojedyncze, miękkie szarpnięcie struny — dodanie zadania. */
 export function sndTaskAdded() {
-  play([
-    { freq: 660, at: 0, dur: 0.09 },
-    { freq: 880, at: 0.07, dur: 0.12 },
-  ]);
+  pluck(A4, 0, 0.16, 1.4);
 }
 
-/** Wznosząca sygnatura startu sesji Pomodoro. */
+/** Trzy wznoszące struny — start sesji Pomodoro. */
 export function sndPomodoroStart() {
-  play([
-    { freq: 440, at: 0, dur: 0.12 },
-    { freq: 554, at: 0.11, dur: 0.12 },
-    { freq: 659, at: 0.22, dur: 0.2 },
-  ]);
+  pluck(E4, 0, 0.2);
+  pluck(A4, 0.14, 0.2);
+  pluck(E5, 0.28, 0.22);
 }
 
-/** Podwójny sygnał ostrzegawczy — 5 minut do końca odliczania. */
+/** Dwa niskie szarpnięcia — ostrzeżenie / puls. */
 export function sndFiveMinWarning() {
-  play([
-    { freq: 740, at: 0, dur: 0.14, type: "triangle", gain: 0.16 },
-    { freq: 740, at: 0.25, dur: 0.14, type: "triangle", gain: 0.16 },
-  ]);
+  pluck(A3, 0, 0.24, 1.8);
+  pluck(A3, 0.3, 0.2, 1.8);
 }
 
-/** Gong końca fazy pracy / przerwy. */
+/** Dzwon z brązu — koniec fazy pracy / przerwy. */
 export function sndPhaseEnd() {
-  play([
-    { freq: 880, at: 0, dur: 0.5, gain: 0.14 },
-    { freq: 587, at: 0.18, dur: 0.6, gain: 0.12 },
-    { freq: 440, at: 0.36, dur: 0.8, gain: 0.1 },
-  ]);
+  bronzeBell(220, 0, 0.18, 2.6);
+  bronzeBell(146.83, 0.25, 0.12, 3);
 }
 
-/** Triumfalny akord po zakończeniu zadania. */
+/** Triumfalny pochód strun — zakończenie zadania. */
 export function sndTaskCompleted() {
-  play([
-    { freq: 523, at: 0, dur: 0.18 },
-    { freq: 659, at: 0.12, dur: 0.18 },
-    { freq: 784, at: 0.24, dur: 0.22 },
-    { freq: 1047, at: 0.36, dur: 0.45, gain: 0.14 },
-  ]);
+  pluck(E4, 0, 0.2);
+  pluck(G4, 0.12, 0.2);
+  pluck(B4, 0.24, 0.2);
+  pluck(E5, 0.38, 0.24, 2.6);
+  bronzeBell(659.26, 0.55, 0.07, 1.6);
+}
+
+/* ---------- cicha lira w trakcie przerwy ---------- */
+
+const BREAK_SCALE = [E3, G3, A3, B3, D4, E4, G4, A4];
+let breakTimer: ReturnType<typeof setTimeout> | null = null;
+let breakStep = 2;
+
+function scheduleBreakNote(isEnabled: () => boolean) {
+  if (!isEnabled()) {
+    stopBreakMusic();
+    return;
+  }
+  // spokojny błądzący pochód po skali
+  breakStep = Math.min(
+    BREAK_SCALE.length - 1,
+    Math.max(0, breakStep + (Math.floor(Math.random() * 3) - 1))
+  );
+  const freq = BREAK_SCALE[breakStep];
+  pluck(freq, 0, 0.045, 2.6); // cichutko
+  if (Math.random() < 0.25) {
+    // czasem kwinta niżej, jak drugi palec na lirze
+    pluck(freq * 0.667, 0.18, 0.03, 2.4);
+  }
+  breakTimer = setTimeout(
+    () => scheduleBreakNote(isEnabled),
+    1400 + Math.random() * 1600
+  );
+}
+
+/** Start cichej muzyki liry (przerwa Pomodoro). */
+export function startBreakMusic(isEnabled: () => boolean) {
+  if (breakTimer) return; // już gra
+  if (!isEnabled()) return;
+  breakStep = 2;
+  scheduleBreakNote(isEnabled);
+}
+
+/** Stop muzyki przerwy. */
+export function stopBreakMusic() {
+  if (breakTimer) {
+    clearTimeout(breakTimer);
+    breakTimer = null;
+  }
 }

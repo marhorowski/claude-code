@@ -28,6 +28,9 @@ import {
   sndTaskCompleted,
   sndPhaseEnd,
   sndFiveMinWarning,
+  sndTick,
+  startBreakMusic,
+  stopBreakMusic,
 } from "./sounds";
 
 export function uid(): string {
@@ -441,6 +444,7 @@ export const useStore = create<AppState>()(
 
       startTimer: (taskId) => {
         const { settings } = get();
+        stopBreakMusic();
         if (settings.soundsEnabled !== false) sndPomodoroStart();
         set({
           timer: {
@@ -453,18 +457,27 @@ export const useStore = create<AppState>()(
         });
       },
 
-      pauseTimer: () =>
-        set((s) => ({ timer: { ...s.timer, running: false } })),
+      pauseTimer: () => {
+        stopBreakMusic();
+        set((s) => ({ timer: { ...s.timer, running: false } }));
+      },
 
-      resumeTimer: () =>
+      resumeTimer: () => {
         set((s) => ({
           timer: s.timer.taskId ? { ...s.timer, running: true } : s.timer,
-        })),
+        }));
+        const t = get().timer;
+        if (t.running && t.phase !== "work") {
+          startBreakMusic(() => get().settings.soundsEnabled !== false);
+        }
+      },
 
-      stopTimer: () =>
+      stopTimer: () => {
+        stopBreakMusic();
         set((s) => ({
           timer: { ...defaultTimer, remainingSec: s.settings.workMin * 60 },
-        })),
+        }));
+      },
 
       skipPhase: () => {
         const { timer, settings } = get();
@@ -488,6 +501,13 @@ export const useStore = create<AppState>()(
               remainingSec: settings.workMin * 60,
             },
           });
+        }
+        // muzyka liry gra tylko w przerwie
+        const after = get().timer;
+        if (after.running && after.phase !== "work") {
+          startBreakMusic(() => get().settings.soundsEnabled !== false);
+        } else {
+          stopBreakMusic();
         }
       },
 
@@ -534,6 +554,15 @@ export const useStore = create<AppState>()(
           get().settings.soundsEnabled !== false
         ) {
           sndFiveMinWarning();
+        }
+
+        // ostatnie 5 sekund fazy: stuknięcie co sekundę
+        if (
+          timer.remainingSec <= 6 &&
+          timer.remainingSec >= 2 &&
+          get().settings.soundsEnabled !== false
+        ) {
+          sndTick();
         }
 
         if (timer.remainingSec <= 1) {

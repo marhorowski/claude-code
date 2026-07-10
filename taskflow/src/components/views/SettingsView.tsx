@@ -155,8 +155,10 @@ export default function SettingsView() {
           </button>
         </label>
         <p className="text-xs text-stone2-400">
-          Dźwięk przy dodaniu zadania, starcie Pomodoro, 5 minut przed końcem
-          odliczania, na koniec fazy oraz po zakończeniu zadania.
+          Brzmienia liry i dzwonu z brązu: dodanie zadania, start Pomodoro,
+          5 minut przed końcem odliczania, koniec fazy, zakończenie zadania.
+          W trakcie przerwy gra cicha lira, a ostatnie 5 sekund fazy odlicza
+          stuknięciami.
         </p>
       </section>
 
