@@ -1,15 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useStore } from "@/lib/store";
-import { Volume2, VolumeX, BellRing, Quote } from "lucide-react";
+import {
+  Volume2,
+  VolumeX,
+  BellRing,
+  Quote,
+  Download,
+  Upload,
+} from "lucide-react";
 import { sndTaskAdded } from "@/lib/sounds";
 import { DEFAULT_MOTTO } from "@/lib/types";
+import { mergeStates } from "@/lib/merge";
+
+const BACKUP_KEYS = [
+  "tasks",
+  "projects",
+  "goals",
+  "habits",
+  "pulseLog",
+  "workSessions",
+  "journal",
+  "settings",
+  "daySummaries",
+  "workLog",
+  "pomodoroLog",
+] as const;
 
 export default function SettingsView() {
   const settings = useStore((s) => s.settings);
   const updateSettings = useStore((s) => s.updateSettings);
   const [notifStatus, setNotifStatus] = useState<string | null>(null);
+  const [backupStatus, setBackupStatus] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const exportData = () => {
+    const s = useStore.getState() as unknown as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const k of BACKUP_KEYS) out[k] = s[k];
+    const blob = new Blob([JSON.stringify(out, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ergon-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setBackupStatus("Wyeksportowano plik z kopią danych.");
+  };
+
+  const importData = async (file: File) => {
+    try {
+      const text = await file.text();
+      const incoming = JSON.parse(text) as Record<string, unknown>;
+      const cur = useStore.getState() as unknown as Record<string, unknown>;
+      const local: Record<string, unknown> = {};
+      for (const k of BACKUP_KEYS) local[k] = cur[k];
+      // scal: nic nie ginie, nowsze wersje wygrywają
+      const merged = mergeStates(local, incoming);
+      const patch: Record<string, unknown> = {};
+      for (const k of BACKUP_KEYS) if (k in merged) patch[k] = merged[k];
+      patch.settings = {
+        ...(cur.settings as object),
+        ...(merged.settings as object),
+      };
+      useStore.setState(patch as never);
+      setBackupStatus("Zaimportowano i scalono dane z pliku.");
+    } catch {
+      setBackupStatus("Nie udało się wczytać pliku — sprawdź, czy to kopia z Ergona.");
+    }
+  };
 
   const testNotification = async () => {
     if (!("Notification" in window)) {
@@ -330,6 +392,45 @@ export default function SettingsView() {
           trudny do odgadnięcia (np. imię-i-losowe-znaki), żeby nikt inny nie
           trafił na Twoje dane.
         </p>
+      </section>
+
+      <section className="card p-5 space-y-3">
+        <h3 className="font-display text-xl text-bronze-300">
+          Kopia danych (ręczne przeniesienie)
+        </h3>
+        <p className="text-xs text-stone2-400">
+          Gdy automatyczna synchronizacja jest wyłączona (brak bazy danych),
+          możesz przenieść dane między urządzeniami ręcznie: wyeksportuj plik na
+          jednym urządzeniu i zaimportuj na drugim. Import scala dane — nic nie
+          ginie.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button className="btn-outline" onClick={exportData}>
+            <Download className="h-4 w-4" />
+            Eksportuj kopię
+          </button>
+          <button
+            className="btn-outline"
+            onClick={() => fileRef.current?.click()}
+          >
+            <Upload className="h-4 w-4" />
+            Importuj z pliku
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) importData(f);
+              e.target.value = "";
+            }}
+          />
+        </div>
+        {backupStatus && (
+          <p className="text-xs text-stone2-300">{backupStatus}</p>
+        )}
       </section>
 
       <section className="card p-5 space-y-4">
