@@ -15,7 +15,9 @@ import GoalsView from "./views/GoalsView";
 import HabitsView from "./views/HabitsView";
 import DayView from "./views/DayView";
 import JournalView from "./views/JournalView";
+import PointsView from "./views/PointsView";
 import DashboardView from "./views/DashboardView";
+import BrainDumpModal from "./BrainDumpModal";
 import ArchiveView from "./views/ArchiveView";
 import SettingsView from "./views/SettingsView";
 import AuthGate, { useAuth } from "./AuthGate";
@@ -38,6 +40,8 @@ import {
   CalendarClock,
   LayoutDashboard,
   NotebookPen,
+  Trophy,
+  Brain,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -101,6 +105,7 @@ type View =
   | { kind: "habits" }
   | { kind: "day" }
   | { kind: "journal" }
+  | { kind: "points" }
   | { kind: "archive" }
   | { kind: "settings" };
 
@@ -111,6 +116,7 @@ const NAV: { key: View["kind"]; label: string; icon: LucideIcon }[] = [
   { key: "projects", label: "Projekty", icon: FolderKanban },
   { key: "goals", label: "Cele", icon: Target },
   { key: "habits", label: "Nawyki", icon: Repeat },
+  { key: "points", label: "Punkty", icon: Trophy },
   { key: "day", label: "Oś dnia", icon: CalendarClock },
   { key: "journal", label: "Journal", icon: NotebookPen },
   { key: "archive", label: "Archiwum", icon: Archive },
@@ -132,6 +138,7 @@ function AppInner() {
   const [completeId, setCompleteId] = useState<string | null>(null);
   const [endDay, setEndDay] = useState(false);
   const [plan, setPlan] = useState<"day" | "week" | null>(null);
+  const [brainDump, setBrainDump] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
 
   const inboxCount = useStore(
@@ -277,6 +284,14 @@ function AppInner() {
             <div className="flex-1" />
             <button
               className="btn-outline"
+              onClick={() => setBrainDump(true)}
+              title="Dyktuj lub wklej tekst — wyłuskam zadania"
+            >
+              <Brain className="h-4 w-4" />
+              Brain dump
+            </button>
+            <button
+              className="btn-outline"
               onClick={() => setPlan("day")}
               title="Zaplanuj jutrzejszy dzień"
             >
@@ -333,6 +348,7 @@ function AppInner() {
           {view.kind === "habits" && <HabitsView />}
           {view.kind === "day" && <DayView />}
           {view.kind === "journal" && <JournalView />}
+          {view.kind === "points" && <PointsView />}
           {view.kind === "archive" && <ArchiveView />}
           {view.kind === "settings" && <SettingsView />}
         </main>
@@ -360,6 +376,7 @@ function AppInner() {
       )}
       {endDay && <EndDayModal onClose={() => setEndDay(false)} />}
       {plan && <PlanModal mode={plan} onClose={() => setPlan(null)} />}
+      {brainDump && <BrainDumpModal onClose={() => setBrainDump(false)} />}
     </div>
   );
 }

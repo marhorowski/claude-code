@@ -52,6 +52,7 @@ const defaultSettings: Settings = {
   pulseFromHour: 8,
   pulseToHour: 21,
   motto: DEFAULT_MOTTO,
+  pointGoalBase: 3,
 };
 
 const defaultTimer: TimerState = {
@@ -93,9 +94,11 @@ interface AppState {
   timer: TimerState;
   daySummaries: DaySummary[];
   workLog: Record<string, number>; // data -> sekundy pracy
+  pomodoroLog: Record<string, number>; // data -> ukończone pomodoro
 
   // zadania
   addTask: (input: NewTaskInput) => Task;
+  addTasksBulk: (inputs: NewTaskInput[]) => void;
   updateTask: (id: ID, patch: Partial<Task>) => void;
   deleteTask: (id: ID) => void;
   completeTask: (
@@ -164,6 +167,7 @@ export const useStore = create<AppState>()(
       timer: defaultTimer,
       daySummaries: [],
       workLog: {},
+      pomodoroLog: {},
 
       addTask: (input) => {
         const task: Task = {
@@ -185,6 +189,31 @@ export const useStore = create<AppState>()(
         set((s) => ({ tasks: [...s.tasks, task] }));
         if (get().settings.soundsEnabled !== false) sndTaskAdded();
         return task;
+      },
+
+      addTasksBulk: (inputs) => {
+        const now = Date.now();
+        const tasks: Task[] = inputs
+          .filter((i) => i.title.trim())
+          .map((input, idx) => ({
+            id: uid() + idx,
+            title: input.title.trim(),
+            description: input.description ?? "",
+            projectId: input.projectId ?? null,
+            dueDate: input.dueDate ?? null,
+            checklist: [],
+            timeSpentSec: 0,
+            estimateMin: input.estimateMin ?? null,
+            focusDay: input.focusDay ?? false,
+            focusWeek: input.focusWeek ?? false,
+            createdAt: new Date(now + idx).toISOString(),
+            completedAt: null,
+            completionNote: "",
+            onTime: null,
+          }));
+        if (!tasks.length) return;
+        set((s) => ({ tasks: [...s.tasks, ...tasks] }));
+        if (get().settings.soundsEnabled !== false) sndTaskAdded();
       },
 
       updateTask: (id, patch) =>
@@ -566,6 +595,16 @@ export const useStore = create<AppState>()(
         }
 
         if (timer.remainingSec <= 1) {
+          // ukończone pomodoro: naturalne domknięcie fazy pracy
+          if (timer.phase === "work") {
+            const day = todayStr();
+            set((s) => ({
+              pomodoroLog: {
+                ...s.pomodoroLog,
+                [day]: (s.pomodoroLog[day] ?? 0) + 1,
+              },
+            }));
+          }
           get().skipPhase();
           if (get().settings.soundsEnabled !== false) sndPhaseEnd();
           if (typeof window !== "undefined" && "Notification" in window) {
@@ -607,6 +646,7 @@ export const useStore = create<AppState>()(
         settings: s.settings,
         daySummaries: s.daySummaries,
         workLog: s.workLog,
+        pomodoroLog: s.pomodoroLog,
         // timer celowo nie jest utrwalany w stanie "running"
         timer: { ...s.timer, running: false },
       }),

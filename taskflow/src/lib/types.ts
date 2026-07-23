@@ -95,6 +95,7 @@ export interface Settings {
   pulseFromHour: number; // od której godziny
   pulseToHour: number; // do której godziny
   motto: string; // cytat pokazywany na Pulpicie
+  pointGoalBase: number; // bazowy dzienny cel punktowy (kaizen)
 }
 
 export const DEFAULT_MOTTO =

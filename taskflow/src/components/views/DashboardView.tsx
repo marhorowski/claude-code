@@ -7,6 +7,12 @@ import GoalBanner from "../GoalBanner";
 import TaskItem from "../TaskItem";
 import NotifBanner from "../NotifBanner";
 import {
+  computeDayPoints,
+  computeGoalProgress,
+  rankFor,
+  pointsInputFromState,
+} from "@/lib/points";
+import {
   Sun,
   Repeat,
   Activity,
@@ -18,6 +24,7 @@ import {
   Flame,
   CircleSlash,
   CalendarDays,
+  Trophy,
 } from "lucide-react";
 
 function StatTile({
@@ -70,8 +77,9 @@ export default function DashboardView({
 }: {
   onOpen: (id: string) => void;
   onComplete: (id: string) => void;
-  onNavigate: (kind: "today" | "habits" | "day" | "goals") => void;
+  onNavigate: (kind: "today" | "habits" | "day" | "goals" | "points") => void;
 }) {
+  const store = useStore();
   const tasks = useStore((s) => s.tasks);
   const projects = useStore((s) => s.projects);
   const goals = useStore((s) => s.goals);
@@ -83,6 +91,10 @@ export default function DashboardView({
   const logHabit = useStore((s) => s.logHabit);
 
   const st = computeStats(tasks, workLog);
+  const pInput = pointsInputFromState(store);
+  const dayPts = computeDayPoints(todayStr(), pInput);
+  const goalProg = computeGoalProgress(pInput);
+  const rank = rankFor(dayPts.total, goalProg.goal);
   const today = todayStr();
   const week = weekDates();
 
@@ -177,6 +189,50 @@ export default function DashboardView({
           pct={pulsePct}
         />
       </div>
+
+      {/* Punkty zwycięstwa */}
+      <button
+        className="card card-hover block w-full overflow-hidden text-left"
+        onClick={() => onNavigate("points")}
+      >
+        <div className="flex items-center gap-4 px-5 py-4">
+          <span className="icon-tile h-11 w-11 bg-bronze-500/15 text-bronze-300">
+            <Trophy className="h-6 w-6" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-[11px] uppercase text-stone2-400">
+                Punkty zwycięstwa dziś
+              </span>
+              <span className={`text-xs ${rank.color}`}>· {rank.name}</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span
+                className={`font-display text-3xl ${
+                  dayPts.total < 0 ? "text-terra-400" : "text-stone2-100"
+                }`}
+              >
+                {dayPts.total}
+              </span>
+              <span className="text-sm text-stone2-400">
+                / {goalProg.goal} pkt (cel kaizen)
+              </span>
+            </div>
+            <div className="mt-1.5 h-1.5 rounded-full bg-ink-700">
+              <div
+                className={`h-1.5 rounded-full ${rank.bar}`}
+                style={{
+                  width: `${Math.max(
+                    0,
+                    Math.min(100, (dayPts.total / goalProg.goal) * 100)
+                  )}%`,
+                }}
+              />
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-stone2-400" />
+        </div>
+      </button>
 
       {/* Aktywna praca */}
       {activeTask && (

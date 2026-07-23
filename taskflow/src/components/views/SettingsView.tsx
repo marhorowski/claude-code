@@ -61,6 +61,7 @@ export default function SettingsView() {
         | "longBreakMin"
         | "sessionsBeforeLongBreak"
         | "targetHoursPerDay"
+        | "pointGoalBase"
         | "pulseIntervalMin"
     ) =>
     (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -164,15 +165,30 @@ export default function SettingsView() {
 
       <section className="card p-5 space-y-4">
         <h3 className="font-display text-xl text-bronze-300">Dzień pracy</h3>
-        <div>
-          <label className="label">Docelowa liczba godzin dziennie</label>
-          <input
-            type="number"
-            className="input"
-            value={settings.targetHoursPerDay}
-            onChange={num("targetHoursPerDay")}
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="label">Docelowa liczba godzin dziennie</label>
+            <input
+              type="number"
+              className="input"
+              value={settings.targetHoursPerDay}
+              onChange={num("targetHoursPerDay")}
+            />
+          </div>
+          <div>
+            <label className="label">Bazowy cel punktowy (kaizen)</label>
+            <input
+              type="number"
+              className="input"
+              value={settings.pointGoalBase ?? 3}
+              onChange={num("pointGoalBase")}
+            />
+          </div>
         </div>
+        <p className="text-xs text-stone2-400">
+          Cel punktowy startuje od tej wartości i rośnie o 1 po każdych 3 dniach
+          z osiągniętym celem. Zobacz zakładkę „Punkty".
+        </p>
       </section>
 
       <section className="card p-5 space-y-4">

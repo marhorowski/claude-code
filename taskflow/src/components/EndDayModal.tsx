@@ -5,10 +5,17 @@ import Modal from "./Modal";
 import { useStore } from "@/lib/store";
 import { todayStr, fmtHM, isToday } from "@/lib/dates";
 import { generateSummary } from "@/lib/summary";
-import { Sunset, Check, Moon, NotebookPen } from "lucide-react";
+import { Sunset, Check, Moon, NotebookPen, Trophy } from "lucide-react";
 import JournalDayForm from "./JournalDayForm";
+import {
+  computeDayPoints,
+  computeGoalProgress,
+  rankFor,
+  pointsInputFromState,
+} from "@/lib/points";
 
 export default function EndDayModal({ onClose }: { onClose: () => void }) {
+  const store = useStore();
   const tasks = useStore((s) => s.tasks);
   const projects = useStore((s) => s.projects);
   const settings = useStore((s) => s.settings);
@@ -55,6 +62,11 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const pInput = pointsInputFromState(store);
+  const dayPts = computeDayPoints(today, pInput);
+  const progress = computeGoalProgress(pInput);
+  const rank = rankFor(dayPts.total, progress.goal);
+
   const byProject = projects
     .map((p) => ({
       name: p.name,
@@ -95,6 +107,55 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
           <div className="text-xs text-stone2-400">
             zostało na dziś: {remainingToday.length}
           </div>
+        </div>
+      </div>
+
+      {/* Punkty zwycięstwa */}
+      <div className="mt-3 card p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-bronze-300" />
+            <div>
+              <div className="text-[11px] uppercase text-stone2-400">
+                Punkty zwycięstwa
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span
+                  className={`font-display text-3xl ${
+                    dayPts.total < 0 ? "text-terra-400" : "text-stone2-100"
+                  }`}
+                >
+                  {dayPts.total}
+                </span>
+                <span className="text-sm text-stone2-400">
+                  / {progress.goal} pkt
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-[11px] uppercase text-stone2-400">Ranga</div>
+            <div className={`font-display text-xl ${rank.color}`}>
+              {rank.name}
+            </div>
+          </div>
+        </div>
+        <div className="mt-2 h-2 rounded-full bg-ink-700">
+          <div
+            className={`h-2 rounded-full ${rank.bar}`}
+            style={{
+              width: `${Math.max(
+                0,
+                Math.min(100, (dayPts.total / progress.goal) * 100)
+              )}%`,
+            }}
+          />
+        </div>
+        <div className="mt-1 text-xs text-stone2-400">
+          {dayPts.total >= progress.goal
+            ? "Cel dnia zdobyty. Νίκη!"
+            : `Do celu brakuje ${progress.goal - dayPts.total} pkt.`}
+          {" · "}Uzupełnij poniższy raport = +4 pkt.
         </div>
       </div>
 
