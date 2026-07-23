@@ -19,7 +19,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const p = db();
-  if (!p) return NextResponse.json({ mode: "no-db" });
+  if (!p) {
+    // brak zmiennej środowiskowej DATABASE_URL w tym środowisku (np. Preview)
+    return NextResponse.json({ mode: "no-db", reason: "missing-url" });
+  }
   try {
     await ensureTables(p);
     const userId = await sessionUser(p, req);
@@ -34,8 +37,10 @@ export async function GET(req: Request) {
     }
     const { rows } = await p.query("SELECT COUNT(*)::int AS n FROM ergon_users");
     return NextResponse.json({ mode: rows[0].n === 0 ? "setup" : "login" });
-  } catch {
-    return NextResponse.json({ mode: "no-db" });
+  } catch (e) {
+    // DATABASE_URL jest ustawione, ale połączenie/zapytanie zawiodło
+    console.error("[ergon] DB connection failed:", (e as Error)?.message);
+    return NextResponse.json({ mode: "no-db", reason: "connect-failed" });
   }
 }
 

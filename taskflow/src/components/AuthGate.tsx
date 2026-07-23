@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, createContext, useContext } from "react";
-import { LogIn, UserPlus, Loader2 } from "lucide-react";
+import { LogIn, UserPlus, Loader2, DatabaseZap, X } from "lucide-react";
 
 type AuthMode = "checking" | "no-db" | "setup" | "login" | "authed";
 
@@ -13,6 +13,32 @@ interface AuthCtx {
 const Ctx = createContext<AuthCtx>({ login: null, signOut: async () => {} });
 export const useAuth = () => useContext(Ctx);
 
+function NoDbBar({ reason }: { reason: string | null }) {
+  const [hidden, setHidden] = useState(false);
+  if (hidden) return null;
+  return (
+    <div className="sticky top-0 z-50 border-b border-terra-600/50 bg-terra-600/15 px-4 py-2 text-sm text-stone2-100 backdrop-blur">
+      <div className="mx-auto flex max-w-4xl items-center gap-2">
+        <DatabaseZap className="h-4 w-4 shrink-0 text-terra-400" />
+        <span className="min-w-0 flex-1">
+          <b>Synchronizacja wyłączona</b> — ta wersja aplikacji nie ma
+          połączenia z bazą danych, więc dane zostają tylko na tym urządzeniu.
+          {reason === "connect-failed"
+            ? " Baza jest skonfigurowana, ale połączenie zawodzi — sprawdź DATABASE_URL."
+            : " Włącz zmienną DATABASE_URL dla środowiska Preview w ustawieniach Vercel, aby telefon i komputer się synchronizowały."}
+        </span>
+        <button
+          className="btn-ghost px-2 py-0.5"
+          onClick={() => setHidden(true)}
+          aria-label="Ukryj"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AuthGate({
   children,
 }: {
@@ -20,6 +46,7 @@ export default function AuthGate({
 }) {
   const [mode, setMode] = useState<AuthMode>("checking");
   const [userLogin, setUserLogin] = useState<string | null>(null);
+  const [noDbReason, setNoDbReason] = useState<string | null>(null);
   const [form, setForm] = useState({ login: "", password: "", password2: "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -30,6 +57,7 @@ export default function AuthGate({
       .then((d) => {
         setMode(d.mode as AuthMode);
         if (d.login) setUserLogin(d.login as string);
+        if (d.reason) setNoDbReason(d.reason as string);
       })
       .catch(() => setMode("no-db"));
   }, []);
@@ -86,8 +114,16 @@ export default function AuthGate({
     );
   }
 
-  // brak bazy: aplikacja działa lokalnie, bez logowania
-  if (mode === "no-db" || mode === "authed") {
+  // brak bazy: aplikacja działa lokalnie, z widocznym ostrzeżeniem
+  if (mode === "no-db") {
+    return (
+      <Ctx.Provider value={{ login: userLogin, signOut }}>
+        <NoDbBar reason={noDbReason} />
+        {children}
+      </Ctx.Provider>
+    );
+  }
+  if (mode === "authed") {
     return (
       <Ctx.Provider value={{ login: userLogin, signOut }}>
         {children}
