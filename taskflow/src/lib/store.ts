@@ -178,7 +178,8 @@ export const useStore = create<AppState>()(
           dueDate: input.dueDate ?? null,
           checklist: [],
           timeSpentSec: 0,
-          estimateMin: input.estimateMin ?? null,
+          // brak podanego czasu = domyślnie 30 min
+          estimateMin: input.estimateMin ?? 30,
           focusDay: input.focusDay ?? false,
           focusWeek: input.focusWeek ?? false,
           createdAt: new Date().toISOString(),
@@ -203,7 +204,7 @@ export const useStore = create<AppState>()(
             dueDate: input.dueDate ?? null,
             checklist: [],
             timeSpentSec: 0,
-            estimateMin: input.estimateMin ?? null,
+            estimateMin: input.estimateMin ?? 30,
             focusDay: input.focusDay ?? false,
             focusWeek: input.focusWeek ?? false,
             createdAt: new Date(now + idx).toISOString(),
