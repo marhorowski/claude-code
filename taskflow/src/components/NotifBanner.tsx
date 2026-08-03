@@ -45,38 +45,46 @@ export default function NotifBanner() {
   };
 
   return (
-    <div className="card flex flex-wrap items-center gap-3 border-bronze-500/40 px-4 py-3">
-      {perm === "denied" ? (
-        <>
-          <BellOff className="h-5 w-5 shrink-0 text-terra-400" />
-          <div className="min-w-0 flex-1 text-sm text-stone2-200">
-            Powiadomienia systemowe są <b>zablokowane</b> dla tej strony.
-            Odblokuj: kłódka/ikonka przy adresie → Powiadomienia → Zezwalaj,
-            potem odśwież. Na telefonie: zainstaluj aplikację („Dodaj do
-            ekranu głównego”) i włącz powiadomienia w ustawieniach aplikacji.
-          </div>
-        </>
-      ) : (
-        <>
-          <Bell className="h-5 w-5 shrink-0 text-bronze-300" />
-          <div className="min-w-0 flex-1 text-sm text-stone2-200">
-            Włącz powiadomienia systemowe, żeby Puls potencjału przychodził na
-            pasek powiadomień telefonu i ekran komputera.
-          </div>
-          <button className="btn-primary" onClick={enable}>
-            <Bell className="h-4 w-4" />
-            Włącz powiadomienia
-          </button>
-        </>
+    <div className="card border-bronze-500/40 px-4 py-3">
+      <div className="flex items-start gap-3">
+        {perm === "denied" ? (
+          <BellOff className="mt-0.5 h-5 w-5 shrink-0 text-terra-400" />
+        ) : (
+          <Bell className="mt-0.5 h-5 w-5 shrink-0 text-bronze-300" />
+        )}
+        <div className="min-w-0 flex-1 text-sm text-stone2-200">
+          {perm === "denied" ? (
+            <>
+              Powiadomienia systemowe są <b>zablokowane</b> dla tej strony.
+              Odblokuj: kłódka/ikonka przy adresie → Powiadomienia → Zezwalaj,
+              potem odśwież. Na telefonie: zainstaluj aplikację („Dodaj do
+              ekranu głównego”) i włącz powiadomienia w ustawieniach aplikacji.
+            </>
+          ) : (
+            <>
+              Włącz powiadomienia systemowe, żeby Puls potencjału przychodził
+              na pasek powiadomień telefonu i ekran komputera.
+            </>
+          )}
+        </div>
+        <button
+          className="btn-ghost shrink-0 px-2"
+          onClick={dismiss}
+          title="Ukryj"
+          aria-label="Ukryj baner"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+      {perm !== "denied" && (
+        <button
+          className="btn-primary mt-3 w-full sm:w-auto"
+          onClick={enable}
+        >
+          <Bell className="h-4 w-4" />
+          Włącz powiadomienia
+        </button>
       )}
-      <button
-        className="btn-ghost px-2"
-        onClick={dismiss}
-        title="Ukryj"
-        aria-label="Ukryj baner"
-      >
-        <X className="h-4 w-4" />
-      </button>
     </div>
   );
 }

@@ -31,8 +31,8 @@ export default function Modal({
           wide ? "max-w-3xl" : "max-w-lg"
         } my-auto`}
       >
-        <div className="meander rounded-t-xl" />
-        <div className="p-6">{children}</div>
+        <div className="meander rounded-t-2xl" />
+        <div className="p-5 sm:p-6">{children}</div>
       </div>
     </div>
   );

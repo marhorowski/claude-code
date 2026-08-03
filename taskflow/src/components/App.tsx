@@ -123,6 +123,13 @@ const NAV: { key: View["kind"]; label: string; icon: LucideIcon }[] = [
   { key: "settings", label: "Ustawienia", icon: Settings },
 ];
 
+const BOTTOM_NAV: { key: View["kind"]; label: string; icon: LucideIcon }[] = [
+  { key: "dashboard", label: "Pulpit", icon: LayoutDashboard },
+  { key: "today", label: "Plan", icon: Sun },
+  { key: "inbox", label: "Skrzynka", icon: Inbox },
+  { key: "points", label: "Punkty", icon: Trophy },
+];
+
 export default function App() {
   return (
     <AuthGate>
@@ -272,47 +279,46 @@ function AppInner() {
       <div className="min-w-0 flex-1">
         <header className="sticky top-0 z-10 border-b border-ink-700 bg-ink-950/90 backdrop-blur">
           <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 lg:px-8">
-            <button
-              className="btn-ghost lg:hidden"
-              onClick={() => setNavOpen(true)}
-              title="Menu"
-              aria-label="Otwórz menu"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
+            <div className="font-display text-xl text-bronze-300 lg:hidden">
+              ΕRGON
+            </div>
             <SyncIndicator status={syncStatus} />
             <div className="flex-1" />
             <button
               className="btn-outline"
               onClick={() => setBrainDump(true)}
               title="Dyktuj lub wklej tekst — wyłuskam zadania"
+              aria-label="Brain dump"
             >
               <Brain className="h-4 w-4" />
-              Brain dump
+              <span className="hidden xl:inline">Brain dump</span>
             </button>
             <button
               className="btn-outline"
               onClick={() => setPlan("day")}
               title="Zaplanuj jutrzejszy dzień"
+              aria-label="Ustalanie dnia"
             >
               <Sun className="h-4 w-4" />
-              Ustalanie dnia
+              <span className="hidden xl:inline">Ustalanie dnia</span>
             </button>
             <button
               className="btn-outline"
               onClick={() => setPlan("week")}
               title="Zaplanuj cały tydzień"
+              aria-label="Ustalanie tygodnia"
             >
               <CalendarRange className="h-4 w-4" />
-              Ustalanie tygodnia
+              <span className="hidden xl:inline">Ustalanie tygodnia</span>
             </button>
             <button
               className="btn-primary"
               onClick={() => setEndDay(true)}
               title="Podsumuj dzień pracy"
+              aria-label="Zakończ dzień pracy"
             >
               <Sunset className="h-4 w-4" />
-              Zakończ dzień pracy
+              <span className="hidden lg:inline">Zakończ dzień pracy</span>
             </button>
           </div>
         </header>
@@ -353,6 +359,34 @@ function AppInner() {
           {view.kind === "settings" && <SettingsView />}
         </main>
       </div>
+
+      {/* Dolna nawigacja — tylko telefon */}
+      <nav className="bottomnav fixed inset-x-0 bottom-0 z-30 flex items-stretch gap-1 border-t border-ink-700 bg-ink-950/95 px-2 pt-1.5 backdrop-blur lg:hidden">
+        {BOTTOM_NAV.map((item) => (
+          <button
+            key={item.key}
+            className="bottomnav-item"
+            data-active={view.kind === item.key}
+            onClick={() => navigate(item.key)}
+          >
+            <item.icon className="h-5 w-5" />
+            <span>{item.label}</span>
+            {item.key === "inbox" && inboxCount > 0 && (
+              <span className="absolute mt-[-1.6rem] ml-5 rounded-full bg-bronze-500 px-1 text-[9px] font-bold text-ink-950">
+                {inboxCount}
+              </span>
+            )}
+          </button>
+        ))}
+        <button
+          className="bottomnav-item"
+          onClick={() => setNavOpen(true)}
+          aria-label="Więcej"
+        >
+          <Menu className="h-5 w-5" />
+          <span>Więcej</span>
+        </button>
+      </nav>
 
       {/* Overlays */}
       <PwaSetup />

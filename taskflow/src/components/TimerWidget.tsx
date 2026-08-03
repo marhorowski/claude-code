@@ -56,7 +56,7 @@ export default function TimerWidget({
       : "Długa przerwa";
 
   return (
-    <div className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl">
+    <div className="fixed bottom-[4.75rem] left-1/2 z-40 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl lg:bottom-4">
       <div className="card flex items-center gap-3 px-4 py-2.5">
         <span
           className={`h-2.5 w-2.5 rounded-full shrink-0 ${
