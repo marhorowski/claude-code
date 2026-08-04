@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "./Modal";
 import { useStore } from "@/lib/store";
-import { todayStr, fmtHM, isToday } from "@/lib/dates";
+import { todayStr, tomorrowStr, fmtHM, isToday } from "@/lib/dates";
 import { generateSummary } from "@/lib/summary";
-import { Sunset, Check, Moon, NotebookPen, Trophy } from "lucide-react";
+import { Sunset, Check, Moon, NotebookPen, Trophy, ArrowRight } from "lucide-react";
 import JournalDayForm from "./JournalDayForm";
 import {
   computeDayPoints,
@@ -13,6 +13,15 @@ import {
   rankFor,
   pointsInputFromState,
 } from "@/lib/points";
+
+/** Polska odmiana rzeczownika „zadanie". */
+function plZadania(n: number): string {
+  if (n === 1) return "zadanie";
+  const last = n % 10;
+  const last2 = n % 100;
+  if (last >= 2 && last <= 4 && !(last2 >= 12 && last2 <= 14)) return "zadania";
+  return "zadań";
+}
 
 export default function EndDayModal({ onClose }: { onClose: () => void }) {
   const store = useStore();
@@ -22,6 +31,7 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
   const workLog = useStore((s) => s.workLog);
   const addDaySummary = useStore((s) => s.addDaySummary);
   const updateSettings = useStore((s) => s.updateSettings);
+  const updateTask = useStore((s) => s.updateTask);
 
   const today = todayStr();
   const totalSec = workLog[today] ?? 0;
@@ -32,35 +42,10 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
     (t) => !t.completedAt && isToday(t.dueDate)
   );
 
+  const [finalized, setFinalized] = useState(false);
   const [text, setText] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let alive = true;
-    generateSummary({
-      date: today,
-      totalSec,
-      completed,
-      remainingToday,
-      projects,
-      settings,
-    }).then((t) => {
-      if (!alive) return;
-      setText(t);
-      setLoading(false);
-      addDaySummary({
-        date: today,
-        totalSec,
-        completedTitles: completed.map((c) => c.title),
-        aiText: t,
-        createdAt: new Date().toISOString(),
-      });
-    });
-    return () => {
-      alive = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [loading, setLoading] = useState(false);
+  const [movedCount, setMovedCount] = useState(0);
 
   const pInput = pointsInputFromState(store);
   const dayPts = computeDayPoints(today, pInput);
@@ -75,6 +60,41 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
     }))
     .filter((g) => g.count > 0);
   const inboxCount = completed.filter((t) => !t.projectId).length;
+
+  /** Ostateczne zamknięcie dnia: przenieś zaległości, wygeneruj i zapisz raport. */
+  const finalize = async () => {
+    if (finalized) return;
+    // migawka niezrobionych „na dziś" zadań przed przeniesieniem
+    const toMove = remainingToday;
+    setFinalized(true);
+    setLoading(true);
+
+    // niezrobione dzisiejsze zadania trafiają od razu na jutro
+    const tmr = tomorrowStr();
+    toMove.forEach((t) => updateTask(t.id, { dueDate: tmr }));
+    setMovedCount(toMove.length);
+
+    // zamknięcie dnia czyści fokus dnia
+    updateSettings({ dayFocus: "" });
+
+    const t = await generateSummary({
+      date: today,
+      totalSec,
+      completed,
+      remainingToday: toMove,
+      projects,
+      settings,
+    });
+    setText(t);
+    setLoading(false);
+    addDaySummary({
+      date: today,
+      totalSec,
+      completedTitles: completed.map((c) => c.title),
+      aiText: t,
+      createdAt: new Date().toISOString(),
+    });
+  };
 
   return (
     <Modal onClose={onClose} wide>
@@ -105,7 +125,9 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
             {completed.length}
           </div>
           <div className="text-xs text-stone2-400">
-            zostało na dziś: {remainingToday.length}
+            {finalized
+              ? `przeniesiono na jutro: ${movedCount}`
+              : `zostało na dziś: ${remainingToday.length}`}
           </div>
         </div>
       </div>
@@ -155,7 +177,7 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
           {dayPts.total >= progress.goal
             ? "Cel dnia zdobyty. Νίκη!"
             : `Do celu brakuje ${progress.goal - dayPts.total} pkt.`}
-          {" · "}Uzupełnij poniższy raport = +4 pkt.
+          {!finalized && " · Uzupełnij poniższy raport = +4 pkt."}
         </div>
       </div>
 
@@ -199,48 +221,69 @@ export default function EndDayModal({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      <div className="mt-4">
-        <div className="label">Podsumowanie i wytyczne</div>
-        <div className="rounded-lg border border-bronze-600/30 bg-ink-900 p-4 text-sm text-stone2-200 whitespace-pre-line min-h-[80px]">
-          {loading ? (
-            <span className="pulse-soft text-stone2-400">
-              Analizuję Twój dzień…
-            </span>
-          ) : (
-            text
+      {!finalized ? (
+        <>
+          {/* Refleksja dnia — wypełniana przed zamknięciem dnia */}
+          <div className="mt-5">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-bronze-300">
+              <NotebookPen className="h-4 w-4" />
+              Refleksja dnia — Journal
+            </div>
+            <JournalDayForm date={today} />
+          </div>
+
+          {/* Jedyna akcja: zapisz i podsumuj = ostateczne zamknięcie dnia */}
+          <div className="mt-6">
+            <button
+              className="btn-primary w-full justify-center py-3 text-base"
+              onClick={finalize}
+            >
+              <Sunset className="h-5 w-5" />
+              Zapisz i podsumuj — zamknij dzień
+            </button>
+            <p className="mt-2 text-center text-xs text-stone2-400">
+              Niezrobione dzisiejsze zadania przeniosę na jutro, a dzień
+              trafi do Archiwum. Tej operacji nie cofniesz.
+            </p>
+          </div>
+        </>
+      ) : (
+        <>
+          {movedCount > 0 && (
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-ink-600 bg-ink-900 px-3 py-2 text-sm text-stone2-300">
+              <ArrowRight className="h-4 w-4 shrink-0 text-bronze-300" />
+              Przeniesiono na jutro {movedCount} {plZadania(movedCount)}.
+            </div>
           )}
-        </div>
-      </div>
 
-      <div className="mt-5">
-        <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-bronze-300">
-          <NotebookPen className="h-4 w-4" />
-          Refleksja dnia — Journal
-        </div>
-        <JournalDayForm date={today} />
-      </div>
+          <div className="mt-4">
+            <div className="label">Podsumowanie i rekomendacje</div>
+            <div className="rounded-lg border border-bronze-600/30 bg-ink-900 p-4 text-sm text-stone2-200 whitespace-pre-line min-h-[80px]">
+              {loading ? (
+                <span className="pulse-soft text-stone2-400">
+                  Analizuję Twój dzień…
+                </span>
+              ) : (
+                text
+              )}
+            </div>
+          </div>
 
-      <div className="mt-5 flex items-center justify-between gap-2">
-        <span className="text-xs text-stone2-400">
-          Podsumowanie zapisane w Archiwum.
-        </span>
-        <div className="flex gap-2">
-          <button
-            className="btn-outline"
-            onClick={() => {
-              updateSettings({ dayFocus: "" });
-              onClose();
-            }}
-            title="Czyści fokus dnia"
-          >
-            Zamknij i wyczyść fokus dnia
-          </button>
-          <button className="btn-primary" onClick={onClose}>
-            <Moon className="h-4 w-4" />
-            Dobranoc
-          </button>
-        </div>
-      </div>
+          <div className="mt-5 flex items-center justify-between gap-2">
+            <span className="text-xs text-stone2-400">
+              Dzień zamknięty — zapisano w Archiwum.
+            </span>
+            <button
+              className="btn-primary"
+              onClick={onClose}
+              disabled={loading}
+            >
+              <Moon className="h-4 w-4" />
+              Dobranoc
+            </button>
+          </div>
+        </>
+      )}
     </Modal>
   );
 }
