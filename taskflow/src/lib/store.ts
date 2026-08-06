@@ -105,7 +105,8 @@ interface AppState {
     id: ID,
     note: string,
     onTime: OnTime | null,
-    makeProcess: boolean
+    makeProcess: boolean,
+    actualSec?: number | null
   ) => void;
   restoreTask: (id: ID) => void;
 
@@ -228,7 +229,7 @@ export const useStore = create<AppState>()(
         set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }));
       },
 
-      completeTask: (id, note, onTime, makeProcess) => {
+      completeTask: (id, note, onTime, makeProcess, actualSec) => {
         const state = get();
         if (state.timer.taskId === id) state.stopTimer();
         const task = state.tasks.find((t) => t.id === id);
@@ -240,6 +241,12 @@ export const useStore = create<AppState>()(
             t.id === id
               ? {
                   ...t,
+                  // korekta rzeczywistego czasu (jeśli podano) zastępuje
+                  // czas zmierzony przez timer/Pomodoro
+                  timeSpentSec:
+                    actualSec != null && actualSec >= 0
+                      ? actualSec
+                      : t.timeSpentSec,
                   completedAt: new Date().toISOString(),
                   completionNote: note,
                   onTime,

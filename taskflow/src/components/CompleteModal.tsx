@@ -5,7 +5,7 @@ import Modal from "./Modal";
 import { useStore } from "@/lib/store";
 import { OnTime } from "@/lib/types";
 import { fmtHM } from "@/lib/dates";
-import { Trophy, Zap, Check, Turtle, Archive, Repeat } from "lucide-react";
+import { Trophy, Zap, Check, Turtle, Archive, Repeat, Clock } from "lucide-react";
 
 const PRAISE = [
   "Νίκη! Kolejne zadanie za Tobą.",
@@ -26,23 +26,38 @@ export default function CompleteModal({
   const [note, setNote] = useState("");
   const [onTime, setOnTime] = useState<OnTime | null>(null);
   const [recur, setRecur] = useState<boolean | null>(null);
+  // rzeczywisty czas w minutach — wstępnie z pomiaru timera/Pomodoro
+  const [actualMin, setActualMin] = useState<string>(() =>
+    task ? String(Math.round(task.timeSpentSec / 60)) : "0"
+  );
   const [praise] = useState(
     () => PRAISE[Math.floor(Math.random() * PRAISE.length)]
   );
 
   if (!task) return null;
 
+  const measuredSec = task.timeSpentSec;
+  const parsedMin = Math.max(0, Math.round(Number(actualMin) || 0));
+  const actualSec = parsedMin * 60;
+  const edited = actualSec !== measuredSec;
+
   const estimateSec = task.estimateMin ? task.estimateMin * 60 : null;
   const autoOnTime: OnTime | null = estimateSec
-    ? task.timeSpentSec <= estimateSec * 0.85
+    ? actualSec <= estimateSec * 0.85
       ? "faster"
-      : task.timeSpentSec <= estimateSec * 1.15
+      : actualSec <= estimateSec * 1.15
       ? "onTime"
       : "slower"
     : null;
 
   const finish = () => {
-    completeTask(taskId, note.trim(), onTime ?? autoOnTime, recur === true);
+    completeTask(
+      taskId,
+      note.trim(),
+      onTime ?? autoOnTime,
+      recur === true,
+      actualSec
+    );
     onClose();
   };
 
@@ -57,7 +72,7 @@ export default function CompleteModal({
         <div className="mt-3 rounded-lg bg-ink-900 border border-ink-700 px-4 py-3 text-left">
           <div className="text-sm text-stone2-100">{task.title}</div>
           <div className="mt-0.5 text-xs text-stone2-400">
-            czas pracy: {fmtHM(task.timeSpentSec)}
+            czas pracy: {fmtHM(actualSec)}
             {task.estimateMin ? ` · estymacja: ${task.estimateMin} min` : ""}
             {autoOnTime === "faster" && " · szybciej niż plan!"}
             {autoOnTime === "slower" && " · dłużej niż plan"}
@@ -67,6 +82,40 @@ export default function CompleteModal({
       </div>
 
       <div className="mt-5 space-y-4 text-left">
+        <div>
+          <label className="label flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" />
+            Ile realnie zajęło? (minuty)
+          </label>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min={0}
+              inputMode="numeric"
+              className="input max-w-[130px]"
+              value={actualMin}
+              onChange={(e) => setActualMin(e.target.value)}
+            />
+            <span className="text-xs text-stone2-400">
+              = {fmtHM(actualSec)}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-stone2-400">
+            {measuredSec > 0
+              ? `Zmierzono automatycznie: ${fmtHM(measuredSec)}.`
+              : "Nie mierzono czasu timerem."}{" "}
+            {edited && (
+              <button
+                type="button"
+                className="text-bronze-300 underline underline-offset-2"
+                onClick={() => setActualMin(String(Math.round(measuredSec / 60)))}
+              >
+                przywróć zmierzony
+              </button>
+            )}
+          </p>
+        </div>
+
         <div>
           <label className="label">Wnioski z wykonania (opcjonalne)</label>
           <textarea

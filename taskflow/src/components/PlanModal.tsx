@@ -4,9 +4,9 @@ import { useState } from "react";
 import Modal from "./Modal";
 import { useStore } from "@/lib/store";
 import { computeStats, goalSeconds } from "@/lib/stats";
-import { fmtHM, tomorrowStr, todayStr, isToday } from "@/lib/dates";
+import { fmtHM, tomorrowStr, todayStr, isToday, weekDates } from "@/lib/dates";
 import { format, addDays } from "date-fns";
-import { Star } from "lucide-react";
+import { Star, Gauge, AlertTriangle } from "lucide-react";
 
 interface Row {
   title: string;
@@ -51,6 +51,21 @@ export default function PlanModal({
   const remainingToday = tasks.filter(
     (t) => !t.completedAt && isToday(t.dueDate)
   );
+
+  // Budżet czasu: zaplanowane obciążenie vs. realny cel na dzień/tydzień.
+  // Domyślnie każde zadanie bez estymaty liczymy jako 30 min.
+  const windowDates = isDay ? [defaultDue] : weekDates();
+  const inWindow = (d: string | null) => !!d && windowDates.includes(d);
+  const existingPlannedMin = tasks
+    .filter((t) => !t.completedAt && inWindow(t.dueDate))
+    .reduce((a, t) => a + (t.estimateMin ?? 30), 0);
+  const newPlannedMin =
+    rows.filter((r) => r.title.trim() && inWindow(r.due || null)).length * 30;
+  const plannedMin = existingPlannedMin + newPlannedMin;
+  const dayCapMin = Math.max(60, (settings.targetHoursPerDay ?? 6) * 60);
+  const capacityMin = isDay ? dayCapMin : dayCapMin * 5;
+  const budgetPct = capacityMin > 0 ? (plannedMin / capacityMin) * 100 : 0;
+  const overBudget = plannedMin > capacityMin;
 
   const setRow = (i: number, patch: Partial<Row>) =>
     setRows((r) => r.map((row, idx) => (idx === i ? { ...row, ...patch } : row)));
@@ -144,6 +159,49 @@ export default function PlanModal({
           <div className="text-xs text-stone2-400">
             Projekty: {projects.map((p) => p.name).join(", ") || "brak"}
           </div>
+        </div>
+      </div>
+
+      {/* Budżet czasu */}
+      <div className="mt-3 card p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Gauge className="h-4 w-4 text-bronze-300" />
+            <span className="label mb-0">
+              Budżet czasu {isDay ? "na jutro" : "na tydzień"}
+            </span>
+          </div>
+          <span
+            className={`text-sm font-medium ${
+              overBudget ? "text-terra-400" : "text-stone2-200"
+            }`}
+          >
+            {fmtHM(plannedMin * 60)}{" "}
+            <span className="text-stone2-400">/ {fmtHM(capacityMin * 60)}</span>
+          </span>
+        </div>
+        <div className="mt-2 h-2 rounded-full bg-ink-700">
+          <div
+            className={`h-2 rounded-full transition-all ${
+              overBudget ? "bg-terra-500" : "bg-bronze-400"
+            }`}
+            style={{ width: `${Math.min(100, budgetPct)}%` }}
+          />
+        </div>
+        <div className="mt-1.5 text-xs">
+          {overBudget ? (
+            <span className="flex items-center gap-1.5 text-terra-400">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+              Plan przekracza cel o {fmtHM((plannedMin - capacityMin) * 60)} —
+              coś tu nie zmieści się w {isDay ? "dniu" : "tygodniu"}. Odpuść
+              lub przenieś część.
+            </span>
+          ) : (
+            <span className="text-stone2-400">
+              Zostaje {fmtHM((capacityMin - plannedMin) * 60)} wolnego.
+              Zadania bez czasu liczę po 30 min.
+            </span>
+          )}
         </div>
       </div>
 
