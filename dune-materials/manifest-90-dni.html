@@ -1,0 +1,334 @@
+<title>Manifest 90 Dni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap">
+
+<style>
+  *{ box-sizing:border-box; }
+  :root{
+    --paper:#FAF6EF;
+    --paper-2:#F2EBDD;
+    --ink:#191510;
+    --ink-2:#463D31;
+    --ink-dim:#8A7B66;
+    --spice:#C2560C;
+    --spice-2:#E07A2B;
+    --rule:#E1D3BC;
+    --font-display:'Oswald','Arial Narrow',sans-serif;
+    --font-body:'Barlow','Helvetica Neue',Arial,sans-serif;
+  }
+  html,body{ margin:0; padding:0; }
+  body{ background:#211B14; font-family:var(--font-body); color:var(--ink);
+    -webkit-font-smoothing:antialiased; text-rendering:geometricPrecision; }
+  .sheets{ display:flex; flex-direction:column; align-items:center; gap:30px; padding:30px 0; transform-origin:top center; }
+
+  .page{
+    position:relative; width:794px; height:1123px; background:var(--paper);
+    padding:58px 60px 46px; overflow:hidden;
+    box-shadow:0 18px 60px rgba(0,0,0,.5);
+    display:flex; flex-direction:column;
+  }
+  .page .sun{ position:absolute; inset:0; pointer-events:none; }
+  .page > *{ position:relative; z-index:1; }
+
+  /* ---- shared type ---- */
+  .eyebrow{ font-family:var(--font-display); font-weight:600; font-size:13px; letter-spacing:.4em;
+    text-transform:uppercase; color:var(--spice); margin:0; }
+  .page-mark{ font-family:var(--font-display); font-weight:600; font-size:13px; letter-spacing:.3em;
+    text-transform:uppercase; color:var(--ink-dim); }
+  .top-row{ display:flex; justify-content:space-between; align-items:baseline; }
+  .hairline{ height:2px; background:var(--spice); margin:14px 0 0; }
+  .hairline.thin{ height:1px; background:var(--rule); }
+
+  h1{ font-family:var(--font-display); font-weight:700; font-size:74px; line-height:.9;
+    letter-spacing:.005em; color:var(--ink); margin:26px 0 0; text-transform:none; text-wrap:balance; }
+  .archetypes{ font-family:var(--font-body); font-weight:500; font-size:15.5px; color:var(--spice);
+    letter-spacing:.02em; margin:14px 0 0; }
+  .archetypes .lead{ color:var(--ink-dim); font-style:italic; }
+
+  .lead-para{ font-family:var(--font-body); font-weight:400; font-size:19px; line-height:1.5;
+    color:var(--ink); margin:22px 0 0; max-width:640px; }
+  .lead-para b{ font-weight:600; }
+
+  .block-label{ font-family:var(--font-display); font-weight:600; font-size:13px; letter-spacing:.28em;
+    text-transform:uppercase; color:var(--spice); margin:0 0 8px; display:flex; align-items:center; gap:12px; }
+  .block-label::after{ content:''; flex:1; height:1px; background:var(--rule); }
+
+  .life-para{ font-size:16px; line-height:1.55; color:var(--ink-2); margin:0; max-width:660px; }
+
+  /* ---- goal cards ---- */
+  .goals{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:6px; }
+  .card{ border:1.5px solid var(--ink); padding:18px 18px 20px; display:flex; flex-direction:column; gap:10px;
+    background:var(--paper); }
+  .card .k{ font-family:var(--font-display); font-weight:600; font-size:12px; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--spice); display:flex; align-items:center; gap:8px; }
+  .card .k .dot{ width:7px; height:7px; background:var(--spice); display:inline-block; }
+  .card .v{ font-family:var(--font-display); font-weight:500; font-size:19px; line-height:1.12; color:var(--ink);
+    letter-spacing:.01em; }
+  .card .v b{ font-weight:700; }
+  .card .v .u{ color:var(--ink-dim); font-weight:400; font-size:15px; }
+
+  /* ---- principles ---- */
+  .principles{ display:flex; flex-direction:column; gap:0; }
+  .principle{ display:grid; grid-template-columns:64px 1fr; gap:18px; padding:14px 0; border-top:1px solid var(--rule);
+    align-items:start; }
+  .principle:last-child{ border-bottom:1px solid var(--rule); }
+  .principle .n{ font-family:var(--font-display); font-weight:700; font-size:34px; line-height:.8; color:var(--spice);
+    letter-spacing:.02em; }
+  .principle .t{ font-size:15.5px; line-height:1.42; color:var(--ink); }
+  .principle .t b{ font-family:var(--font-display); font-weight:600; letter-spacing:.02em; text-transform:uppercase;
+    font-size:15px; display:block; margin-bottom:2px; color:var(--ink); }
+  .principle .t .muted{ color:var(--ink-2); }
+
+  .spacer{ flex:1; }
+  footer.doc{ display:flex; justify-content:space-between; align-items:center; margin-top:14px;
+    font-family:var(--font-display); font-weight:500; font-size:11.5px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--ink-dim); }
+  footer.doc .r{ color:var(--spice); }
+
+  /* ---- page 2 ---- */
+  h2.sys{ font-family:var(--font-display); font-weight:700; font-size:44px; line-height:.95; color:var(--ink);
+    margin:22px 0 0; letter-spacing:.01em; text-transform:uppercase; }
+  .motto{ font-family:var(--font-body); font-style:italic; font-weight:400; font-size:16.5px; line-height:1.45;
+    color:var(--ink-2); margin:14px 0 0; max-width:680px; border-left:2px solid var(--spice); padding-left:16px; }
+
+  .cols2{ display:grid; grid-template-columns:1fr 1fr; gap:34px; margin-top:22px; }
+  .col{ display:flex; flex-direction:column; gap:18px; }
+
+  table.data{ width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+  table.data td{ padding:5.5px 0; border-bottom:1px solid var(--rule); font-size:13.5px; vertical-align:baseline; }
+  table.data td.k{ color:var(--ink-2); }
+  table.data td.v{ text-align:right; font-family:var(--font-display); font-weight:500; color:var(--ink);
+    letter-spacing:.01em; white-space:nowrap; padding-left:10px; }
+  table.data td.v b{ color:var(--spice); font-weight:600; }
+  table.data tr.hi td{ border-bottom:1.5px solid var(--ink); }
+  table.data tr.hi td.k{ font-family:var(--font-display); font-weight:600; text-transform:uppercase;
+    letter-spacing:.06em; font-size:12.5px; color:var(--ink); }
+
+  ul.mini{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+  ul.mini li{ font-size:13.5px; line-height:1.3; color:var(--ink-2); padding-left:18px; position:relative; }
+  ul.mini li::before{ content:''; position:absolute; left:0; top:7px; width:7px; height:7px;
+    border:1.5px solid var(--spice); }
+  ul.mini li b{ color:var(--ink); font-weight:600; }
+
+  table.train{ width:100%; border-collapse:collapse; margin-top:2px; }
+  table.train th, table.train td{ padding:6px 8px; text-align:left; font-size:12px; border-bottom:1px solid var(--rule); }
+  table.train thead th{ font-family:var(--font-display); font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--paper); background:var(--spice); font-size:11px; border-bottom:none; }
+  table.train thead th:first-child{ background:var(--ink); }
+  table.train td.lab{ font-family:var(--font-display); font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    font-size:11px; color:var(--spice); white-space:nowrap; }
+  table.train td{ color:var(--ink); font-family:var(--font-body); font-weight:500; }
+  .train-note{ font-size:11px; line-height:1.35; color:var(--ink-dim); margin:8px 0 0; font-style:italic; }
+
+  /* ---- rytm dnia ---- */
+  .rytm{ display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-top:2px solid var(--spice); }
+  .rblock{ padding:16px 18px 16px 0; border-right:1px solid var(--rule); }
+  .rblock:nth-child(1){ padding-right:18px; }
+  .rblock:last-child{ border-right:none; padding-right:0; }
+  .rblock:not(:first-child){ padding-left:18px; }
+  .rhead{ display:flex; align-items:baseline; gap:8px; margin-bottom:4px; }
+  .rhead .ico{ font-size:16px; line-height:1; }
+  .rhead .rt{ font-family:var(--font-display); font-weight:600; font-size:14.5px; letter-spacing:.04em;
+    text-transform:uppercase; color:var(--ink); }
+  .rhead .rtime{ font-size:11px; color:var(--ink-dim); font-style:italic; }
+  .rcols{ display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px; }
+  .rc h5{ margin:0 0 5px; font-family:var(--font-display); font-weight:600; font-size:10.5px; letter-spacing:.16em;
+    text-transform:uppercase; }
+  .rc.no h5{ color:var(--ink-dim); } .rc.yes h5{ color:var(--spice); }
+  .rc p{ margin:0; font-size:12px; line-height:1.4; color:var(--ink-2); }
+  .rc.no p{ color:var(--ink-dim); }
+  .rc.yes p{ color:var(--ink); }
+
+  @media print{
+    @page{ size:A4; margin:0; }
+    html,body{ background:#fff; }
+    .sheets{ gap:0; padding:0; transform:none !important; }
+    .page{ box-shadow:none; page-break-after:always; break-after:page; }
+    .page:last-child{ page-break-after:auto; break-after:auto; }
+  }
+</style>
+
+<div class="sheets" id="sheets">
+
+  <!-- ============ STRONA 1 — MANIFEST ============ -->
+  <section class="page">
+    <svg class="sun" viewBox="0 0 794 1123" aria-hidden="true">
+      <g fill="none" stroke="#C2560C" stroke-opacity="0.16">
+        <circle cx="726" cy="70" r="120" stroke-width="1.2"/>
+        <circle cx="726" cy="70" r="86" stroke-width="1.2"/>
+        <circle cx="726" cy="70" r="54" stroke-width="1.2" stroke-dasharray="1.5 9" stroke-opacity="0.5"/>
+      </g>
+    </svg>
+
+    <div class="top-row">
+      <p class="eyebrow">Manifest · 90 dni</p>
+      <span class="page-mark">01 / 02</span>
+    </div>
+    <div class="hairline"></div>
+
+    <h1>Kim chcę zostać</h1>
+    <p class="archetypes"><span class="lead">jak </span>Odyseusz · Agamemnon · Paul Muad’Dib Atryda · Jon Snow · Aragorn</p>
+
+    <p class="lead-para">Odpowiedzialny i&nbsp;silny. Wsparcie i&nbsp;oparcie. Człowiek swojego losu — <b>wypatrujący przyszłości, a nie trzęsący się o&nbsp;nią.</b> Biorący odpowiedzialność za siebie i&nbsp;za najbliższych.</p>
+
+    <div style="margin-top:26px">
+      <p class="block-label">Jakiego życia chcę</p>
+      <p class="life-para">Nie łatwego — <b style="color:var(--spice)">dostatniego</b>. Pełnego szczęśliwych chwil, niesplamionych strachem, wyczekiwaniem i&nbsp;walką. Takiego, w&nbsp;którym każdy nowy dzień — pracy i&nbsp;czasu poza pracą — wypatruję z&nbsp;równym apetytem. Życia w&nbsp;poczuciu kontroli i&nbsp;wykorzystanego potencjału.</p>
+    </div>
+
+    <div style="margin-top:26px">
+      <p class="block-label">Cel — trzy fronty</p>
+      <div class="goals">
+        <div class="card">
+          <span class="k"><span class="dot"></span>Finanse</span>
+          <span class="v"><b>35 000 zł</b> <span class="u">netto / mc<br>z agencji</span></span>
+        </div>
+        <div class="card">
+          <span class="k"><span class="dot"></span>Ciało</span>
+          <span class="v"><b>90 kg</b> <span class="u">· widoczne mięśnie brzucha · tygrys, nie goryl</span></span>
+        </div>
+        <div class="card">
+          <span class="k"><span class="dot"></span>Dusza</span>
+          <span class="v"><b>3</b> <span class="u">przeczytane książki</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:28px">
+      <p class="block-label">Zasady — kierunkowskazy</p>
+      <div class="principles">
+        <div class="principle"><span class="n">01</span><span class="t"><b>Szybkość</b><span class="muted">To, co masz zrobić dzisiaj — zrób teraz.</span></span></div>
+        <div class="principle"><span class="n">02</span><span class="t"><b>Nikt cię nie uratuje — tylko ty</b><span class="muted">Dotrzymuj słowa danego tylko sobie.</span></span></div>
+        <div class="principle"><span class="n">03</span><span class="t"><b>Każdy dzień to ta sama walka</b><span class="muted">Nie stanie się łatwiejsza — ale ty staniesz się silniejszy. Silni robią, ile mogą. Słabi cierpią, ile muszą.</span></span></div>
+        <div class="principle"><span class="n">04</span><span class="t"><b>90 dni</b><span class="muted">Tyle potrzeba, by zrobić pełną zmianę. To należy tylko do mnie.</span></span></div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="hairline thin"></div>
+    <footer class="doc"><span>Manifest 90 dni — kim chcę zostać</span><span class="r">To należy tylko do mnie</span></footer>
+  </section>
+
+  <!-- ============ STRONA 2 — SYSTEM ============ -->
+  <section class="page">
+    <svg class="sun" viewBox="0 0 794 1123" aria-hidden="true">
+      <g fill="none" stroke="#C2560C" stroke-opacity="0.14">
+        <circle cx="70" cy="1060" r="130" stroke-width="1.2"/>
+        <circle cx="70" cy="1060" r="94" stroke-width="1.2"/>
+      </g>
+    </svg>
+
+    <div class="top-row">
+      <p class="eyebrow">System · Cel proxy</p>
+      <span class="page-mark">02 / 02</span>
+    </div>
+    <div class="hairline"></div>
+
+    <h2 class="sys">System — cel proxy</h2>
+    <p class="motto">„Celów nie osiąga się przez osiąganie celu — tylko robienie rzeczy, które do niego prowadzą."</p>
+
+    <div class="cols2">
+      <!-- LEWA -->
+      <div class="col">
+        <div>
+          <p class="block-label">Finanse — matematyka celu</p>
+          <table class="data">
+            <tr class="hi"><td class="k">Cel miesięczny</td><td class="v"><b>35 000 zł</b> netto</td></tr>
+            <tr><td class="k">Klienci jednocześnie</td><td class="v">~15</td></tr>
+            <tr><td class="k">Klienci do podpisania łącznie</td><td class="v">~20</td></tr>
+            <tr><td class="k">Close rate</td><td class="v">20%</td></tr>
+            <tr><td class="k">Rozmowy odbyte</td><td class="v">100</td></tr>
+            <tr><td class="k">Rozmowy umówione</td><td class="v">120</td></tr>
+            <tr><td class="k">Leady</td><td class="v">180</td></tr>
+            <tr><td class="k">Cena leada</td><td class="v">25 zł</td></tr>
+            <tr><td class="k">Budżet reklamowy</td><td class="v">5000 zł</td></tr>
+            <tr><td class="k">Maks. koszt klienta</td><td class="v">800 zł</td></tr>
+            <tr><td class="k">Calle</td><td class="v">4 / dz · 20 / tydz · 80 / mc</td></tr>
+          </table>
+        </div>
+        <div>
+          <p class="block-label">Review dnia i tygodnia</p>
+          <ul class="mini">
+            <li><b>4 rozmowy</b> dziennie / <b>20</b> tygodniowo</li>
+            <li><b>6 leadów</b> dziennie / <b>30</b> tygodniowo</li>
+            <li><b>25 zabukowanych</b> rozmów tygodniowo</li>
+          </ul>
+        </div>
+        <div>
+          <p class="block-label">Dusza</p>
+          <ul class="mini">
+            <li><b>10 stron</b> dziennie — wieczorem</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PRAWA -->
+      <div class="col">
+        <div>
+          <p class="block-label">Ciało — protokół</p>
+          <ul class="mini">
+            <li>Codziennie aktywność — <b>piłka, padel</b> 2–3×/tydz</li>
+            <li>Cardio <b>z Gniewkiem</b> 2–3×/tydz</li>
+            <li>Kettlebell — trening <b>A / B</b> naprzemiennie</li>
+          </ul>
+        </div>
+        <div>
+          <table class="train">
+            <thead><tr><th>Trening</th><th>Push</th><th>Pull</th><th>Legs</th></tr></thead>
+            <tbody>
+              <tr><td class="lab">A · Heavy</td><td>Military Press</td><td>Australian Pull</td><td>Squat</td></tr>
+              <tr><td class="lab">A · Light</td><td>Push-ups</td><td>Row and Twist</td><td>Split Squat</td></tr>
+              <tr><td class="lab">B · Heavy</td><td>Dips</td><td>Row</td><td>Bulgarian Split Squat</td></tr>
+              <tr><td class="lab">B · Light</td><td>Push Press</td><td>Australian Pull</td><td>Squat and Jump</td></tr>
+            </tbody>
+          </table>
+          <p class="train-note">Każdy trening kończy 10 × 10 swingów + obowiązkowy stretching.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px">
+      <p class="block-label">Rytm dnia</p>
+      <div class="rytm">
+        <div class="rblock">
+          <div class="rhead"><span class="ico">🌅</span><span class="rt">Poranek</span></div>
+          <div class="rcols">
+            <div class="rc no"><h5>Nie robię</h5><p>telefonu w 1. godzinie, jedzenia w 1. godzinie</p></div>
+            <div class="rc yes"><h5>Robię</h5><p>pracę z uwagą, herbatę, wdzięczność, kartę dnia i sezonu</p></div>
+          </div>
+        </div>
+        <div class="rblock">
+          <div class="rhead"><span class="ico">🌙</span><span class="rt">Wieczór</span><span class="rtime">1 godz. przed snem</span></div>
+          <div class="rcols">
+            <div class="rc no"><h5>Nie robię</h5><p>rolek / telefonu, pracy, alkoholu</p></div>
+            <div class="rc yes"><h5>Robię</h5><p>herbatę, podsumowanie dnia + plan, czytanie, czas z Klaudią</p></div>
+          </div>
+        </div>
+        <div class="rblock">
+          <div class="rhead"><span class="ico">🍽️</span><span class="rt">Jedzenie / Praca</span></div>
+          <div class="rcols">
+            <div class="rc no"><h5>Nie robię</h5><p>słodyczy / słodkich napojów, ucieczki i rozpraszania</p></div>
+            <div class="rc yes"><h5>Robię</h5><p>200 g białka, 2200–2500 kcal, Fitatu, bloki dnia, Teoria Ograniczeń</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="hairline thin"></div>
+    <footer class="doc"><span>System — cel proxy · 90 dni</span><span class="r">Rób rzeczy, które prowadzą do celu</span></footer>
+  </section>
+</div>
+
+<script>
+function fit(){
+  const s=document.getElementById('sheets');
+  if(window.matchMedia && window.matchMedia('print').matches){ s.style.transform='none'; return; }
+  const avail=document.documentElement.clientWidth;
+  const sc=Math.min(1,(avail-24)/794);
+  s.style.transform='scale('+sc+')';
+  document.body.style.height=(s.getBoundingClientRect().height)+'px';
+}
+window.addEventListener('resize',fit); window.addEventListener('load',fit); fit();
+</script>

@@ -1,0 +1,146 @@
+<title>Zarabianie pieniędzy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+  *{ box-sizing:border-box; }
+  :root{
+    --void:#0B0806; --spice:#E9722B; --spice-hi:#FF8A3D;
+    --sand:#ECDDC7; --sand-dim:#A48A6A; --ember:#7D3A15;
+    --font-display:'Oswald','Arial Narrow',sans-serif;
+    --font-body:'Barlow','Helvetica Neue',Arial,sans-serif;
+  }
+  html,body{ margin:0; padding:0; }
+  body{ background:#050403; color:var(--sand); font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased; text-rendering:geometricPrecision; }
+  .stage{ width:100%; display:flex; justify-content:center; align-items:flex-start; overflow:hidden; }
+  .board{ position:relative; width:1122px; height:1587px;
+    background:
+      radial-gradient(120% 55% at 86% -6%, rgba(233,114,43,.12), rgba(233,114,43,0) 46%),
+      radial-gradient(120% 70% at 50% 118%, rgba(125,58,21,.12), rgba(0,0,0,0) 55%),
+      var(--void);
+    transform-origin:top center; padding:64px 74px 54px; display:flex; flex-direction:column; overflow:hidden; }
+  .sunfield{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+  header,.tree-region,footer{ position:relative; z-index:2; }
+  header{ display:flex; justify-content:space-between; align-items:flex-start; gap:36px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:600; font-size:16px; letter-spacing:.4em;
+    text-transform:uppercase; color:var(--spice); margin:0 0 14px; }
+  h1{ font-family:var(--font-display); font-weight:700; font-size:60px; line-height:.94;
+    letter-spacing:.02em; text-transform:uppercase; color:var(--sand); margin:0; text-wrap:balance; }
+  .subtitle{ margin:16px 0 0; max-width:560px; font-size:18px; line-height:1.45; color:var(--sand-dim); }
+  .legend{ display:flex; flex-direction:column; gap:12px; flex:0 0 auto; }
+  .legend-item{ display:flex; align-items:center; gap:12px; justify-content:flex-end; }
+  .legend-item span{ font-family:var(--font-display); font-weight:500; font-size:13px;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--sand-dim); }
+  .tree-region{ flex:1; min-height:0; display:flex; justify-content:center; align-items:center; padding:24px 0; }
+  .tree-scaler{ position:relative; }
+  .tree-canvas{ position:absolute; top:0; left:0; transform-origin:top left; }
+  .tree-canvas svg.wires{ position:absolute; inset:0; overflow:visible; }
+  .node{ position:absolute; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
+  .node .txt{ font-family:var(--font-display); font-weight:500; line-height:1.05; letter-spacing:.01em; }
+  .node.q .txt{ font-size:13px; color:var(--sand); }
+  .node.act .txt{ font-size:13.5px; font-weight:600; color:var(--spice-hi); letter-spacing:.02em; }
+  .node.win .txt{ font-size:14px; font-weight:600; color:var(--void); letter-spacing:.03em; text-transform:uppercase; }
+  .node.act .txt::before{ content:'\25B8'; color:var(--spice); margin-right:5px; font-size:11px; vertical-align:1px; }
+  .elabel{ position:absolute; transform:translate(-50%,-50%); font-family:var(--font-display); font-weight:600;
+    font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; background:var(--void); padding:1px 5px;
+    line-height:1; pointer-events:none; }
+  .elabel.tak{ color:var(--spice-hi); } .elabel.nie{ color:var(--sand-dim); }
+  footer{ display:flex; flex-direction:column; }
+  .foot-rule{ height:1px; background:linear-gradient(90deg,var(--spice),rgba(233,114,43,.2) 60%,transparent); margin-bottom:14px; }
+  .foot-row{ display:flex; justify-content:space-between; align-items:center; }
+  .foot-row .l{ font-family:var(--font-display); font-weight:500; font-size:14px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--sand-dim); }
+  .foot-row .r{ font-family:var(--font-display); font-weight:600; font-size:14px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--spice); }
+  @media print{ @page{ size:A3 portrait; margin:0; } html,body{ background:#fff; }
+    .stage{ overflow:visible; height:auto !important; } .board{ transform:none !important; } }
+</style>
+
+<div class="stage">
+  <section class="board" id="board">
+    <svg class="sunfield" viewBox="0 0 1122 1587" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g fill="none" stroke="#E9722B">
+        <circle cx="1000" cy="120" r="250" stroke-opacity="0.10" stroke-width="1.4"/>
+        <circle cx="1000" cy="120" r="196" stroke-opacity="0.14" stroke-width="1.4"/>
+        <circle cx="1000" cy="120" r="150" stroke-opacity="0.20" stroke-width="1.4"/>
+        <circle cx="1000" cy="120" r="150" stroke-opacity="0.55" stroke-width="1.4" stroke-dasharray="2 12"/>
+      </g>
+      <line x1="-40" y1="1430" x2="1170" y2="1430" stroke="#7D3A15" stroke-opacity="0.35" stroke-width="1"/>
+      <g stroke="#7D3A15" stroke-opacity="0.5" stroke-width="1">
+        <line x1="150" y1="1430" x2="150" y2="1446"/>
+        <line x1="430" y1="1430" x2="430" y2="1442"/>
+        <line x1="710" y1="1430" x2="710" y2="1446"/>
+        <line x1="990" y1="1430" x2="990" y2="1442"/>
+      </g>
+    </svg>
+
+    <header>
+      <div>
+        <p class="eyebrow">Teoria Ograniczeń · Drzewo II</p>
+        <h1>Zarabianie<br>pieniędzy</h1>
+        <p class="subtitle">Wąskie gardło agencji. Schodź w dół po kolejnych pytaniach, aż trafisz na ograniczenie — i uderz tylko w nie.</p>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><span>Pytanie&nbsp;TAK / NIE</span>
+          <svg width="46" height="30"><polygon points="23,3 43,15 23,27 3,15" fill="none" stroke="#E9722B" stroke-width="2"/></svg></div>
+        <div class="legend-item"><span>Działanie</span>
+          <svg width="46" height="30"><rect x="4" y="7" width="38" height="16" fill="none" stroke="#FF8A3D" stroke-width="2"/></svg></div>
+        <div class="legend-item"><span>Węzeł końcowy</span>
+          <svg width="46" height="30"><rect x="4" y="7" width="38" height="16" fill="#E9722B"/></svg></div>
+      </div>
+    </header>
+
+    <div class="tree-region">
+      <div class="tree-scaler" id="scaler"><div class="tree-canvas" id="tree"></div></div>
+    </div>
+
+    <footer>
+      <div class="foot-rule"></div>
+      <div class="foot-row">
+        <span class="l">Teoria Ograniczeń · Matryca decyzyjna</span>
+        <span class="r">Drzewo II / II</span>
+      </div>
+    </footer>
+  </section>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+const COL={ spice:'#E9722B', spiceHi:'#FF8A3D', sand:'#ECDDC7', sandDim:'#A48A6A', voidc:'#0B0806' };
+const SIZE={ q:{hw:124,hh:52,tw:150}, act:{hw:100,hh:27,tw:182}, win:{hw:100,hh:27,tw:182} };
+const TREE={"w":840,"h":970,"nodes":[{"id":"q1","x":200,"y":72,"t":"q","lines":["Czy mam tyle pieniędzy,","ile chcę?"]},{"id":"w1","x":475,"y":72,"t":"win","lines":["Gratulacje"]},{"id":"q2","x":200,"y":212,"t":"q","lines":["Czy mam pełen kapacytet","klientów w agencji?"]},{"id":"w2","x":475,"y":212,"t":"win","lines":["Gratulacje","zatrudniaj"]},{"id":"q3","x":200,"y":352,"t":"q","lines":["Czy mam pełny","kalendarz rozmów?"]},{"id":"q3a","x":475,"y":352,"t":"q","lines":["Czy close rate","przekracza 30%?"]},{"id":"w3","x":705,"y":276,"t":"win","lines":["Gratulacje","zatrudniaj"]},{"id":"a1","x":705,"y":428,"t":"act","lines":["Rób review calli"]},{"id":"q4","x":200,"y":492,"t":"q","lines":["Czy mam z czego","umawiać? (leady)"]},{"id":"a2","x":475,"y":492,"t":"act","lines":["Umawiaj"]},{"id":"q5","x":200,"y":632,"t":"q","lines":["Czy kampania","reklamowa działa?"]},{"id":"a3","x":475,"y":632,"t":"act","lines":["Uruchom kampanię"]},{"id":"q6","x":200,"y":772,"t":"q","lines":["Czy leady są","w dobrej cenie?"]},{"id":"a4","x":475,"y":772,"t":"act","lines":["Zwiększ budżet"]},{"id":"a5","x":200,"y":912,"t":"act","lines":["Zrób nowe kreacje"]}],"edges":[{"pts":[[324,72],[375,72]],"label":"TAK","lx":350,"ly":58},{"pts":[[200,124],[200,160]],"label":"NIE","lx":214,"ly":142},{"pts":[[324,212],[375,212]],"label":"TAK","lx":350,"ly":198},{"pts":[[200,264],[200,300]],"label":"NIE","lx":214,"ly":282},{"pts":[[324,352],[351,352]],"label":"TAK","lx":338,"ly":338},{"pts":[[475,300],[475,276],[605,276]],"label":"TAK","lx":492,"ly":288},{"pts":[[475,404],[475,428],[605,428]],"label":"NIE","lx":492,"ly":416},{"pts":[[200,404],[200,440]],"label":"NIE","lx":214,"ly":422},{"pts":[[324,492],[375,492]],"label":"TAK","lx":350,"ly":478},{"pts":[[200,544],[200,580]],"label":"NIE","lx":214,"ly":562},{"pts":[[324,632],[375,632]],"label":"NIE","lx":350,"ly":618},{"pts":[[200,684],[200,720]],"label":"TAK","lx":214,"ly":702},{"pts":[[324,772],[375,772]],"label":"TAK","lx":350,"ly":758},{"pts":[[200,824],[200,885]],"label":"NIE","lx":214,"ly":854}]};
+function svgEl(t,a){ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); return e; }
+function buildTree(data, scale){
+  const canvas=document.getElementById('tree'), scaler=document.getElementById('scaler');
+  canvas.style.width=data.w+'px'; canvas.style.height=data.h+'px'; canvas.style.transform='scale('+scale+')';
+  scaler.style.width=(data.w*scale)+'px'; scaler.style.height=(data.h*scale)+'px';
+  const svg=svgEl('svg',{class:'wires', width:data.w, height:data.h, viewBox:'0 0 '+data.w+' '+data.h});
+  const defs=svgEl('defs',{});
+  const m=svgEl('marker',{id:'arw', markerWidth:'10', markerHeight:'10', refX:'7.5', refY:'4.5', orient:'auto', markerUnits:'userSpaceOnUse'});
+  m.appendChild(svgEl('path',{d:'M0,0 L9,4.5 L0,9 Z', fill:COL.spice})); defs.appendChild(m); svg.appendChild(defs);
+  data.edges.forEach(e=>{ svg.appendChild(svgEl('polyline',{points:e.pts.map(p=>p.join(',')).join(' '),
+    fill:'none', stroke:COL.spice, 'stroke-width':'2', 'stroke-linejoin':'miter', 'marker-end':'url(#arw)'})); });
+  data.nodes.forEach(n=>{ const s=SIZE[n.t];
+    if(n.t==='q'){ svg.appendChild(svgEl('polygon',{ points:[n.x+','+(n.y-s.hh),(n.x+s.hw)+','+n.y,n.x+','+(n.y+s.hh),(n.x-s.hw)+','+n.y].join(' '),
+      fill:COL.voidc, stroke:COL.spice, 'stroke-width':'2', 'stroke-linejoin':'miter'})); }
+    else if(n.t==='win'){ svg.appendChild(svgEl('rect',{x:n.x-s.hw, y:n.y-s.hh, width:s.hw*2, height:s.hh*2, fill:COL.spice})); }
+    else { svg.appendChild(svgEl('rect',{x:n.x-s.hw, y:n.y-s.hh, width:s.hw*2, height:s.hh*2, fill:'#1B0F08', stroke:COL.spiceHi, 'stroke-width':'2'})); }
+  });
+  canvas.appendChild(svg);
+  data.nodes.forEach(n=>{ const s=SIZE[n.t]; const d=document.createElement('div'); d.className='node '+n.t;
+    d.style.left=n.x+'px'; d.style.top=n.y+'px'; const tw=document.createElement('div'); tw.className='txt';
+    tw.style.width=s.tw+'px'; tw.innerHTML=n.lines.join('<br>'); d.appendChild(tw); canvas.appendChild(d); });
+  data.edges.forEach(e=>{ if(!e.label) return; const l=document.createElement('div');
+    l.className='elabel '+(e.label==='TAK'?'tak':'nie'); l.style.left=e.lx+'px'; l.style.top=e.ly+'px';
+    l.textContent=e.label; canvas.appendChild(l); });
+}
+function computeScale(){ const r=document.querySelector('.tree-region');
+  const availW=r.clientWidth, availH=r.clientHeight;
+  return Math.max(0.6, Math.min(1.55, availW/TREE.w, availH/TREE.h)); }
+buildTree(TREE, computeScale());
+function fitBoard(){ const board=document.getElementById('board'), stage=document.querySelector('.stage');
+  if(window.matchMedia && window.matchMedia('print').matches){ board.style.transform='none'; stage.style.height='auto'; return; }
+  const s=Math.min(1, stage.clientWidth/1122); board.style.transform='scale('+s+')'; stage.style.height=(1587*s)+'px'; }
+window.addEventListener('resize',fitBoard); window.addEventListener('load',fitBoard); fitBoard();
+</script>

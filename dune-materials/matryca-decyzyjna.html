@@ -1,0 +1,360 @@
+<title>Matryca Decyzyjna</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap">
+
+<style>
+  *{ box-sizing:border-box; }
+  :root{
+    --void:#0B0806;
+    --void-2:#150E08;
+    --spice:#E9722B;
+    --spice-hi:#FF8A3D;
+    --sand:#ECDDC7;
+    --sand-dim:#A48A6A;
+    --ember:#7D3A15;
+    --font-display:'Oswald','Arial Narrow',sans-serif;
+    --font-body:'Barlow','Helvetica Neue',Arial,sans-serif;
+  }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:#050403;
+    color:var(--sand);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:geometricPrecision;
+  }
+  .stage{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    overflow:hidden;
+  }
+  .board{
+    position:relative;
+    width:1587px;
+    height:1122px;
+    background:
+      radial-gradient(120% 90% at 82% -8%, rgba(233,114,43,.10), rgba(233,114,43,0) 46%),
+      radial-gradient(140% 120% at 50% 120%, rgba(125,58,21,.10), rgba(0,0,0,0) 55%),
+      var(--void);
+    transform-origin:top center;
+    padding:40px 56px 30px;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  /* --- atmosphere: sun / horizon --- */
+  .sunfield{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+  header,.rule,.trees,footer{ position:relative; z-index:2; }
+
+  /* --- header --- */
+  header{ display:flex; justify-content:space-between; align-items:flex-start; gap:40px; }
+  .eyebrow{
+    font-family:var(--font-display); font-weight:600; font-size:14px;
+    letter-spacing:.42em; text-transform:uppercase; color:var(--spice);
+    margin:0 0 12px;
+  }
+  h1{
+    font-family:var(--font-display); font-weight:700; font-size:56px; line-height:.92;
+    letter-spacing:.03em; text-transform:uppercase; color:var(--sand);
+    margin:0; text-wrap:balance;
+  }
+  h1 .amp{ color:var(--spice); }
+  .subtitle{
+    margin:14px 0 0; max-width:620px; font-size:16px; line-height:1.45;
+    color:var(--sand-dim); font-weight:400;
+  }
+  .subtitle b{ color:var(--sand); font-weight:600; }
+
+  .header-right{ display:flex; flex-direction:column; align-items:flex-end; gap:20px; flex:0 0 auto; }
+  .legend{ display:flex; flex-direction:column; gap:11px; }
+  .legend-item{ display:flex; align-items:center; gap:12px; justify-content:flex-end; }
+  .legend-item span{
+    font-family:var(--font-display); font-weight:500; font-size:13px;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--sand-dim);
+  }
+  .legend svg{ display:block; }
+
+  .rule{ height:1px; background:linear-gradient(90deg,var(--spice),rgba(233,114,43,.15) 70%,transparent); margin:20px 0 2px; }
+
+  /* --- trees --- */
+  .trees{ flex:1; min-height:0; display:flex; justify-content:center; align-items:flex-start; gap:64px; padding-top:10px; }
+  .col{ display:flex; flex-direction:column; align-items:flex-start; }
+  .tree-head{ display:flex; align-items:baseline; gap:14px; margin:0 0 6px; }
+  .tree-head .num{
+    font-family:var(--font-display); font-weight:700; font-size:22px; color:var(--spice);
+    letter-spacing:.05em;
+  }
+  .tree-head .label{
+    font-family:var(--font-display); font-weight:600; font-size:19px; letter-spacing:.11em;
+    text-transform:uppercase; color:var(--sand);
+  }
+  .tree-scaler{ position:relative; }
+  .tree-canvas{ position:absolute; top:0; left:0; transform-origin:top left; }
+  .tree-canvas svg.wires{ position:absolute; inset:0; overflow:visible; }
+  .node{
+    position:absolute; transform:translate(-50%,-50%);
+    text-align:center; pointer-events:none;
+  }
+  .node .txt{
+    font-family:var(--font-display); font-weight:500; line-height:1.05;
+    letter-spacing:.01em;
+  }
+  .node.q .txt{ font-size:13px; color:var(--sand); }
+  .node.act .txt{ font-size:13.5px; font-weight:600; color:var(--spice-hi); letter-spacing:.02em; }
+  .node.win .txt{ font-size:14px; font-weight:600; color:var(--void); letter-spacing:.03em; text-transform:uppercase; }
+  .node.act .txt::before{ content:'\25B8'; color:var(--spice); margin-right:5px; font-size:11px; vertical-align:1px; }
+
+  .elabel{
+    position:absolute; transform:translate(-50%,-50%);
+    font-family:var(--font-display); font-weight:600; font-size:11.5px;
+    letter-spacing:.16em; text-transform:uppercase;
+    background:var(--void); padding:1px 5px; line-height:1; pointer-events:none;
+  }
+  .elabel.tak{ color:var(--spice-hi); }
+  .elabel.nie{ color:var(--sand-dim); }
+
+  /* --- footer --- */
+  footer{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
+  .foot-rule{ height:1px; background:linear-gradient(90deg,transparent,rgba(233,114,43,.35) 30%,var(--spice)); margin-bottom:12px; }
+  footer .l,footer .r{
+    font-family:var(--font-display); font-weight:500; font-size:13px;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--sand-dim);
+  }
+  footer .r{ color:var(--spice); }
+
+  @media print{
+    @page{ size:A3 landscape; margin:0; }
+    html,body{ background:#fff; }
+    .stage{ overflow:visible; height:auto !important; }
+    .board{ transform:none !important; }
+  }
+</style>
+
+<div class="stage">
+  <section class="board" id="board">
+    <svg class="sunfield" viewBox="0 0 1587 1122" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g fill="none" stroke="#E9722B">
+        <circle cx="1330" cy="120" r="250" stroke-opacity="0.10" stroke-width="1.4"/>
+        <circle cx="1330" cy="120" r="196" stroke-opacity="0.14" stroke-width="1.4"/>
+        <circle cx="1330" cy="120" r="150" stroke-opacity="0.20" stroke-width="1.4"/>
+        <circle cx="1330" cy="120" r="150" stroke-opacity="0.55" stroke-width="1.4" stroke-dasharray="2 12"/>
+      </g>
+      <g stroke="#E9722B" stroke-opacity="0.16" stroke-width="1.2">
+        <line x1="1050" y1="120" x2="1120" y2="120"/>
+        <line x1="1540" y1="120" x2="1610" y2="120"/>
+        <line x1="1330" y1="-160" x2="1330" y2="-90"/>
+      </g>
+      <line x1="-40" y1="1010" x2="1627" y2="1010" stroke="#7D3A15" stroke-opacity="0.35" stroke-width="1"/>
+      <g stroke="#7D3A15" stroke-opacity="0.5" stroke-width="1">
+        <line x1="120" y1="1010" x2="120" y2="1026"/>
+        <line x1="360" y1="1010" x2="360" y2="1022"/>
+        <line x1="600" y1="1010" x2="600" y2="1026"/>
+        <line x1="840" y1="1010" x2="840" y2="1022"/>
+        <line x1="1080" y1="1010" x2="1080" y2="1026"/>
+        <line x1="1320" y1="1010" x2="1320" y2="1022"/>
+      </g>
+    </svg>
+
+    <header>
+      <div class="header-left">
+        <p class="eyebrow">Teoria Ograniczeń · System Decyzyjny</p>
+        <h1>Matryca<br>Decyzyjna</h1>
+        <p class="subtitle">Dwa drzewa. Jedno pytanie naraz. Idź w dół, aż trafisz na <b>wąskie gardło</b> — i rób tylko to, co je rozszczelnia.</p>
+      </div>
+      <div class="header-right">
+        <div class="legend">
+          <div class="legend-item"><span>Pytanie&nbsp;TAK / NIE</span>
+            <svg width="46" height="30"><polygon points="23,3 43,15 23,27 3,15" fill="none" stroke="#E9722B" stroke-width="2"/></svg>
+          </div>
+          <div class="legend-item"><span>Działanie</span>
+            <svg width="46" height="30"><rect x="4" y="7" width="38" height="16" fill="none" stroke="#FF8A3D" stroke-width="2"/></svg>
+          </div>
+          <div class="legend-item"><span>Węzeł końcowy</span>
+            <svg width="46" height="30"><rect x="4" y="7" width="38" height="16" fill="#E9722B"/></svg>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="rule"></div>
+
+    <div class="trees">
+      <div class="col">
+        <div class="tree-head"><span class="num">I</span><span class="label">Czy robię to, co powinienem?</span></div>
+        <div class="tree-scaler" id="scaler1"><div class="tree-canvas" id="tree1"></div></div>
+      </div>
+      <div class="col">
+        <div class="tree-head"><span class="num">II</span><span class="label">Zarabianie pieniędzy · wąskie gardło agencji</span></div>
+        <div class="tree-scaler" id="scaler2"><div class="tree-canvas" id="tree2"></div></div>
+      </div>
+    </div>
+
+    <footer>
+      <div style="flex:1">
+        <div class="foot-rule"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="l">Matryca decyzyjna — Teoria Ograniczeń</span>
+          <span class="r">Znajdź ograniczenie · działaj · powtarzaj</span>
+        </div>
+      </div>
+    </footer>
+  </section>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+const COL={ spice:'#E9722B', spiceHi:'#FF8A3D', sand:'#ECDDC7', sandDim:'#A48A6A', voidc:'#0B0806', ember:'#7D3A15' };
+const SIZE={ q:{hw:124,hh:52,tw:150}, act:{hw:100,hh:27,tw:182}, win:{hw:100,hh:27,tw:182} };
+
+function svgEl(t,a){ const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); return e; }
+
+function buildTree(canvasId, scalerId, data, scale){
+  const canvas=document.getElementById(canvasId);
+  const scaler=document.getElementById(scalerId);
+  canvas.style.width=data.w+'px'; canvas.style.height=data.h+'px';
+  canvas.style.transform='scale('+scale+')';
+  scaler.style.width=(data.w*scale)+'px';
+  scaler.style.height=(data.h*scale)+'px';
+
+  const svg=svgEl('svg',{class:'wires', width:data.w, height:data.h, viewBox:'0 0 '+data.w+' '+data.h});
+  const defs=svgEl('defs',{});
+  const marker=svgEl('marker',{id:canvasId+'-arw', markerWidth:'10', markerHeight:'10', refX:'7.5', refY:'4.5', orient:'auto', markerUnits:'userSpaceOnUse'});
+  marker.appendChild(svgEl('path',{d:'M0,0 L9,4.5 L0,9 Z', fill:COL.spice}));
+  defs.appendChild(marker); svg.appendChild(defs);
+
+  // edges first (behind)
+  data.edges.forEach(e=>{
+    const pts=e.pts.map(p=>p.join(',')).join(' ');
+    svg.appendChild(svgEl('polyline',{points:pts, fill:'none', stroke:COL.spice, 'stroke-width':'2', 'stroke-linejoin':'miter', 'marker-end':'url(#'+canvasId+'-arw)'}));
+  });
+  // node shapes
+  const nodeMap={};
+  data.nodes.forEach(n=>{ nodeMap[n.id]=n; });
+  data.nodes.forEach(n=>{
+    const s=SIZE[n.t];
+    if(n.t==='q'){
+      svg.appendChild(svgEl('polygon',{
+        points:[ n.x+','+(n.y-s.hh), (n.x+s.hw)+','+n.y, n.x+','+(n.y+s.hh), (n.x-s.hw)+','+n.y ].join(' '),
+        fill:COL.voidc, stroke:COL.spice, 'stroke-width':'2', 'stroke-linejoin':'miter'
+      }));
+    } else if(n.t==='win'){
+      svg.appendChild(svgEl('rect',{x:n.x-s.hw, y:n.y-s.hh, width:s.hw*2, height:s.hh*2, fill:COL.spice}));
+    } else {
+      svg.appendChild(svgEl('rect',{x:n.x-s.hw, y:n.y-s.hh, width:s.hw*2, height:s.hh*2, fill:'#1B0F08', stroke:COL.spiceHi, 'stroke-width':'2'}));
+    }
+  });
+  canvas.appendChild(svg);
+
+  // text overlays
+  data.nodes.forEach(n=>{
+    const s=SIZE[n.t];
+    const d=document.createElement('div');
+    d.className='node '+n.t;
+    d.style.left=n.x+'px'; d.style.top=n.y+'px';
+    const tw=document.createElement('div');
+    tw.className='txt'; tw.style.width=s.tw+'px';
+    tw.innerHTML=n.lines.join('<br>');
+    d.appendChild(tw); canvas.appendChild(d);
+  });
+  // edge labels
+  data.edges.forEach(e=>{
+    if(!e.label) return;
+    const l=document.createElement('div');
+    l.className='elabel '+(e.label==='TAK'?'tak':'nie');
+    l.style.left=e.lx+'px'; l.style.top=e.ly+'px';
+    l.textContent=e.label; canvas.appendChild(l);
+  });
+}
+
+const TREE1={ w:600, h:830,
+  nodes:[
+    {id:'q1', x:190,y:72,  t:'q',   lines:['Czy robię to,','co powinienem?']},
+    {id:'w1', x:470,y:72,  t:'win', lines:['Gratulacje','wszystko OK']},
+    {id:'q2', x:190,y:212, t:'q',   lines:['Czy wiem,','co robić?']},
+    {id:'a1', x:470,y:212, t:'act', lines:['Zapisz rozpraszacz']},
+    {id:'a2', x:470,y:308, t:'act', lines:['Wróć do pracy']},
+    {id:'w2', x:470,y:404, t:'win', lines:['Gratulacje']},
+    {id:'a3', x:190,y:352, t:'act', lines:['Zapisz rozpraszacz']},
+    {id:'q3', x:190,y:492, t:'q',   lines:['Czy mam rozmowy','sprzedażowe? (20 rozmów)']},
+    {id:'a4', x:470,y:492, t:'act', lines:['Obdzwaniaj leady']},
+    {id:'q4', x:190,y:632, t:'q',   lines:['Czy mam wszystkie','systemy?']},
+    {id:'a5', x:470,y:632, t:'act', lines:['Rób systemy']},
+    {id:'w3', x:190,y:772, t:'act', lines:['Rób content']},
+  ],
+  edges:[
+    {pts:[[314,72],[370,72]], label:'TAK', lx:340, ly:58},
+    {pts:[[190,124],[190,160]], label:'NIE', lx:204, ly:142},
+    {pts:[[314,212],[370,212]], label:'TAK', lx:340, ly:198},
+    {pts:[[470,239],[470,281]]},
+    {pts:[[470,335],[470,377]]},
+    {pts:[[190,264],[190,325]], label:'NIE', lx:204, ly:296},
+    {pts:[[190,379],[190,440]]},
+    {pts:[[314,492],[370,492]], label:'NIE', lx:340, ly:478},
+    {pts:[[190,544],[190,580]], label:'TAK', lx:204, ly:562},
+    {pts:[[314,632],[370,632]], label:'NIE', lx:340, ly:618},
+    {pts:[[190,684],[190,745]], label:'TAK', lx:204, ly:716},
+  ]
+};
+
+const TREE2={ w:840, h:970,
+  nodes:[
+    {id:'q1', x:200,y:72,   t:'q',   lines:['Czy mam tyle pieniędzy,','ile chcę?']},
+    {id:'w1', x:475,y:72,   t:'win', lines:['Gratulacje']},
+    {id:'q2', x:200,y:212,  t:'q',   lines:['Czy mam pełen kapacytet','klientów w agencji?']},
+    {id:'w2', x:475,y:212,  t:'win', lines:['Gratulacje','zatrudniaj']},
+    {id:'q3', x:200,y:352,  t:'q',   lines:['Czy mam pełny','kalendarz rozmów?']},
+    {id:'q3a',x:475,y:352,  t:'q',   lines:['Czy close rate','przekracza 30%?']},
+    {id:'w3', x:705,y:276,  t:'win', lines:['Gratulacje','zatrudniaj']},
+    {id:'a1', x:705,y:428,  t:'act', lines:['Rób review calli']},
+    {id:'q4', x:200,y:492,  t:'q',   lines:['Czy mam z czego','umawiać? (leady)']},
+    {id:'a2', x:475,y:492,  t:'act', lines:['Umawiaj']},
+    {id:'q5', x:200,y:632,  t:'q',   lines:['Czy kampania','reklamowa działa?']},
+    {id:'a3', x:475,y:632,  t:'act', lines:['Uruchom kampanię']},
+    {id:'q6', x:200,y:772,  t:'q',   lines:['Czy leady są','w dobrej cenie?']},
+    {id:'a4', x:475,y:772,  t:'act', lines:['Zwiększ budżet']},
+    {id:'a5', x:200,y:912,  t:'act', lines:['Zrób nowe kreacje']},
+  ],
+  edges:[
+    {pts:[[324,72],[375,72]], label:'TAK', lx:350, ly:58},
+    {pts:[[200,124],[200,160]], label:'NIE', lx:214, ly:142},
+    {pts:[[324,212],[375,212]], label:'TAK', lx:350, ly:198},
+    {pts:[[200,264],[200,300]], label:'NIE', lx:214, ly:282},
+    {pts:[[324,352],[351,352]], label:'TAK', lx:338, ly:338},
+    {pts:[[475,300],[475,276],[605,276]], label:'TAK', lx:492, ly:288},
+    {pts:[[475,404],[475,428],[605,428]], label:'NIE', lx:492, ly:416},
+    {pts:[[200,404],[200,440]], label:'NIE', lx:214, ly:422},
+    {pts:[[324,492],[375,492]], label:'TAK', lx:350, ly:478},
+    {pts:[[200,544],[200,580]], label:'NIE', lx:214, ly:562},
+    {pts:[[324,632],[375,632]], label:'NIE', lx:350, ly:618},
+    {pts:[[200,684],[200,720]], label:'TAK', lx:214, ly:702},
+    {pts:[[324,772],[375,772]], label:'TAK', lx:350, ly:758},
+    {pts:[[200,824],[200,885]], label:'NIE', lx:214, ly:854},
+  ]
+};
+
+function computeScale(){
+  const trees=document.querySelector('.trees');
+  const availH=trees.clientHeight-40; // reserve for tree-head
+  const maxH=Math.max(TREE1.h,TREE2.h);
+  return Math.max(0.5, Math.min(0.92, availH/maxH));
+}
+const TSCALE=computeScale();
+buildTree('tree1','scaler1',TREE1,TSCALE);
+buildTree('tree2','scaler2',TREE2,TSCALE);
+
+function fitBoard(){
+  const board=document.getElementById('board');
+  const stage=document.querySelector('.stage');
+  if(window.matchMedia && window.matchMedia('print').matches){ board.style.transform='none'; stage.style.height='auto'; return; }
+  const avail=stage.clientWidth;
+  const s=Math.min(1, avail/1587);
+  board.style.transform='scale('+s+')';
+  stage.style.height=(1122*s)+'px';
+}
+window.addEventListener('resize',fitBoard);
+window.addEventListener('load',fitBoard);
+fitBoard();
+</script>
