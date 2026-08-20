@@ -1,0 +1,44 @@
+/* TrifectaOS — brand design tokens
+   Wklej do nowych projektów jako bazę spójności wizualnej. */
+:root{
+  /* Kolory */
+  --bg:#FAF9F7;          /* tło główne (ciepła biel) */
+  --bg-soft:#F2EFE9;     /* naprzemienne sekcje */
+  --ink:#161513;         /* tekst / nagłówki / ciemne sekcje */
+  --muted:#5B5852;       /* tekst pomocniczy */
+  --amber:#F5A01B;       /* akcent główny (CTA, liczby, highlighty) */
+  --amber-dark:#D9860A;  /* hover / linki akcentowe */
+  --brown:#8A5A12;       /* głębia, duże liczby, obramowania premium */
+  --line:#E3DED4;        /* ramki, separatory */
+  --white:#ffffff;
+
+  /* Kolory pomocnicze — ciemne sekcje */
+  --ink-2:#0F0E0C;       /* najciemniejsze tło (stopka) */
+  --ink-card:#211F1B;    /* karta na ciemnym tle */
+  --ink-card-line:#322F29;
+  --on-dark:#EDE9E1;     /* tekst na ciemnym */
+  --on-dark-muted:#B6B0A4;
+  /* Ciemne tło graficzne (social/story) */
+  --dark-warm:#241a0d;
+
+  /* Miękki badge */
+  --soft-bg:#FBF1DC;
+  --soft-line:#F0DBA6;
+
+  /* Kształt / cień */
+  --radius:16px;
+  --radius-pill:999px;
+  --shadow:0 10px 30px rgba(22,21,19,.08);
+  --shadow-lg:0 24px 60px rgba(22,21,19,.14);
+  --maxw:1080px;
+
+  /* Typografia */
+  --font-head:'Manrope','Inter',system-ui,sans-serif; /* 700 / 800 */
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; /* 400/500/600 */
+}
+/* Google Fonts:
+   @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+   Nagłówki: Manrope 800, letter-spacing -.02em, line-height 1.12
+   Eyebrow: Manrope 700, 13px, UPPERCASE, letter-spacing .14em, kolor var(--brown)
+   Separator sekcji (zamiast taśmy):
+   background:linear-gradient(90deg,transparent,rgba(245,160,27,.55) 32%,#8A5A12 50%,rgba(245,160,27,.55) 68%,transparent); */

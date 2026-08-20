@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrifectaOS — Zapełniamy grupy kursowe ośrodkom szkolenia zawodowego</title>
+<meta name="description" content="Dostarczamy ośrodkom szkolenia zawodowego zainteresowanych, którzy sami się zgłaszają. Weryfikujemy zgłoszenia i automatyzujemy edukację o ofercie. Gwarancja 100 kontaktów miesięcznie.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg:#FAF9F7; --bg-soft:#F2EFE9; --ink:#161513; --muted:#5B5852;
+  --amber:#F5A01B; --amber-dark:#D9860A; --brown:#8A5A12;
+  --line:#E3DED4; --white:#ffffff; --radius:16px;
+  --shadow:0 10px 30px rgba(22,21,19,.08); --shadow-lg:0 24px 60px rgba(22,21,19,.14); --maxw:1080px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html,body{max-width:100%;overflow-x:clip}
+body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* FULL-BLEED: sekcje wypełniają pełną szerokość ekranu nawet w wąskim kontenerze GHL */
+header,.hero,.tape,.section,footer{width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw)}
+
+h1,h2,h3,.brand-name{font-family:'Manrope','Inter',system-ui,sans-serif;line-height:1.12;letter-spacing:-.02em}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+.section{padding:88px 0}
+.eyebrow{display:inline-block;font-family:'Manrope';font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--brown);margin-bottom:16px}
+
+.tape{height:3px;border:0;background:linear-gradient(90deg,transparent,rgba(245,160,27,.55) 32%,var(--brown) 50%,rgba(245,160,27,.55) 68%,transparent)}
+
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:'Manrope';font-weight:800;font-size:16px;background:var(--amber);color:var(--ink);padding:16px 30px;border-radius:12px;border:2px solid var(--amber);cursor:pointer;transition:.18s ease;box-shadow:0 8px 20px rgba(245,160,27,.28)}
+.btn:hover{background:var(--amber-dark);border-color:var(--amber-dark);transform:translateY(-2px);box-shadow:0 12px 26px rgba(245,160,27,.36)}
+.btn-sm{padding:11px 20px;font-size:14px;box-shadow:none}
+.btn-arrow::after{content:"→";font-size:18px;transition:.18s}
+.btn:hover .btn-arrow::after,.btn-arrow:hover::after{transform:translateX(3px)}
+
+header{position:sticky;top:0;z-index:50;background:rgba(250,249,247,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo svg{width:38px;height:38px;flex:none}
+.brand-name{font-weight:800;font-size:20px;letter-spacing:-.01em}
+.brand-name span{color:var(--amber-dark)}
+
+.hero{padding:92px 0 76px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;z-index:0;background:radial-gradient(60% 55% at 50% 0%,rgba(245,160,27,.14),transparent 70%),radial-gradient(40% 40% at 85% 30%,rgba(138,90,18,.08),transparent 70%)}
+.hero .wrap{position:relative;z-index:1}
+.hero h1{font-size:clamp(30px,5vw,52px);font-weight:800;max-width:900px;margin:0 auto 22px}
+.hero h1 .hl{color:var(--brown)}
+.hero .sub{font-size:clamp(17px,2.2vw,20px);color:var(--muted);max-width:680px;margin:0 auto 34px}
+.hero .cta-row{display:flex;flex-direction:column;align-items:center;gap:10px}
+.hero .cta-note{font-size:14px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:30px}
+.chip{background:var(--white);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600;color:var(--ink);box-shadow:0 2px 8px rgba(22,21,19,.05)}
+.chip::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);margin-right:8px;vertical-align:middle}
+.trustbar{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 26px;margin-top:42px;padding-top:30px;border-top:1px dashed var(--line)}
+.trustbar span{font-size:14.5px;font-weight:600;color:var(--ink);display:inline-flex;align-items:center;gap:8px}
+.trustbar span::before{content:"✓";color:var(--amber-dark);font-weight:800}
+
+.section-head{text-align:center;max-width:720px;margin:0 auto 52px}
+.section-head h2{font-size:clamp(26px,3.6vw,38px);font-weight:800;margin-bottom:14px}
+.section-head p{color:var(--muted);font-size:18px}
+
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.pillar{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:34px 28px;box-shadow:var(--shadow);position:relative}
+.pillar .num{font-family:'Manrope';font-weight:800;font-size:15px;color:var(--white);width:40px;height:40px;border-radius:11px;background:var(--ink);display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.pillar:nth-child(1) .num{background:var(--amber);color:var(--ink)}
+.pillar:nth-child(2) .num{background:var(--brown)}
+.pillar h3{font-size:21px;font-weight:800;margin-bottom:10px}
+.pillar p{color:var(--muted);font-size:15.5px}
+
+.problem{background:var(--ink);color:#EDE9E1}
+.problem .section-head h2{color:var(--white)}
+.problem .section-head p{color:#B6B0A4}
+.plist{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;margin:0 auto}
+.pitem{background:#211F1B;border:1px solid #322F29;border-radius:14px;padding:22px 24px;display:flex;gap:16px;align-items:flex-start}
+.pitem .x{color:var(--amber);font-weight:800;font-size:20px;line-height:1;flex:none;margin-top:2px}
+.pitem p{color:#D8D3C9;font-size:15.5px}
+.problem-punch{max-width:820px;margin:42px auto 0;text-align:center;font-family:'Manrope';font-weight:700;font-size:clamp(19px,2.6vw,25px);color:var(--white);line-height:1.4}
+.problem-punch b{color:var(--amber)}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.step{position:relative;padding-top:8px}
+.step .dot{width:46px;height:46px;border-radius:50%;background:var(--amber);color:var(--ink);font-family:'Manrope';font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 6px 16px rgba(245,160,27,.3)}
+.step h3{font-size:18px;font-weight:800;margin-bottom:8px}
+.step p{color:var(--muted);font-size:14.5px}
+.step:not(:last-child)::after{content:"";position:absolute;top:23px;left:58px;right:-12px;height:2px;background:linear-gradient(90deg,var(--amber),var(--line))}
+
+.proof{background:var(--bg-soft)}
+.proof-note{text-align:center;color:var(--muted);max-width:660px;margin:34px auto 0;font-size:14px}
+.expect{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto 20px}
+.expect .card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:30px 24px;text-align:center;box-shadow:var(--shadow)}
+.expect .big{font-family:'Manrope';font-weight:800;font-size:clamp(30px,4.5vw,42px);color:var(--brown);line-height:1}
+.expect .lbl{margin-top:10px;color:var(--muted);font-size:15px}
+.proj-head{text-align:center;font-family:'Manrope';font-weight:700;font-size:18px;margin:52px 0 22px;color:var(--ink)}
+.proj{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:960px;margin:0 auto}
+.proj .col{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.proj .col.feature{border:2px solid var(--amber);box-shadow:0 14px 34px rgba(245,160,27,.2)}
+.proj .top{background:var(--ink);color:#fff;padding:18px 16px;text-align:center}
+.proj .col.feature .top{background:var(--amber);color:var(--ink)}
+.proj .top .kontakty{font-family:'Manrope';font-weight:800;font-size:23px;line-height:1.1}
+.proj .top .tagline{font-size:11.5px;font-weight:700;margin-top:6px;text-transform:uppercase;letter-spacing:.08em;opacity:.85}
+.proj .flow{padding:22px 22px 24px;display:flex;flex-direction:column;flex:1}
+.proj .row{display:flex;justify-content:space-between;align-items:baseline;font-size:14.5px;color:var(--muted);border-bottom:1px dashed var(--line);padding:11px 0}
+.proj .row b{color:var(--ink);font-weight:700;font-size:16px}
+.proj .rev{margin-top:18px;text-align:center}
+.proj .rev .amount{font-family:'Manrope';font-weight:800;font-size:clamp(24px,3.2vw,32px);color:var(--brown);line-height:1}
+.proj .rev .per{font-size:13px;color:var(--muted);margin-top:4px}
+.proj .mult{margin-top:16px;background:#FBF1DC;border:1px solid #F0DBA6;border-radius:10px;padding:11px 12px;text-align:center}
+.proj .mult .x{font-family:'Manrope';font-weight:800;font-size:22px;color:var(--brown);line-height:1}
+.proj .mult .cap{font-size:11.5px;color:var(--muted);display:block;margin-top:4px}
+.proj .col.feature .mult{background:var(--amber);border-color:var(--amber-dark)}
+.proj .col.feature .mult .x{color:var(--ink)}
+
+.gallery{column-count:2;column-gap:18px;max-width:900px;margin:0 auto}
+.gallery figure{break-inside:avoid;margin:0 0 18px}
+.gallery figure img{width:100%;border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow);display:block}
+
+.guarantee{background:var(--ink);color:#EDE9E1;overflow:hidden}
+.guar-grid{display:grid;grid-template-columns:280px 1fr;gap:48px;align-items:center;max-width:900px;margin:0 auto}
+.guar-text h2{color:var(--white);font-size:clamp(26px,3.6vw,36px);margin-bottom:18px}
+.guar-text p{color:#CFC9BE;font-size:16.5px;margin-bottom:14px}
+.guar-text .ink-strong{color:var(--amber);font-weight:700}
+.seal{width:250px;height:250px;margin:0 auto;filter:drop-shadow(0 12px 30px rgba(0,0,0,.4))}
+
+.excl{background:linear-gradient(180deg,var(--bg) 0%,var(--bg-soft) 100%)}
+.excl-card{max-width:860px;margin:0 auto;text-align:center;background:var(--white);border:1px solid var(--line);border-radius:22px;padding:56px 40px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.excl-card::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--amber),var(--brown))}
+.excl-card h2{font-size:clamp(26px,4vw,40px);margin-bottom:18px}
+.excl-card h2 .hl{color:var(--amber-dark)}
+.excl-card p{color:var(--muted);font-size:17px;max-width:620px;margin:0 auto}
+
+.founder-grid{display:grid;grid-template-columns:320px 1fr;gap:48px;align-items:center;max-width:960px;margin:0 auto}
+.founder-text h2{font-size:clamp(24px,3.4vw,34px);margin-bottom:20px}
+.founder-text .quote{font-size:17px;color:#33312C;line-height:1.7;margin-bottom:16px}
+.founder-text .quote b{color:var(--ink)}
+.founder-sign{font-family:'Manrope';font-weight:700;color:var(--brown);margin-bottom:26px}
+
+.faq{background:var(--bg-soft)}
+.faq-list{max-width:760px;margin:0 auto}
+.faq-item{background:var(--white);border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.faq-item summary{cursor:pointer;list-style:none;padding:20px 24px;font-family:'Manrope';font-weight:700;font-size:17px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:"+";font-size:24px;color:var(--amber-dark);font-weight:700;transition:.2s;flex:none}
+.faq-item[open] summary::after{transform:rotate(45deg)}
+.faq-item .ans{padding:0 24px 22px;color:var(--muted);font-size:15.5px}
+
+.book{background:var(--ink);color:#EDE9E1;text-align:center}
+.book h2{color:var(--white);font-size:clamp(28px,4vw,42px);margin-bottom:16px}
+.book .sub{color:#C6C0B5;font-size:18px;max-width:640px;margin:0 auto 40px}
+.cal-wrap{max-width:820px;margin:0 auto;background:var(--white);border-radius:18px;padding:14px;box-shadow:var(--shadow-lg)}
+.cal-embed{width:100%;min-height:640px;border:0;border-radius:12px;display:block;background:#fff}
+
+footer{background:#0F0E0C;color:#8B867C;padding:40px 0}
+.foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.foot .brand-name{color:#EDE9E1;font-size:18px}
+.foot .legal{font-size:13.5px;color:#8B867C;max-width:640px;text-align:right}
+.foot .legal a{color:var(--amber)}
+.foot-bottom{border-top:1px solid #26241F;margin-top:26px;padding-top:18px;font-size:12.5px;color:#6A655C;text-align:center}
+
+@media(max-width:900px){
+  .pillars,.steps,.stats,.expect,.proj{grid-template-columns:1fr}
+  .steps{gap:14px}
+  .step:not(:last-child)::after{display:none}
+  .guar-grid,.founder-grid{grid-template-columns:1fr;gap:30px}
+  .seal{width:200px;height:200px}
+  .plist{grid-template-columns:1fr}
+  .gallery{column-count:1}
+  .foot .legal{text-align:left}
+}
+@media(max-width:560px){
+  .section{padding:60px 0}
+  .hero{padding:64px 0 54px}
+  .nav .brand-name{font-size:18px}
+  .btn{padding:14px 22px;font-size:15px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="logo" aria-label="TrifectaOS">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="8,90 92,90 66,76 31,70" fill="#161513"/>
+        <polygon points="92,90 50,6 58,41 66,76" fill="#8A5A12"/>
+        <polygon points="50,6 8,90 31,70 58,41" fill="#F5A01B"/>
+      </svg>
+      <span class="brand-name">Trifecta<span>OS</span></span>
+    </a>
+    <a href="#kalendarz" class="btn btn-sm btn-arrow">Umów spotkanie</a>
+  </div>
+</header>
+
+<span id="top"></span>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Zapełniamy grupy kursowe ośrodkom szkolenia zawodowego — <span class="hl">chętnymi, którzy sami się zgłaszają.</span></h1>
+    <p class="sub">Dostarczamy osoby realnie zainteresowane konkretnym kursem, weryfikujemy każde zgłoszenie i automatycznie edukujemy je o Twojej ofercie — zanim jeszcze zadzwoni Twój handlowiec.</p>
+    <div class="cta-row">
+      <a href="#kalendarz" class="btn btn-arrow">Umów spotkanie</a>
+      <span class="cta-note">20-minutowa rozmowa. Bez zobowiązań.</span>
+    </div>
+    <div class="chips">
+      <span class="chip">Certyfikowana pierwsza pomoc</span>
+      <span class="chip">Maszyny budowlane</span>
+      <span class="chip">Kursy spawania</span>
+      <span class="chip">Konserwatorzy UDT</span>
+      <span class="chip">Wózki widłowe</span>
+    </div>
+    <div class="trustbar">
+      <span>Gwarancja 100 zweryfikowanych zainteresowanych każdego miesiąca</span>
+      <span>1 ośrodek na region</span>
+      <span>Specjalizacja: tylko ośrodki szkoleniowe</span>
+    </div>
+  </div>
+</section>
+
+<div class="tape"></div>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Co robimy</div>
+      <h2>Nie „robimy reklamy". Dostarczamy zapełnione grupy.</h2>
+      <p>Trzy rzeczy, które razem sprawiają, że Twoje sale są pełne — regularnie.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar"><div class="num">1</div><h3>Pozyskujemy</h3><p>Uruchamiamy kampanie na terenie Twojego ośrodka. Zgłaszają się osoby, które <b>same szukają</b> kursu — zostawiają dane i konkretne zapytanie.</p></div>
+      <div class="pillar"><div class="num">2</div><h3>Weryfikujemy</h3><p>Każde zgłoszenie przechodzi przez formularz kwalifikujący. Do Twoich handlowców trafiają tylko kontakty, które wiedzą, czego chcą — nie przypadkowi „klikacze".</p></div>
+      <div class="pillar"><div class="num">3</div><h3>Automatyzujemy</h3><p>Zaraz po zgłoszeniu system sam wysyła SMS i mail — edukuje o Twojej ofercie i tłumaczy, dlaczego warto wybrać właśnie Twój ośrodek. Kontakt jest „ogrzany", zanim ktokolwiek zadzwoni.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section problem">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow" style="color:var(--amber)">Znasz to?</div>
+      <h2>Rynek jest lepszy niż kiedykolwiek. Twoje grupy dalej nie są pełne.</h2>
+      <p>Popyt na uprawnienia rośnie rok do roku. A mimo to co miesiąc powtarza się to samo.</p>
+    </div>
+    <div class="plist">
+      <div class="pitem"><span class="x">✕</span><p>Grupy zapełniają się powoli i nieprzewidywalnie — nigdy nie wiesz, czy ruszą w komplecie.</p></div>
+      <div class="pitem"><span class="x">✕</span><p>Współprace z dużymi firmami trzymają obłożenie, ale marża na nich jest minimalna.</p></div>
+      <div class="pitem"><span class="x">✕</span><p>Instruktorzy mają przestrzeń na więcej kursów — brakuje tylko kursantów, żeby ją wypełnić.</p></div>
+      <div class="pitem"><span class="x">✕</span><p>Sesja się zamyka, a część miejsc zostaje pusta. Ten przychód już nie wróci.</p></div>
+    </div>
+    <p class="problem-punch">Problemem nie jest rynek — jest lepszy niż kiedykolwiek. Problem w tym, że grupy dalej nie są pełne, a <b>zainteresowani trafiają do konkurencji</b> — w momencie, gdy Ty masz przestrzeń na więcej kursantów, więcej grup i większy przychód każdego miesiąca.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Jak to działa</div>
+      <h2>Od reklamy do zainteresowanego kontaktu — w 4 krokach</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="dot">1</div><h3>Kampania na Twój region</h3><p>Docieramy tylko do osób z obszaru, na którym działasz. Zero przepalania budżetu na inne województwa.</p></div>
+      <div class="step"><div class="dot">2</div><h3>Formularz kwalifikujący</h3><p>Zgłaszający odpowiada m.in. na jaki kurs, kiedy i dlaczego. Od razu wiesz, kto jest realnie zainteresowany.</p></div>
+      <div class="step"><div class="dot">3</div><h3>Kontakt trafia do panelu</h3><p>Masz go w jednym miejscu — uporządkowany, gotowy do obdzwonienia przez Twój zespół.</p></div>
+      <div class="step"><div class="dot">4</div><h3>Automatyczna edukacja o ofercie</h3><p>W kilka minut leci SMS + mail: potwierdzenie, wyróżniki Twojego ośrodka i numer, z którego zadzwonicie. Kontakt czeka na telefon, nie ucieka do konkurencji.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section proof">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Czego możesz oczekiwać</div>
+      <h2>Co to znaczy dla Twojego ośrodka</h2>
+      <p>Nie sprzedajemy „wyświetleń". Dajemy przewidywalny dopływ kursantów — miesiąc w miesiąc.</p>
+    </div>
+    <div class="expect">
+      <div class="card"><div class="big">100+</div><div class="lbl">zainteresowanych kontaktów <b>każdego miesiąca</b> — gwarantowane</div></div>
+      <div class="card"><div class="big">10–20%</div><div class="lbl">konwersji na sprzedaż — zależnie od Twojego zespołu</div></div>
+      <div class="card"><div class="big">15+</div><div class="lbl">nowych kursantów miesięcznie — minimum, średnio</div></div>
+    </div>
+    <div class="proj-head">A gdy zwiększysz skalę — rośnie też przychód:</div>
+    <div class="proj">
+      <div class="col">
+        <div class="top"><div class="kontakty">100 kontaktów / mc</div><div class="tagline">Gwarancja — punkt startu</div></div>
+        <div class="flow">
+          <div class="row"><span>Konwersja na sprzedaż</span><b>15%</b></div>
+          <div class="row"><span>Nowi kursanci</span><b>15</b></div>
+          <div class="row"><span>Śr. cena kursu</span><b>2 500 zł</b></div>
+          <div class="rev"><div class="amount">37 500 zł</div><div class="per">dodatkowego przychodu / mc</div></div>
+          <div class="mult"><span class="x">≈6,7×</span><span class="cap">szacowany zwrot z inwestycji</span></div>
+        </div>
+      </div>
+      <div class="col feature">
+        <div class="top"><div class="kontakty">150 kontaktów / mc</div><div class="tagline">Standard — typowy wynik</div></div>
+        <div class="flow">
+          <div class="row"><span>Konwersja na sprzedaż</span><b>15%</b></div>
+          <div class="row"><span>Nowi kursanci</span><b>~23</b></div>
+          <div class="row"><span>Śr. cena kursu</span><b>2 500 zł</b></div>
+          <div class="rev"><div class="amount">57 500 zł</div><div class="per">dodatkowego przychodu / mc</div></div>
+          <div class="mult"><span class="x">≈10,3×</span><span class="cap">szacowany zwrot z inwestycji</span></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="top"><div class="kontakty">200 kontaktów / mc</div><div class="tagline">Dla najlepszych zespołów</div></div>
+        <div class="flow">
+          <div class="row"><span>Konwersja na sprzedaż</span><b>15%</b></div>
+          <div class="row"><span>Nowi kursanci</span><b>30</b></div>
+          <div class="row"><span>Śr. cena kursu</span><b>2 500 zł</b></div>
+          <div class="rev"><div class="amount">75 000 zł</div><div class="per">dodatkowego przychodu / mc</div></div>
+          <div class="mult"><span class="x">≈13,4×</span><span class="cap">szacowany zwrot z inwestycji</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="proof-note">Kalkulacja poglądowa: konwersja 15% (realne widełki 10–20% zależnie od Twojego zespołu sprzedażowego), średnia cena kursu 2 500 zł. To prognoza tego, czego możesz oczekiwać — nie obietnica konkretnej kwoty.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Realne wyniki</div>
+      <h2>Prosto z Menedżera Reklam.</h2>
+      <p>Zrzuty z realnych kampanii — koszt, liczba kontaktów, skuteczność. Bez upiększania.</p>
+    </div>
+    <div class="gallery">
+      <figure><img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54dadba51e67f556ec0328.png" alt="Wynik kampanii z Menedżera Reklam" loading="lazy"></figure>
+      <figure><img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54dadb3b33a7a1d42382c8.png" alt="Wynik kampanii z Menedżera Reklam" loading="lazy"></figure>
+      <figure><img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54dada3b33a7a1d42382b0.png" alt="Wynik kampanii z Menedżera Reklam" loading="lazy"></figure>
+      <figure><img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54dada524a3ec4c61cd926.png" alt="Wynik kampanii z Menedżera Reklam" loading="lazy"></figure>
+      <figure><img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54dadaa51e67f556ec0312.png" alt="Wynik kampanii z Menedżera Reklam" loading="lazy"></figure>
+      <figure><img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54dada524a3ec4c61cd92b.png" alt="Wynik kampanii z Menedżera Reklam" loading="lazy"></figure>
+      <figure><img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54dada9c9b37b5fd1cb9ef.png" alt="Wynik kampanii z Menedżera Reklam" loading="lazy"></figure>
+      <figure><img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54dada3b33a7a1d42382a2.png" alt="Wynik kampanii z Menedżera Reklam" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<section class="section guarantee">
+  <div class="wrap">
+    <div class="guar-grid">
+      <div class="seal-wrap">
+        <svg class="seal" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pieczęć gwarancji">
+          <defs><path id="circlePath" d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"/></defs>
+          <circle cx="100" cy="100" r="94" fill="none" stroke="#F5A01B" stroke-width="3"/>
+          <circle cx="100" cy="100" r="85" fill="none" stroke="#8A5A12" stroke-width="1.5" stroke-dasharray="2 4"/>
+          <circle cx="100" cy="100" r="60" fill="#F5A01B"/>
+          <text font-family="Manrope,sans-serif" font-weight="800" font-size="12.5" letter-spacing="2" fill="#F5A01B"><textPath href="#circlePath" startOffset="0%">• GWARANCJA WYNIKU • TRIFECTAOS • GWARANCJA WYNIKU • TRIFECTAOS </textPath></text>
+          <text x="100" y="92" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="800" font-size="40" fill="#161513">100</text>
+          <text x="100" y="112" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="800" font-size="12.5" fill="#161513" letter-spacing="1">KONTAKTÓW</text>
+          <text x="100" y="126" text-anchor="middle" font-family="Inter,sans-serif" font-weight="700" font-size="9.5" fill="#3a2c0c" letter-spacing="1.5">CO MIESIĄC</text>
+        </svg>
+      </div>
+      <div class="guar-text">
+        <div class="eyebrow" style="color:var(--amber)">Gwarancja</div>
+        <h2>Bierzemy ryzyko na siebie.</h2>
+        <p><span class="ink-strong">100 zweryfikowanych, zainteresowanych kontaktów każdego miesiąca</span> — osób, które same zgłosiły się z reklamy, wypełniły formularz i zostawiły dane wraz z konkretnym zapytaniem o kurs.</p>
+        <p>Nie „wyświetlenia" i nie „zasięgi". Konkretni ludzie, gotowi na rozmowę o kursie. Gwarancja zapisana w umowie — na piśmie.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section excl">
+  <div class="wrap">
+    <div class="excl-card">
+      <div class="eyebrow">Ekskluzywność terytorialna</div>
+      <h2>Jeden ośrodek na region. <span class="hl">Twój.</span></h2>
+      <p>Nie sprzedajemy tego samego systemu Twojej lokalnej konkurencji. Kiedy wchodzimy z Tobą na dany teren — zamykamy go. Na piśmie. Jeśli nie zajmiesz miejsca Ty, zajmie je ktoś inny.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="founder-grid">
+      <img src="https://assets.cdn.filesafe.space/VpLwghtp7MQGtiKetsaT/media/6a54e2a3180dde3f86b7ad05.png" alt="Marcin Horowski — założyciel TrifectaOS" loading="lazy" style="width:100%;border-radius:20px;border:1px solid var(--line);box-shadow:var(--shadow-lg);display:block">
+      <div class="founder-text">
+        <div class="eyebrow">Kto za tym stoi</div>
+        <p class="quote">Cześć, tu <b>Marcin Horowski</b>, TrifectaOS. Nie jesteśmy „wielką agencją od wszystkiego". Robimy jedno: zapełniamy grupy ośrodkom szkolenia zawodowego — i jesteśmy w tym konkretni. Rozmawiałem z właścicielami ośrodków, znam Wasze liczby i wiem, gdzie ucieka przychód. Dlatego nie sprzedaję „reklam", tylko biorę odpowiedzialność za wynik.</p>
+        <div class="founder-sign">— Marcin Horowski · Założyciel, TrifectaOS</div>
+        <a href="#kalendarz" class="btn btn-arrow">Umów rozmowę — sprawdzimy, czy nasz system zadziała u Ciebie</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Pytania i odpowiedzi</div>
+      <h2>Najczęstsze pytania</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item"><summary>Skąd wiecie, że kontakty będą z mojego regionu?</summary><div class="ans">Kampania z założenia targetuje wyłącznie teren Twojego działania. Każde zgłoszenie pochodzi z obszaru, na którym prowadzisz kursy.</div></details>
+      <details class="faq-item"><summary>Jaki budżet reklamowy jest potrzebny?</summary><div class="ans">Zwykle 2 000–2 500 zł miesięcznie na samą kampanię — płatne bezpośrednio do platformy reklamowej, poza naszym wynagrodzeniem. Konkretną kwotę i zakres ustalamy na rozmowie.</div></details>
+      <details class="faq-item"><summary>Mam już swój CRM i handlowców.</summary><div class="ans">Spoko — dostarczamy kontakty tam, gdzie pracujesz, albo dajemy gotowy panel z uporządkowanym pipeline'em. Jak Ci wygodniej.</div></details>
+      <details class="faq-item"><summary>Co jeśli nie dowieziecie wyniku?</summary><div class="ans">Działa gwarancja: 100 zweryfikowanych, zainteresowanych kontaktów każdego miesiąca — zapisana w umowie.</div></details>
+      <details class="faq-item"><summary>Nie wierzę, że reklamy działają na moją branżę.</summary><div class="ans">To najczęstszy błąd. Twoi przyszli kursanci są online — pokażę Ci to na twardych liczbach na rozmowie.</div></details>
+      <details class="faq-item"><summary>Ile to kosztuje?</summary><div class="ans">Zależy od zakresu i regionu. Konkrety ustalamy na 20-minutowej rozmowie — bez zobowiązań.</div></details>
+    </div>
+  </div>
+</section>
+
+<section class="section book" id="kalendarz">
+  <div class="wrap">
+    <h2>Umów spotkanie</h2>
+    <p class="sub">Sprawdź, czy nasz system jest dla Ciebie. 20-minutowa rozmowa — bez prezentacji sprzedażowej na siłę. Mówimy wprost, czy i jak możemy zapełnić Twoje grupy.</p>
+    <div class="cal-wrap">
+      <iframe class="cal-embed" src="https://api.leadconnectorhq.com/widget/booking/ZmOGZEAos1blhlFMQciz" scrolling="no" id="ZmOGZEAos1blhlFMQciz_1783950230526"></iframe>
+      <script src="https://link.msgsndr.com/js/form_embed.js" type="text/javascript"></script>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="logo">
+        <svg width="30" height="30" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <polygon points="8,90 92,90 66,76 31,70" fill="#3a3630"/>
+          <polygon points="92,90 50,6 58,41 66,76" fill="#8A5A12"/>
+          <polygon points="50,6 8,90 31,70 58,41" fill="#F5A01B"/>
+        </svg>
+        <span class="brand-name">Trifecta<span style="color:var(--amber)">OS</span></span>
+      </div>
+      <div class="legal">
+        Agencja LL – Marcin Horowski · NIP 734-35-73-325 · ul. Szujskiego 13/13, 33-300 Nowy Sącz<br>
+        <a href="mailto:marcin@trifectaos.pl">marcin@trifectaos.pl</a> · <a href="https://trifectaos.pl">trifectaos.pl</a>
+      </div>
+    </div>
+    <div class="foot-bottom">© 2026 TrifectaOS. Wszystkie prawa zastrzeżone.</div>
+  </div>
+</footer>
+
+<!-- Zeruje pionowy padding/margines kontenerów GHL (białe paski góra/dół) -->
+<script>
+(function(){
+  var me = document.currentScript;
+  function strip(){
+    var n = me ? me.parentElement : document.body, g = 0;
+    while(n && n !== document.documentElement && g < 15){
+      n.style.setProperty('padding-top','0','important');
+      n.style.setProperty('padding-bottom','0','important');
+      n.style.setProperty('margin-top','0','important');
+      n.style.setProperty('margin-bottom','0','important');
+      n = n.parentElement; g++;
+    }
+  }
+  strip(); window.addEventListener('load', strip); setTimeout(strip, 500);
+})();
+</script>
+
+</body>
+</html>
