@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trifecta Agency</title>
+<meta name="description" content="Zapełniamy grupy kursowe ośrodkom szkolenia zawodowego. Pozyskujemy, weryfikujemy i automatyzujemy edukację o Twojej ofercie." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  /* ============ TOKENS — brand-locked warm identity ============ */
+  :root{
+    --amber:#F5A01B;
+    --amber-dark:#D9860A;
+    --brown:#8A5A12;
+    --graphite:#161513;
+    --bg:#FAF9F7;
+    --bg-soft:#F2EFE9;
+    --muted:#5B5852;
+    --line:#E3DED4;
+    --white:#FFFFFF;
+
+    --dark:#161513;
+    --dark-warm:#241A0D;
+    --dark-card:#211F1B;
+    --dark-text:#EDE9E1;
+    --dark-muted:#B4ADA0;
+    --footer:#0F0E0C;
+
+    --badge-bg:#FBF1DC;
+    --badge-line:#F0DBA6;
+
+    --shadow-card:0 10px 30px rgba(22,21,19,.08);
+    --shadow-card-lg:0 22px 60px rgba(22,21,19,.14);
+    --shadow-cta:0 8px 20px rgba(245,160,27,.28);
+
+    --sans:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --display:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+
+    --maxw:1140px;
+    --prose:720px;
+    --radius:16px;
+    --radius-sm:12px;
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--graphite);
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,h4{font-family:var(--display);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:0;text-wrap:balance}
+  p{margin:0}
+  a{color:inherit;text-decoration:none}
+  img,svg{display:block;max-width:100%}
+  ::selection{background:rgba(245,160,27,.28)}
+  :focus-visible{outline:2.5px solid var(--amber);outline-offset:3px;border-radius:4px}
+
+  /* ============ LAYOUT ============ */
+  .wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:24px}
+  .sec{padding:clamp(64px,9vw,120px) 0;position:relative}
+  .sec--soft{background:var(--bg-soft)}
+  .sec--dark{background:var(--dark);color:var(--dark-text)}
+  .sec--darkwarm{background:var(--dark-warm);color:var(--dark-text)}
+  .sec--dark h1,.sec--dark h2,.sec--dark h3,.sec--darkwarm h2,.sec--darkwarm h3{color:var(--dark-text)}
+  .narrow{max-width:var(--prose)}
+
+  /* gradient separator */
+  .rule{height:1px;border:0;margin:0;background:linear-gradient(90deg,transparent,rgba(245,160,27,.55) 32%,var(--brown) 50%,rgba(245,160,27,.55) 68%,transparent)}
+
+  /* ============ TYPO PARTS ============ */
+  .eyebrow{
+    font-family:var(--display);font-weight:700;font-size:13px;
+    text-transform:uppercase;letter-spacing:.18em;color:var(--brown);
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;
+  }
+  .sec--dark .eyebrow,.sec--darkwarm .eyebrow{color:var(--amber)}
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--amber);border-radius:2px}
+
+  .h1{font-size:clamp(2.35rem,5.2vw,3.75rem)}
+  .h2{font-size:clamp(1.9rem,3.6vw,2.7rem)}
+  .lead{font-size:clamp(1.08rem,1.7vw,1.28rem);line-height:1.6;color:var(--muted)}
+  .sec--dark .lead,.sec--darkwarm .lead{color:var(--dark-muted)}
+  .amber{color:var(--amber)}
+  .brown{color:var(--brown)}
+  .sec-head{max-width:640px;margin-bottom:52px}
+  .sec-head.center{margin-inline:auto;text-align:center}
+  .sec-head .lead{margin-top:18px}
+
+  /* ============ BUTTONS ============ */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    font-family:var(--display);font-weight:800;font-size:1rem;line-height:1;
+    padding:16px 30px;border-radius:var(--radius-sm);cursor:pointer;border:1px solid transparent;
+    transition:transform .18s ease,background .18s ease,box-shadow .18s ease,color .18s ease;
+    white-space:nowrap;
+  }
+  .btn--primary{background:var(--amber);color:var(--graphite);box-shadow:var(--shadow-cta)}
+  .btn--primary:hover{background:var(--amber-dark);transform:translateY(-2px)}
+  .btn--ghost{background:transparent;color:var(--graphite);border-color:var(--line)}
+  .btn--ghost:hover{border-color:var(--brown);transform:translateY(-2px)}
+  .sec--dark .btn--ghost,.sec--darkwarm .btn--ghost{color:var(--dark-text);border-color:rgba(237,233,225,.25)}
+  .sec--dark .btn--ghost:hover,.sec--darkwarm .btn--ghost:hover{border-color:var(--amber)}
+  .btn--sm{padding:11px 20px;font-size:.92rem}
+  @media (prefers-reduced-motion:reduce){.btn:hover{transform:none}}
+
+  .cta-note{font-size:.9rem;color:var(--muted);margin-top:12px}
+  .sec--dark .cta-note,.sec--darkwarm .cta-note{color:var(--dark-muted)}
+
+  /* ============ CHIPS ============ */
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--white);border:1px solid var(--line);border-radius:999px;
+    padding:9px 16px;font-size:.9rem;font-weight:500;color:var(--graphite);
+  }
+  .chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--amber);flex:none}
+  .sec--dark .chip,.sec--darkwarm .chip{background:rgba(255,255,255,.04);border-color:rgba(237,233,225,.16);color:var(--dark-text)}
+
+  .badge{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--badge-bg);border:1px solid var(--badge-line);border-radius:999px;
+    padding:8px 15px;font-size:.86rem;font-weight:600;color:var(--brown);
+  }
+  .badge svg{width:15px;height:15px}
+
+  /* ============ CARDS ============ */
+  .card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:34px}
+  .card-dark{background:var(--dark-card);border:1px solid rgba(237,233,225,.1);border-radius:var(--radius);padding:34px}
+
+  /* ============ HEADER ============ */
+  .header{position:sticky;top:0;z-index:50;background:rgba(250,249,247,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:24px;height:70px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--display);font-weight:800;font-size:1.18rem;letter-spacing:-.02em}
+  .brand .tri{width:30px;height:30px;flex:none}
+  .brand .word b{font-weight:800}
+  .nav-links{display:flex;align-items:center;gap:28px}
+  .nav-links a{font-size:.94rem;font-weight:500;color:var(--muted);transition:color .15s}
+  .nav-links a:hover{color:var(--graphite)}
+  .nav-cta{display:flex;align-items:center;gap:14px}
+  .menu-btn{display:none;background:none;border:1px solid var(--line);border-radius:10px;padding:9px;cursor:pointer}
+  .menu-btn svg{width:22px;height:22px;stroke:var(--graphite)}
+
+  @media (max-width:900px){
+    .nav-links{display:none}
+    .nav-links.open{
+      display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+      position:absolute;top:70px;left:0;right:0;background:var(--bg);
+      border-bottom:1px solid var(--line);padding:16px 24px 22px;
+    }
+    .nav-links.open a{padding:10px 0;font-size:1.05rem;width:100%;border-bottom:1px solid var(--line)}
+    .nav-cta .btn{display:none}
+    .menu-btn{display:inline-flex}
+  }
+
+  /* ============ HERO ============ */
+  .hero{padding:clamp(56px,8vw,104px) 0 clamp(56px,7vw,92px);position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-10%;top:-20%;width:640px;height:640px;pointer-events:none;
+    background:radial-gradient(circle at center,rgba(245,160,27,.14),transparent 62%);}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;position:relative;z-index:1}
+  .hero h1{margin-bottom:22px}
+  .hero .lead{max-width:540px}
+  .hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:34px}
+  .hero-chips{margin-top:30px}
+  .trustline{margin-top:26px;font-size:.9rem;color:var(--muted);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .trustline b{color:var(--graphite);font-weight:700;font-family:var(--display)}
+
+  /* hero card — the system snapshot */
+  .snap{background:var(--white);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-card-lg);padding:28px;position:relative}
+  .snap-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .snap-head .t{font-family:var(--display);font-weight:800;font-size:1.02rem}
+  .step{display:flex;gap:14px;padding:15px 0;border-top:1px solid var(--line)}
+  .step:first-of-type{border-top:0}
+  .step .dot{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center}
+  .step .dot svg{width:16px;height:16px}
+  .step .st-t{font-family:var(--display);font-weight:700;font-size:1rem;margin-bottom:2px}
+  .step .st-d{font-size:.88rem;color:var(--muted);line-height:1.5}
+  .snap-foot{margin-top:20px;padding-top:20px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:12px}
+  .snap-foot .n{font-family:var(--display);font-weight:800;font-size:2.1rem;color:var(--brown);line-height:1}
+  .snap-foot .l{font-size:.86rem;color:var(--muted);line-height:1.35}
+  .snap-badge{position:absolute;top:-14px;right:22px}
+
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:40px}
+    .snap{max-width:440px}
+  }
+
+  /* ============ LOGO WALL ============ */
+  .wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:8px}
+  .logo{
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    min-height:64px;padding:14px 12px;background:var(--white);border:1px solid var(--line);border-radius:12px;
+    font-family:var(--display);font-weight:700;font-size:.86rem;letter-spacing:-.01em;color:#4a463f;
+    transition:transform .16s ease,box-shadow .16s ease,color .16s ease;line-height:1.25;
+  }
+  .logo:hover{transform:translateY(-2px);box-shadow:var(--shadow-card);color:var(--graphite)}
+  .wall-note{margin-top:26px;font-size:.9rem;color:var(--muted);text-align:center}
+
+  /* ============ STATS ============ */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+  .stat .n{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,4.5vw,3.4rem);line-height:1;color:var(--amber);letter-spacing:-.03em}
+  .stat .n .u{font-size:.42em;color:var(--dark-muted);font-weight:700;margin-left:4px;letter-spacing:0}
+  .stat .l{margin-top:12px;font-size:.94rem;color:var(--dark-muted);line-height:1.45;max-width:210px}
+  .stat + .stat{border-left:1px solid rgba(237,233,225,.12);padding-left:28px}
+  @media (max-width:820px){
+    .stats{grid-template-columns:repeat(2,1fr);gap:34px 24px}
+    .stat + .stat{border-left:0;padding-left:0}
+    .stat:nth-child(even){border-left:1px solid rgba(237,233,225,.12);padding-left:24px}
+  }
+
+  /* ============ PILLARS (the trifecta system) ============ */
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .pillar{position:relative;overflow:hidden}
+  .pillar .p-tri{width:34px;height:34px;margin-bottom:20px}
+  .pillar .p-num{font-family:var(--display);font-weight:800;font-size:.8rem;letter-spacing:.14em;color:var(--dark-muted);text-transform:uppercase;margin-bottom:10px}
+  .pillar h3{font-size:1.35rem;margin-bottom:12px;color:var(--dark-text)}
+  .pillar p{color:var(--dark-muted);font-size:.98rem;line-height:1.6}
+  .pillar ul{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:9px}
+  .pillar li{position:relative;padding-left:22px;font-size:.92rem;color:var(--dark-text)}
+  .pillar li::before{content:"";position:absolute;left:0;top:8px;width:0;height:0;border-left:6px solid var(--amber);border-top:4px solid transparent;border-bottom:4px solid transparent}
+  @media (max-width:820px){.pillars{grid-template-columns:1fr}}
+
+  .transparency{margin-top:26px;display:grid;grid-template-columns:1.1fr .9fr;gap:26px;align-items:center}
+  @media (max-width:820px){.transparency{grid-template-columns:1fr}}
+
+  /* report panel (illustrative) */
+  .panel{background:var(--dark-card);border:1px solid rgba(237,233,225,.12);border-radius:18px;padding:26px}
+  .panel-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .panel-top .t{font-family:var(--display);font-weight:700;font-size:.98rem;color:var(--dark-text)}
+  .panel-tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--dark-muted);border:1px solid rgba(237,233,225,.18);border-radius:999px;padding:5px 10px}
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+  .metric{background:rgba(255,255,255,.03);border:1px solid rgba(237,233,225,.1);border-radius:12px;padding:16px}
+  .metric .mn{font-family:var(--display);font-weight:800;font-size:1.7rem;color:var(--amber);line-height:1}
+  .metric .ml{font-size:.8rem;color:var(--dark-muted);margin-top:7px}
+  .bars{display:flex;align-items:flex-end;gap:9px;height:92px}
+  .bars .bar{flex:1;background:linear-gradient(180deg,var(--amber),var(--brown));border-radius:6px 6px 0 0;opacity:.9}
+  .bars-cap{font-size:.78rem;color:var(--dark-muted);margin-top:10px;text-align:center}
+
+  /* ============ RESULTS / CASES ============ */
+  .cases{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  @media (max-width:760px){.cases{grid-template-columns:1fr}}
+  .case{display:flex;flex-direction:column;gap:14px}
+  .case-tag{font-family:var(--display);font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:var(--brown)}
+  .case-big{font-family:var(--display);font-weight:800;font-size:clamp(1.7rem,3vw,2.3rem);line-height:1.05;letter-spacing:-.02em}
+  .case-big em{font-style:normal;color:var(--amber)}
+  .case p{color:var(--muted);font-size:.96rem}
+  .case-name{margin-top:auto;font-size:.86rem;color:var(--graphite);font-weight:600;display:flex;align-items:center;gap:8px;padding-top:6px}
+  .case-name .k{color:var(--muted);font-weight:400}
+
+  .disclaimer{margin-top:22px;font-size:.82rem;color:var(--muted);line-height:1.55;max-width:640px}
+
+  /* placeholder screenshot frames */
+  .shots{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:26px}
+  @media (max-width:640px){.shots{grid-template-columns:1fr}}
+  .shot{border:1.5px dashed var(--line);border-radius:14px;background:var(--bg-soft);min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;color:var(--muted)}
+  .shot svg{width:30px;height:30px;stroke:var(--brown);opacity:.7}
+  .shot .st{font-family:var(--display);font-weight:700;color:var(--graphite);font-size:.98rem}
+  .shot .sd{font-size:.84rem}
+
+  /* ============ TESTIMONIALS ============ */
+  .quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media (max-width:820px){.quotes{grid-template-columns:1fr}}
+  .quote{display:flex;flex-direction:column;gap:16px}
+  .quote .mark{font-family:var(--display);font-weight:800;font-size:2.4rem;color:var(--amber);line-height:.6;height:20px}
+  .quote .qt{font-size:.98rem;color:var(--graphite);line-height:1.6;flex:1}
+  .quote .qt.ph{color:var(--muted);font-style:italic}
+  .quote .who{display:flex;align-items:center;gap:12px;padding-top:14px;border-top:1px solid var(--line)}
+  .avatar{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:.95rem;background:var(--badge-bg);color:var(--brown);border:1px solid var(--badge-line)}
+  .who .nm{font-family:var(--display);font-weight:700;font-size:.94rem}
+  .who .rl{font-size:.82rem;color:var(--muted)}
+
+  /* ============ EXCLUSIVITY + SEAL ============ */
+  .excl{position:relative;overflow:hidden}
+  .excl::before{content:"";position:absolute;left:-8%;bottom:-30%;width:560px;height:560px;pointer-events:none;
+    background:radial-gradient(circle at center,rgba(245,160,27,.22),transparent 60%)}
+  .excl::after{content:"";position:absolute;right:-6%;top:-30%;width:480px;height:480px;pointer-events:none;
+    background:radial-gradient(circle at center,rgba(217,134,10,.15),transparent 62%)}
+  .excl-grid{display:grid;grid-template-columns:1fr auto;gap:56px;align-items:center;position:relative;z-index:1}
+  @media (max-width:860px){.excl-grid{grid-template-columns:1fr;gap:40px;justify-items:start}}
+  .excl h2{margin-bottom:20px}
+  .excl-list{list-style:none;padding:0;margin:28px 0 0;display:flex;flex-direction:column;gap:16px;max-width:520px}
+  .excl-list li{display:flex;gap:14px;color:var(--dark-text);font-size:1rem}
+  .excl-list .ic{width:26px;height:26px;flex:none;border-radius:50%;background:rgba(245,160,27,.14);display:grid;place-items:center}
+  .excl-list .ic svg{width:15px;height:15px;stroke:var(--amber)}
+  .seal{width:210px;height:210px;flex:none;filter:drop-shadow(0 14px 34px rgba(245,160,27,.28))}
+  .seal .sctr{font-family:var(--display);font-weight:800;fill:var(--graphite)}
+
+  /* ============ ABOUT ============ */
+  .about-grid{display:grid;grid-template-columns:300px 1fr;gap:48px;align-items:start}
+  @media (max-width:820px){.about-grid{grid-template-columns:1fr;gap:32px}}
+  .about-card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-card);padding:30px;text-align:center}
+  .about-av{width:96px;height:96px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;
+    font-family:var(--display);font-weight:800;font-size:2rem;color:var(--white);
+    background:linear-gradient(135deg,var(--amber),var(--brown))}
+  .about-card .nm{font-family:var(--display);font-weight:800;font-size:1.2rem}
+  .about-card .rl{font-size:.9rem;color:var(--muted);margin-top:4px}
+  .about-legal{margin-top:22px;padding-top:20px;border-top:1px solid var(--line);text-align:left;font-size:.85rem;color:var(--muted);line-height:1.7}
+  .about-legal b{color:var(--graphite);font-weight:600}
+  .about-body h2{margin-bottom:20px}
+  .about-body p + p{margin-top:16px}
+  .about-body .lead{margin-bottom:20px}
+
+  /* ============ FAQ ============ */
+  .faq{max-width:820px;margin-inline:auto}
+  .faq details{border-bottom:1px solid var(--line);padding:6px 0}
+  .faq summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    padding:20px 4px;font-family:var(--display);font-weight:700;font-size:1.08rem;color:var(--graphite)}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary .pm{width:24px;height:24px;flex:none;position:relative;transition:transform .2s}
+  .faq summary .pm::before,.faq summary .pm::after{content:"";position:absolute;background:var(--brown);border-radius:2px}
+  .faq summary .pm::before{top:11px;left:3px;right:3px;height:2px}
+  .faq summary .pm::after{left:11px;top:3px;bottom:3px;width:2px;transition:opacity .2s}
+  .faq details[open] summary .pm::after{opacity:0}
+  .faq details[open] summary{color:var(--brown)}
+  .faq .ans{padding:0 4px 22px;color:var(--muted);font-size:1rem;line-height:1.65;max-width:680px}
+
+  /* ============ FINAL CTA ============ */
+  .final{text-align:center;position:relative;overflow:hidden}
+  .final::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:820px;height:520px;pointer-events:none;
+    background:radial-gradient(ellipse at center,rgba(245,160,27,.20),transparent 60%)}
+  .final .in{position:relative;z-index:1;max-width:680px;margin-inline:auto}
+  .final h2{font-size:clamp(2rem,4.5vw,3rem);margin-bottom:20px}
+  .final .hero-actions{justify-content:center}
+
+  /* ============ FOOTER ============ */
+  .footer{background:var(--footer);color:var(--dark-muted);padding:64px 0 40px}
+  .footer a{color:var(--dark-muted);transition:color .15s}
+  .footer a:hover{color:var(--amber)}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid rgba(237,233,225,.1)}
+  @media (max-width:760px){.foot-grid{grid-template-columns:1fr;gap:32px}}
+  .footer .brand{color:var(--dark-text);margin-bottom:16px}
+  .foot-desc{font-size:.92rem;line-height:1.6;max-width:340px}
+  .foot-col h4{font-family:var(--display);font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.12em;color:var(--dark-text);margin-bottom:16px}
+  .foot-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:11px;font-size:.92rem}
+  .foot-legal{font-size:.85rem;line-height:1.7}
+  .foot-legal b{color:var(--dark-text);font-weight:600}
+  .foot-bottom{padding-top:26px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font-size:.84rem}
+
+  /* ============ REVEAL ============ */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+<!-- ================= HEADER ================= -->
+<header class="header">
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Trifecta Agency — strona główna">
+      <svg class="tri" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="8,90 92,90 66,76 31,70" fill="#161513"/>
+        <polygon points="92,90 50,6 58,41 66,76" fill="#8A5A12"/>
+        <polygon points="50,6 8,90 31,70 58,41" fill="#F5A01B"/>
+      </svg>
+      <span class="word">Trifecta <b class="amber">Agency</b></span>
+    </a>
+    <nav class="nav-links" id="navlinks" aria-label="Nawigacja główna">
+      <a href="#wspolpraca">Zaufali nam</a>
+      <a href="#system">Jak działamy</a>
+      <a href="#efekty">Efekty</a>
+      <a href="#gwarancja">Gwarancja</a>
+      <a href="#o-nas">O nas</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn--primary btn--sm" href="mailto:marcin@trifectaos.pl?subject=Um%C3%B3w%20spotkanie%20%E2%80%94%20Trifecta%20Agency">Umów spotkanie</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="reveal">
+        <span class="eyebrow">Trifecta Agency · pozyskiwanie kursantów</span>
+        <h1 class="h1">Zapełniamy grupy kursowe ośrodkom szkolenia&nbsp;zawodowego.</h1>
+        <p class="lead">Pozyskujemy osoby realnie zainteresowane szkoleniem, weryfikujemy każde zgłoszenie i&nbsp;automatyzujemy edukację o&nbsp;Twojej ofercie. Ty prowadzisz kursy — my dbamy o&nbsp;to, żeby grupy były pełne.</p>
+        <div class="hero-actions">
+          <a class="btn btn--primary" href="mailto:marcin@trifectaos.pl?subject=Um%C3%B3w%20spotkanie%20%E2%80%94%20Trifecta%20Agency">Umów spotkanie</a>
+          <a class="btn btn--ghost" href="#system">Zobacz, jak działamy</a>
+        </div>
+        <p class="cta-note">20-minutowa rozmowa. Bez zobowiązań, bez spinania Cię na siłę.</p>
+        <div class="chips hero-chips">
+          <span class="chip">25+ firm we współpracy</span>
+          <span class="chip">1 ośrodek na region</span>
+          <span class="chip">Gwarancja 100 zweryfikowanych / mc</span>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="snap">
+          <div class="snap-badge"><span class="badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#8A5A12" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            System 3 kroków
+          </span></div>
+          <div class="snap-head">
+            <span class="t">Jak to działa</span>
+          </div>
+          <div class="step">
+            <span class="dot" style="background:rgba(245,160,27,.16)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#F5A01B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+            </span>
+            <div><div class="st-t">Pozyskujemy</div><div class="st-d">Kampanie w Twoim regionie — zainteresowani zgłaszają się sami.</div></div>
+          </div>
+          <div class="step">
+            <span class="dot" style="background:rgba(138,90,18,.14)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#8A5A12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <div><div class="st-t">Weryfikujemy</div><div class="st-d">Sprawdzamy intencję, termin i budżet. Do Ciebie trafiają realne kontakty.</div></div>
+          </div>
+          <div class="step">
+            <span class="dot" style="background:rgba(22,21,19,.08)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#161513" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 10a8 8 0 0 0-14-4M4 14a8 8 0 0 0 14 4"/></svg>
+            </span>
+            <div><div class="st-t">Automatyzujemy</div><div class="st-d">Sekwencje wiadomości „dogrzewają" zainteresowanego aż do zapisu.</div></div>
+          </div>
+          <div class="snap-foot">
+            <span class="n">100</span>
+            <span class="l">zweryfikowanych zainteresowanych miesięcznie — z gwarancją na piśmie.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOGO WALL ================= -->
+  <section class="sec sec--soft" id="wspolpraca">
+    <div class="wrap">
+      <div class="sec-head center reveal">
+        <span class="eyebrow" style="justify-content:center">Zaufali nam</span>
+        <h2 class="h2">Ponad 25 firm, dla których to już zrobiliśmy</h2>
+        <p class="lead">Trifecta Agency nie zaczyna od zera. Za marką stoją lata pracy przy marketingu, pozyskiwaniu klientów i&nbsp;szkoleniach sprzedaży — w różnych branżach, od usług po handel.</p>
+      </div>
+      <div class="wall reveal">
+        <div class="logo">Husspol</div>
+        <div class="logo">Foliotermika</div>
+        <div class="logo">HVSKI&nbsp;Design</div>
+        <div class="logo">Biznes&nbsp;Architekta</div>
+        <div class="logo">TrychoBiznes</div>
+        <div class="logo">TachoTime</div>
+        <div class="logo">ProfilSzkolenia</div>
+        <div class="logo">Sales&nbsp;Leaders</div>
+        <div class="logo">T.&nbsp;Piwnicki High&nbsp;Performance</div>
+        <div class="logo">Sandey</div>
+        <div class="logo">Księgowy.de</div>
+        <div class="logo">ZwrotPodatku.info</div>
+        <div class="logo">Alchemik&nbsp;Zmiany</div>
+        <div class="logo">OZE&nbsp;Twój&nbsp;Partner</div>
+        <div class="logo">Glinka&nbsp;Beauty</div>
+        <div class="logo">Studio&nbsp;Figura Tarnobrzeg</div>
+        <div class="logo">Katarzyna&nbsp;Marchacz</div>
+        <div class="logo">Koper&nbsp;Agency</div>
+        <div class="logo">Zofia&nbsp;Maszynowska</div>
+        <div class="logo">Metry&nbsp;i&nbsp;Kwadraty</div>
+        <div class="logo">BeZone</div>
+        <div class="logo">Regenesis</div>
+        <div class="logo">Bosco&nbsp;Architektura</div>
+        <div class="logo">Aleppo</div>
+        <div class="logo">BeautyMed</div>
+        <div class="logo">Sekret&nbsp;Urody</div>
+        <div class="logo">Wojtek&nbsp;Biały</div>
+      </div>
+      <p class="wall-note reveal">Marketing i pozyskiwanie klientów · szkolenia sprzedaży · automatyzacja i skalowanie</p>
+    </div>
+  </section>
+
+  <!-- ================= STATS ================= -->
+  <section class="sec sec--dark">
+    <div class="wrap">
+      <div class="stats reveal">
+        <div class="stat"><div class="n">100<span class="u">/&nbsp;mc</span></div><div class="l">zweryfikowanych zainteresowanych miesięcznie — z gwarancją</div></div>
+        <div class="stat"><div class="n">~15<span class="u">%</span></div><div class="l">średnia konwersja zainteresowanego na zapis na kurs</div></div>
+        <div class="stat"><div class="n">1</div><div class="l">ośrodek na region — pracujemy na wyłączność</div></div>
+        <div class="stat"><div class="n">25<span class="u">+</span></div><div class="l">firm, z którymi już pracowaliśmy</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SYSTEM (trifecta) ================= -->
+  <section class="sec sec--darkwarm" id="system">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">Nasz system</span>
+        <h2 class="h2">Trzy elementy, które napełniają&nbsp;kalendarz</h2>
+        <p class="lead">Nazwa nie jest przypadkowa. „Trifecta" to trzy powiązane części jednego systemu — działają razem, a&nbsp;Ty widzisz każdy krok.</p>
+      </div>
+
+      <div class="pillars reveal">
+        <div class="card-dark pillar">
+          <svg class="p-tri" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,90 92,90 66,76 31,70" fill="#3a3630"/><polygon points="92,90 50,6 58,41 66,76" fill="#8A5A12"/><polygon points="50,6 8,90 31,70 58,41" fill="#F5A01B"/></svg>
+          <div class="p-num">Krok 01</div>
+          <h3>Pozyskujemy</h3>
+          <p>Prowadzimy i optymalizujemy kampanie skierowane do osób z Twojego regionu, które realnie chcą się przeszkolić. Zgłaszają się same — nie kupujemy przypadkowych baz.</p>
+          <ul>
+            <li>UDT, maszyny budowlane, spawanie</li>
+            <li>Wózki widłowe, pierwsza pomoc</li>
+            <li>Docieranie lokalnie, w Twoim regionie</li>
+          </ul>
+        </div>
+        <div class="card-dark pillar">
+          <svg class="p-tri" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,90 92,90 66,76 31,70" fill="#F5A01B"/><polygon points="92,90 50,6 58,41 66,76" fill="#3a3630"/><polygon points="50,6 8,90 31,70 58,41" fill="#8A5A12"/></svg>
+          <div class="p-num">Krok 02</div>
+          <h3>Weryfikujemy</h3>
+          <p>Każde zgłoszenie sprawdzamy pod kątem intencji, terminu i budżetu. Do Ciebie trafiają kontakty gotowe do rozmowy — nie surowe kliknięcia, za które musisz płacić czasem.</p>
+          <ul>
+            <li>Potwierdzona intencja i termin</li>
+            <li>Odsiew zgłoszeń „na wszelki wypadek"</li>
+            <li>Gotowe do kontaktu, nie do gonienia</li>
+          </ul>
+        </div>
+        <div class="card-dark pillar">
+          <svg class="p-tri" viewBox="0 0 100 100" aria-hidden="true"><polygon points="8,90 92,90 66,76 31,70" fill="#8A5A12"/><polygon points="92,90 50,6 58,41 66,76" fill="#F5A01B"/><polygon points="50,6 8,90 31,70 58,41" fill="#3a3630"/></svg>
+          <div class="p-num">Krok 03</div>
+          <h3>Automatyzujemy</h3>
+          <p>Edukacja o Twojej ofercie idzie automatycznie: wiadomości, przypomnienia i materiały. Zainteresowany „dojrzewa" do zapisu bez tego, żebyś musiał angażować w to swój zespół.</p>
+          <ul>
+            <li>Sekwencje wiadomości i przypomnień</li>
+            <li>Mniej pracy ręcznej po Twojej stronie</li>
+            <li>Stały kontakt aż do decyzji o zapisie</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="transparency reveal">
+        <div>
+          <h3 style="font-size:1.5rem;margin-bottom:14px;color:var(--dark-text)">Pełna przejrzystość — nic nie dzieje się „w czarnej skrzynce"</h3>
+          <p class="lead" style="margin-bottom:0">Dostajesz jasny obraz sytuacji: ile osób się zgłosiło, ile przeszło weryfikację, jaki jest koszt kontaktu i&nbsp;jak to przekłada się na prognozę zapisów. Rozmawiamy liczbami, nie obietnicami.</p>
+        </div>
+        <div class="panel">
+          <div class="panel-top">
+            <span class="t">Widok raportu</span>
+            <span class="panel-tag">Przykład</span>
+          </div>
+          <div class="metrics">
+            <div class="metric"><div class="mn">100</div><div class="ml">zweryfikowanych / mc</div></div>
+            <div class="metric"><div class="mn">~15%</div><div class="ml">prognoza zapisów</div></div>
+            <div class="metric"><div class="mn">15</div><div class="ml">zapisów w miesiącu</div></div>
+            <div class="metric"><div class="mn">1 region</div><div class="ml">na wyłączność</div></div>
+          </div>
+          <div class="bars" aria-hidden="true">
+            <span class="bar" style="height:38%"></span>
+            <span class="bar" style="height:52%"></span>
+            <span class="bar" style="height:47%"></span>
+            <span class="bar" style="height:66%"></span>
+            <span class="bar" style="height:71%"></span>
+            <span class="bar" style="height:85%"></span>
+            <span class="bar" style="height:100%"></span>
+          </div>
+          <div class="bars-cap">Zweryfikowani zainteresowani — kolejne miesiące współpracy</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RESULTS / CASES ================= -->
+  <section class="sec" id="efekty">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">Efekty współpracy</span>
+        <h2 class="h2">Konkret zamiast obietnic</h2>
+        <p class="lead">Kilka przykładów z naszej dotychczasowej pracy. To realne efekty projektów — pełne case studies i&nbsp;liczby dla Twojej branży pokażemy na spotkaniu.</p>
+      </div>
+
+      <div class="cases reveal">
+        <div class="card case">
+          <span class="case-tag">Marketing + szkolenie sprzedaży</span>
+          <div class="case-big">Z <em>~50 tys.</em> do ponad <em>200 tys. zł</em> miesięcznie</div>
+          <p>Zaczynaliśmy współpracę na poziomie ~50 tys. zł/mc. Doszliśmy do ponad 200 tys. zł/mc — przy czym na końcu przychód rósł bez naszego udziału w samej sprzedaży.</p>
+          <div class="case-name"><span class="k">Segment:</span> szkolenia / high performance</div>
+        </div>
+        <div class="card case">
+          <span class="case-tag">Sprzedaż z kalendarza</span>
+          <div class="case-big">Rozmowy sprzedażowe <em>prosto do kalendarza</em></div>
+          <p>W trakcie współpracy dostarczaliśmy gotowe rozmowy sprzedażowe bezpośrednio do kalendarza — zespół zamiast szukać kontaktów, po prostu rozmawiał i sprzedawał.</p>
+          <div class="case-name"><span class="k">Segment:</span> szkolenia ze sprzedaży</div>
+        </div>
+        <div class="card case">
+          <span class="case-tag">Pozyskiwanie leadów + skalowanie</span>
+          <div class="case-big"><em>Właściciele</em> wyjęci ze sprzedaży</div>
+          <p>Pozyskiwanie leadów, wdrożenie sprzedawców i wyjęcie właścicieli z bieżącej sprzedaży — tak, żeby biznes mógł się skalować, a nie stać jednym człowiekiem.</p>
+          <div class="case-name"><span class="k">Klient:</span> <span style="font-weight:700">Biznes Architekta</span></div>
+        </div>
+        <div class="card case">
+          <span class="case-tag">Zapytania + struktura sprzedaży</span>
+          <div class="case-big">Powtarzalny <em>dopływ zapytań</em></div>
+          <p>Wyjęcie właścicieli ze sprzedaży, wdrożenie sprzedawcy i uruchomienie stałego generowania zapytań — sprzedaż przestała zależeć od pojedynczej osoby.</p>
+          <div class="case-name"><span class="k">Klient:</span> <span style="font-weight:700">TrychoBiznes</span></div>
+        </div>
+      </div>
+
+      <p class="disclaimer reveal">Powyższe efekty pochodzą z realnych projektów Agencji LL i&nbsp;dotyczą różnych branż. Wyniki zależą od rynku, oferty i&nbsp;regionu — nie są obietnicą identycznego rezultatu w&nbsp;każdym przypadku.</p>
+
+      <div class="shots reveal" aria-label="Miejsce na zrzuty realnych wyników kampanii">
+        <div class="shot">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 4v16"/></svg>
+          <span class="st">Miejsce na zrzut kampanii</span>
+          <span class="sd">Zrzut z panelu reklamowego — koszt / kontakt, liczba zgłoszeń</span>
+        </div>
+        <div class="shot">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+          <span class="st">Miejsce na zrzut wyników</span>
+          <span class="sd">Realny screen wyników z Twojego regionu — do podmiany</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIALS ================= -->
+  <section class="sec sec--soft" id="rekomendacje">
+    <div class="wrap">
+      <div class="sec-head center reveal">
+        <span class="eyebrow" style="justify-content:center">Rekomendacje</span>
+        <h2 class="h2">Co mówią ludzie, z którymi pracowaliśmy</h2>
+        <p class="lead">Zbieramy właśnie rekomendacje w&nbsp;formie, na którą się zgodzili — z&nbsp;imieniem i&nbsp;kontekstem współpracy. Poniżej miejsca, które wypełnimy zatwierdzonymi cytatami.</p>
+      </div>
+      <div class="quotes reveal">
+        <div class="card quote">
+          <span class="mark" aria-hidden="true">&ldquo;</span>
+          <p class="qt ph">Rekomendacja w przygotowaniu — cytat pojawi się po zatwierdzeniu przez klienta.</p>
+          <div class="who"><span class="avatar">TP</span><div><div class="nm">Tomek Piwnicki</div><div class="rl">High Performance · szkolenia</div></div></div>
+        </div>
+        <div class="card quote">
+          <span class="mark" aria-hidden="true">&ldquo;</span>
+          <p class="qt ph">Rekomendacja w przygotowaniu — cytat pojawi się po zatwierdzeniu przez klienta.</p>
+          <div class="who"><span class="avatar">BG</span><div><div class="nm">Bartek Golisz</div><div class="rl">Szkolenia ze sprzedaży</div></div></div>
+        </div>
+        <div class="card quote">
+          <span class="mark" aria-hidden="true">&ldquo;</span>
+          <p class="qt ph">Rekomendacja w przygotowaniu — cytat pojawi się po zatwierdzeniu przez klienta.</p>
+          <div class="who"><span class="avatar">EM</span><div><div class="nm">Ewelina Miszczuk</div><div class="rl">Szkolenia ze sprzedaży</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXCLUSIVITY + GUARANTEE ================= -->
+  <section class="sec sec--dark excl" id="gwarancja">
+    <div class="wrap excl-grid">
+      <div class="reveal">
+        <span class="eyebrow">Wyłączność i gwarancja</span>
+        <h2 class="h2">Jeden region. Jeden ośrodek.<br><span class="amber">Twój.</span></h2>
+        <p class="lead">W danym regionie pracujemy tylko z&nbsp;jednym ośrodkiem. Nie budujemy Twojej konkurencji obok Ciebie — kampanie, kontakty i&nbsp;przewaga zostają po Twojej stronie.</p>
+        <ul class="excl-list">
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span><b style="font-family:var(--display)">Ekskluzywność terytorialna</b> — zanim ruszymy, sprawdzamy, czy Twój region jest jeszcze wolny.</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span><b style="font-family:var(--display)">Gwarancja 100 zweryfikowanych / mc</b> — jeśli w danym miesiącu nie dowieziemy, uzupełniamy różnicę na nasz koszt.</span></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span><b style="font-family:var(--display)">Rozmawiamy liczbami</b> — koszt kontaktu, konwersja i prognoza przychodu są jawne od początku.</span></li>
+        </ul>
+      </div>
+      <div class="reveal" style="justify-self:center">
+        <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="Gwarancja: 100 zweryfikowanych zainteresowanych miesięcznie">
+          <defs><path id="sealArc" d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0" fill="none"/></defs>
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#F5A01B" stroke-width="2.5"/>
+          <circle cx="100" cy="100" r="66" fill="none" stroke="#8A5A12" stroke-width="2" stroke-dasharray="3 6"/>
+          <circle cx="100" cy="100" r="52" fill="#F5A01B"/>
+          <text font-family="Manrope,sans-serif" font-weight="700" font-size="11.5" letter-spacing="3" fill="#F0DBA6">
+            <textPath href="#sealArc" startOffset="0">· GWARANCJA JAKOŚCI · TRIFECTA AGENCY · GWARANCJA JAKOŚCI ·</textPath>
+          </text>
+          <text class="sctr" x="100" y="96" text-anchor="middle" font-size="42" letter-spacing="-2">100</text>
+          <text x="100" y="118" text-anchor="middle" font-family="Manrope,sans-serif" font-weight="700" font-size="9.5" letter-spacing="1.5" fill="#161513">ZWERYFIKOWANYCH / MC</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section class="sec" id="o-nas">
+    <div class="wrap about-grid">
+      <div class="about-card reveal">
+        <div class="about-av" aria-hidden="true">MH</div>
+        <div class="nm">Marcin Horowski</div>
+        <div class="rl">Założyciel · Trifecta Agency</div>
+        <div class="about-legal">
+          <b>Agencja LL – Marcin Horowski</b><br>
+          NIP 734-35-73-325<br>
+          ul. Szujskiego 13/13<br>
+          33-300 Nowy Sącz<br>
+          <a href="mailto:marcin@trifectaos.pl">marcin@trifectaos.pl</a><br>
+          <a href="https://trifecta-agency.pl">trifecta-agency.pl</a>
+        </div>
+      </div>
+      <div class="about-body reveal">
+        <span class="eyebrow">Kto za tym stoi</span>
+        <h2 class="h2">Prawdziwa firma, prawdziwe wyniki</h2>
+        <p class="lead">Trifecta Agency to nie kolejna „agencja od reklam bez twarzy". Za marką stoi Marcin Horowski i&nbsp;doświadczenie zebrane przy 25+&nbsp;firmach.</p>
+        <p>Przez lata pracowaliśmy przy marketingu, pozyskiwaniu klientów i&nbsp;szkoleniach sprzedaży — w&nbsp;usługach, handlu i&nbsp;branży szkoleniowej. Wiemy, jak wygląda pełny obraz: nie tylko „dowieźć kontakty", ale doprowadzić do sytuacji, w&nbsp;której sprzedaż i&nbsp;zapisy działają powtarzalnie, bez ciągłego gaszenia pożarów przez właściciela.</p>
+        <p>To doświadczenie zamknęliśmy w&nbsp;jednym, konkretnym produkcie dla ośrodków szkolenia zawodowego: <b>pełne grupy kursowe, co miesiąc, z&nbsp;gwarancją i&nbsp;na wyłączność w&nbsp;Twoim regionie.</b></p>
+        <div class="hero-actions">
+          <a class="btn btn--primary" href="mailto:marcin@trifectaos.pl?subject=Um%C3%B3w%20spotkanie%20%E2%80%94%20Trifecta%20Agency">Umów spotkanie</a>
+          <a class="btn btn--ghost" href="#efekty">Zobacz efekty</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="sec sec--soft">
+    <div class="wrap">
+      <div class="sec-head center reveal">
+        <span class="eyebrow" style="justify-content:center">Najczęstsze pytania</span>
+        <h2 class="h2">Zanim zadzwonimy — sprawdź to</h2>
+      </div>
+      <div class="faq reveal">
+        <details>
+          <summary>Czym dokładnie zajmuje się Trifecta Agency?<span class="pm" aria-hidden="true"></span></summary>
+          <div class="ans">Zapełniamy grupy kursowe ośrodkom szkolenia zawodowego (UDT, maszyny budowlane, spawanie, wózki, pierwsza pomoc). Pozyskujemy osoby zainteresowane szkoleniem, weryfikujemy ich zgłoszenia i&nbsp;automatyzujemy edukację o&nbsp;Twojej ofercie — tak, żeby grupy startowały w&nbsp;terminie.</div>
+        </details>
+        <details>
+          <summary>Skąd biorą się zainteresowani i co znaczy „zweryfikowani"?<span class="pm" aria-hidden="true"></span></summary>
+          <div class="ans">Zainteresowani zgłaszają się sami — przez kampanie, które prowadzimy w&nbsp;Twoim regionie. „Zweryfikowany" oznacza, że przeszedł kontrolę intencji, terminu i&nbsp;budżetu. Do Ciebie nie trafiają przypadkowe kliknięcia, tylko kontakty realnie rozważające zapis.</div>
+        </details>
+        <details>
+          <summary>Dlaczego tylko jeden ośrodek na region?<span class="pm" aria-hidden="true"></span></summary>
+          <div class="ans">Bo nie chcemy budować Twojej konkurencji tuż obok Ciebie. Ekskluzywność terytorialna oznacza, że kampanie i&nbsp;kontakty z&nbsp;danego regionu pracują wyłącznie na Ciebie. Dlatego zanim ruszymy, sprawdzamy, czy Twój region jest jeszcze wolny.</div>
+        </details>
+        <details>
+          <summary>Co obejmuje gwarancja 100 zainteresowanych miesięcznie?<span class="pm" aria-hidden="true"></span></summary>
+          <div class="ans">Gwarantujemy dostarczenie 100 zweryfikowanych zainteresowanych w&nbsp;miesiącu. Jeśli w&nbsp;danym miesiącu tej liczby nie dowieziemy, uzupełniamy różnicę na nasz koszt. Szczegółowe warunki omawiamy na spotkaniu, zależnie od regionu i&nbsp;zakresu kursów.</div>
+        </details>
+        <details>
+          <summary>Czy pracowaliście już w mojej branży?<span class="pm" aria-hidden="true"></span></summary>
+          <div class="ans">Mamy za sobą ponad 25 firm z&nbsp;różnych branż — w&nbsp;tym projekty w&nbsp;obszarze szkoleń (m.in. TachoTime, ProfilSzkolenia) oraz sprzedaży i&nbsp;pozyskiwania klientów. Mechanika „pozyskaj → zweryfikuj → dogrzej" działa niezależnie od branży; różnią się szczegóły kampanii i&nbsp;komunikacji.</div>
+        </details>
+        <details>
+          <summary>Ile to kosztuje i jak się rozliczamy?<span class="pm" aria-hidden="true"></span></summary>
+          <div class="ans">Model rozliczenia dopasowujemy do regionu i&nbsp;skali współpracy — dlatego kwoty omawiamy na 20-minutowym spotkaniu, po sprawdzeniu, czy Twój region jest wolny. Bez zobowiązań: rozmowa służy temu, żebyśmy oboje wiedzieli, czy to ma sens.</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="sec sec--dark final" id="kontakt">
+    <div class="wrap in reveal">
+      <span class="eyebrow" style="justify-content:center">Umów spotkanie</span>
+      <h2 class="h2">Sprawdźmy, czy Twój region jest&nbsp;jeszcze&nbsp;wolny</h2>
+      <p class="lead">20 minut rozmowy. Pokażemy, jak działa system, jakie efekty realnie osiągamy i&nbsp;czy możemy pracować akurat w&nbsp;Twoim regionie. Bez zobowiązań.</p>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="mailto:marcin@trifectaos.pl?subject=Um%C3%B3w%20spotkanie%20%E2%80%94%20Trifecta%20Agency">Umów spotkanie</a>
+        <a class="btn btn--ghost" href="mailto:marcin@trifectaos.pl">marcin@trifectaos.pl</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand">
+          <svg class="tri" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="width:30px;height:30px">
+            <polygon points="8,90 92,90 66,76 31,70" fill="#3a3630"/>
+            <polygon points="92,90 50,6 58,41 66,76" fill="#8A5A12"/>
+            <polygon points="50,6 8,90 31,70 58,41" fill="#F5A01B"/>
+          </svg>
+          <span class="word">Trifecta <b class="amber">Agency</b></span>
+        </div>
+        <p class="foot-desc">Zapełniamy grupy kursowe ośrodkom szkolenia zawodowego. Pozyskujemy, weryfikujemy i&nbsp;automatyzujemy — na wyłączność w&nbsp;Twoim regionie.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Na stronie</h4>
+        <ul>
+          <li><a href="#wspolpraca">Zaufali nam</a></li>
+          <li><a href="#system">Jak działamy</a></li>
+          <li><a href="#efekty">Efekty</a></li>
+          <li><a href="#gwarancja">Gwarancja</a></li>
+          <li><a href="#o-nas">O nas</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Kontakt</h4>
+        <p class="foot-legal">
+          <b>Agencja LL – Marcin Horowski</b><br>
+          NIP 734-35-73-325<br>
+          ul. Szujskiego 13/13, 33-300 Nowy Sącz<br>
+          <a href="mailto:marcin@trifectaos.pl">marcin@trifectaos.pl</a><br>
+          <a href="https://trifecta-agency.pl">trifecta-agency.pl</a>
+        </p>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span id="yr">2026</span> Trifecta Agency · Agencja LL – Marcin Horowski</span>
+      <span>Grupy kursowe pełne. Co miesiąc.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    // year
+    var yr=document.getElementById('yr'); if(yr) yr.textContent=new Date().getFullYear();
+
+    // mobile menu
+    var btn=document.getElementById('menuBtn'), links=document.getElementById('navlinks');
+    if(btn&&links){
+      btn.addEventListener('click',function(){
+        var open=links.classList.toggle('open');
+        btn.setAttribute('aria-expanded',open?'true':'false');
+      });
+      links.addEventListener('click',function(e){
+        if(e.target.tagName==='A'){links.classList.remove('open');btn.setAttribute('aria-expanded','false');}
+      });
+    }
+
+    // reveal on scroll
+    var els=[].slice.call(document.querySelectorAll('.reveal'));
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    if(reduce||!('IntersectionObserver'in window)){els.forEach(function(el){el.classList.add('in');});return;}
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(el){io.observe(el);});
+  })();
+</script>
+</body>
+</html>
