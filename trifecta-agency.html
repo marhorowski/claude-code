@@ -38,6 +38,7 @@
   .wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:24px}
   .sec{padding:clamp(64px,9vw,120px) 0;position:relative}
   .sec--soft{background:var(--bg-soft)}
+  .sec--white{background:var(--white)}
   .sec--dark{background:var(--dark);color:var(--dark-text)}
   .sec--darkwarm{background:var(--dark-warm);color:var(--dark-text)}
   .sec--dark h1,.sec--dark h2,.sec--dark h3,.sec--darkwarm h2,.sec--darkwarm h3{color:var(--dark-text)}
@@ -87,7 +88,7 @@
   .marquee-band{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:34px 0}
   .marquee-label{text-align:center;font-family:var(--display);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.2em;color:var(--brown);margin-bottom:24px}
   .marquee{position:relative;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-  .marquee-track{display:flex;align-items:center;gap:52px;width:max-content;animation:scrollx 120s linear infinite}
+  .marquee-track{display:flex;align-items:center;gap:52px;width:max-content;animation:scrollx 90s linear infinite}
   .marquee:hover .marquee-track{animation-play-state:paused}
   @keyframes scrollx{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   .marquee .logo{flex:none;display:flex;align-items:center;justify-content:center;height:64px}
@@ -100,7 +101,8 @@
   .letter p{font-size:clamp(1.05rem,1.4vw,1.18rem);line-height:1.78;color:var(--graphite);margin:0}
   .letter p + p{margin-top:20px}
   .letter b{font-weight:700}
-  .letter .rf{font-weight:800;color:var(--brown)}
+  .rf{font-weight:800;color:var(--amber);white-space:nowrap}
+  .rf::after{content:"™";font-size:.52em;font-weight:700;vertical-align:super;margin-left:1px}
   .letter .sign{margin-top:30px;font-family:var(--display);font-weight:700;color:var(--brown);font-size:1rem}
 
   /* ============ STATS ============ */
@@ -114,7 +116,7 @@
   .schema{max-width:960px;margin-inline:auto;display:flex;flex-direction:column;align-items:center}
   .conn{width:2px;background:linear-gradient(180deg,var(--amber),rgba(245,160,27,.2))}
   .conn.short{height:20px}.conn.mid{height:26px}.conn.long{height:40px}
-  .snode{border-radius:14px;text-align:center;box-shadow:var(--shadow-card)}
+  .snode{border-radius:14px;text-align:center;box-shadow:var(--shadow-card);max-width:100%}
   .snode.top{background:var(--graphite);color:var(--bg);padding:18px 40px}
   .snode.top .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:var(--amber);font-family:var(--display);font-weight:700}
   .snode.top .v{font-family:var(--display);font-weight:800;font-size:1.55rem;margin-top:4px;letter-spacing:-.02em}
@@ -133,7 +135,7 @@
   .col li::before{content:"";position:absolute;left:0;top:9px;width:0;height:0;border-left:6px solid var(--amber);border-top:4px solid transparent;border-bottom:4px solid transparent}
   .col--long li::before{border-left-color:var(--brown)}
   .fork .stem{width:2px;height:30px;background:linear-gradient(180deg,var(--amber),rgba(245,160,27,.4))}
-  @media (max-width:720px){.schema-cols{grid-template-columns:1fr}.fork{display:none}.snode.found{min-width:0;width:100%}}
+  @media (max-width:720px){.schema-cols{grid-template-columns:1fr}.fork{display:none}.snode.found{min-width:0;width:100%}.snode.top{padding:16px 22px}.snode.top .v{font-size:1.2rem}}
 
   /* ============ FILARY (icons) ============ */
   .filary{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
@@ -242,7 +244,7 @@
       </div>
       <div class="hero-in reveal">
         <h1 class="h1">Projektujemy i&nbsp;wdrażamy <span class="amber">strategie wzrostu</span>, które mają jeden cel: generować wzrost i&nbsp;zwiększać przychody.</h1>
-        <p class="hero-sub">Realizujemy strategie wzrostu według filozofii Revenue First. Każde działanie, które projektujemy i&nbsp;wdrażamy, ma określony cel: przychód i&nbsp;optymalizację lejka marketingu i&nbsp;sprzedaży. Przyświeca nam jedno — rosnąć.</p>
+        <p class="hero-sub">Realizujemy strategie wzrostu według filozofii <span class="rf">Revenue First</span>. Każde działanie, które projektujemy i&nbsp;wdrażamy, ma określony cel: przychód i&nbsp;optymalizację lejka marketingu i&nbsp;sprzedaży. Przyświeca nam jedno — rosnąć.</p>
         <div class="actions">
           <a class="btn btn--primary" href="mailto:marcin@trifectaos.pl?subject=Um%C3%B3w%20spotkanie%20%E2%80%94%20Trifecta%20Agency">Umów spotkanie</a>
         </div>
@@ -259,7 +261,7 @@
   </section>
 
   <!-- ================= LETTER ================= -->
-  <section class="sec">
+  <section class="sec sec--white">
     <div class="wrap letter reveal">
       <p>Dojrzałe firmy nie kupują już marketingu dla samego faktu, że&nbsp;„mają marketing".</p>
       <p>Nie interesują ich zasięgi ani budowanie świadomości bez pokrycia w&nbsp;realnych przychodach. Liczy się co innego: ile przyszło nowych zapytań, ilu z&nbsp;nich zamieniło się w&nbsp;klientów, ile to wygenerowało przychodu — i&nbsp;jaki potencjał wzrostu mają kanały, przez które tych klientów pozyskujemy.</p>
@@ -288,11 +290,11 @@
     <div class="wrap">
       <div class="sec-head center reveal">
         <span class="eyebrow" style="justify-content:center">Nasz system</span>
-        <h2 class="h2">Revenue First Strategy</h2>
+        <h2 class="h2"><span class="rf">Revenue First</span> Strategy</h2>
         <p class="lead">Jeden spójny system zamiast przypadkowych działań. Zaczyna się od strategii, a&nbsp;potem rozchodzi na to, co zarabia od zaraz, i&nbsp;to, co buduje wzrost w&nbsp;czasie.</p>
       </div>
       <div class="schema reveal">
-        <div class="snode top"><div class="k">Fundament systemu</div><div class="v">Revenue First Strategy</div></div>
+        <div class="snode top"><div class="k">Fundament systemu</div><div class="v"><span class="rf">Revenue First</span> Strategy</div></div>
         <span class="conn mid" aria-hidden="true"></span>
         <div class="snode found"><span class="kk">Krok 1</span>Strategia komunikacji</div>
         <span class="conn short" aria-hidden="true"></span>
@@ -332,7 +334,7 @@
   <section class="sec">
     <div class="wrap">
       <div class="sec-head reveal">
-        <span class="eyebrow">Filozofia · Revenue First</span>
+        <span class="eyebrow">Filozofia · <span class="rf">Revenue First</span></span>
         <h2 class="h2">Zasady, na których wszystko stoi</h2>
       </div>
       <div class="filary reveal">
@@ -347,14 +349,14 @@
           <span class="fi-badge">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13l1-8z"/></svg>
           </span>
-          <h3>Generowanie nowych przychodów</h3>
+          <h3>Generuj nowe przychody</h3>
           <p>Uruchamiamy działania, które sprowadzają nowe zapytania i&nbsp;klientów — i&nbsp;robią to możliwie najszybciej. Marketing ma zacząć zwracać się od pierwszych tygodni, a&nbsp;nie po roku.</p>
         </div>
         <div class="card filar">
           <span class="fi-badge">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4"/><path d="M4 21h17"/><rect x="7" y="13" width="3.4" height="5"/><rect x="12.3" y="9" width="3.4" height="9"/><rect x="17.6" y="5" width="3.4" height="13"/><path d="M6.5 9.5 11 6l3 2.4 5-4.4"/></svg>
           </span>
-          <h3>Budowa systemu wzrostu</h3>
+          <h3>Buduj system wzrostu</h3>
           <p>Na tym budujemy systemy: lejki, automatyzacje i&nbsp;content, które pracują na wzrost długoterminowo — bez ciągłego gaszenia pożarów i&nbsp;zaczynania wszystkiego od nowa.</p>
         </div>
       </div>
@@ -367,7 +369,7 @@
       <div class="sec-head reveal">
         <span class="eyebrow">Sprzedaż, nie marketing próżności</span>
         <h2 class="h2">Co dla nas znaczy „wynik"</h2>
-        <p class="lead">Jesteśmy agencją nastawioną na sprzedaż. Optymalizujemy pod działania sprzedażowe, nie pod marketingowe — i&nbsp;patrzymy na liczby, które realnie budują biznes.</p>
+        <p class="lead">Jesteśmy agencją marketingową, która nastawia się na sprzedaż. Optymalizujemy pod wyniki sprzedażowe, nie pod marketingowe. Patrzymy na liczby, które realnie budują biznes.</p>
       </div>
       <div class="metgrid reveal">
         <div class="metcol result">
@@ -400,7 +402,7 @@
   </section>
 
   <!-- ================= CASE STUDIES ================= -->
-  <section class="sec sec--soft" id="case-studies">
+  <section class="sec sec--soft" id="case-studies" hidden>
     <div class="wrap">
       <div class="sec-head center reveal">
         <span class="eyebrow" style="justify-content:center">Case studies</span>
@@ -450,11 +452,11 @@
         <p>Od 8&nbsp;lat projektuję i&nbsp;wdrażam strategie wzrostu dla firm z&nbsp;sektora MŚP w&nbsp;Polsce — do dziś <span class="kicker">ponad 60 pełnych strategii dla ponad 40&nbsp;firm</span>. Buduję kompletne systemy wzrostu: od strategii komunikacji i&nbsp;oferty, przez reklamy i&nbsp;landing page'e, po automatyzacje i&nbsp;content — wszystko po to, żeby zamienić ruch w&nbsp;realny przychód.</p>
         <p>Widziałem dziesiątki właścicieli, którzy wydali tysiące złotych na agencje robiące „kampanie" — z&nbsp;których były leady, ale zero klientów.</p>
         <p>Widziałem też firmy, które dzięki dobrze zbudowanemu systemowi zyskały stały, przewidywalny wzrost przychodów miesiąc po miesiącu.</p>
-        <p>Różnica nigdy nie leżała w&nbsp;samym budżecie. Leżała w&nbsp;tym, czy marketing był projektowany pod przychód — czy pod ładne wykresy. Dlatego całą naszą pracę opieramy o&nbsp;jedną zasadę: <span class="kicker">Revenue First</span>.</p>
+        <p>Różnica nigdy nie leżała w&nbsp;samym budżecie. Leżała w&nbsp;tym, czy marketing był projektowany pod przychód — czy pod ładne wykresy. Dlatego całą naszą pracę opieramy o&nbsp;jedną zasadę: <span class="rf">Revenue First</span>.</p>
         <div class="founder-sign">
           <div>
             <div class="nm">Marcin Horowski</div>
-            <div class="rl">Założyciel · Trifecta Agency (Agencja LL)</div>
+            <div class="rl">Założyciel · Trifecta Agency</div>
           </div>
         </div>
         <div class="actions">
@@ -499,7 +501,7 @@
           </svg>
           <span>Trifecta <span class="amber">Agency</span></span>
         </div>
-        <p class="foot-desc">Projektujemy i&nbsp;wdrażamy strategie wzrostu według filozofii Revenue First — najpierw przychód.</p>
+        <p class="foot-desc">Projektujemy i&nbsp;wdrażamy strategie wzrostu według filozofii <span class="rf">Revenue First</span>.</p>
       </div>
       <div class="foot-col">
         <h4>Kontakt</h4>
@@ -514,7 +516,6 @@
     </div>
     <div class="foot-bottom">
       <span>© <span id="yr">2026</span> Trifecta Agency · Agencja LL – Marcin Horowski</span>
-      <span>Revenue First — najpierw przychód.</span>
     </div>
   </div>
 </footer>
