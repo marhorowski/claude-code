@@ -1,5 +1,4 @@
-<!-- Trifecta Agency — wklej CAŁOŚĆ do jednego elementu Custom Code / HTML w GHL.
-     Umieść w sekcji/wierszu na pełną szerokość (padding 0). Klasy w namespace tf-, wszystko pod #tfa. -->
+<!-- Trifecta Agency — wklej CAŁOŚĆ do jednego elementu Custom Code / HTML w GHL. Full-bleed + izolacja w środku. -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
 #tfa{margin:0}
@@ -197,7 +196,8 @@
 #tfa .tf-reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
 #tfa .tf-reveal.tf-in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){#tfa .tf-reveal{opacity:1;transform:none;transition:none}}
-/* GHL hardening — chroni krytyczne elementy nawet przy agresywnym CSS motywu */
+/* GHL hardening + full-bleed */
+#tfa{margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important;width:auto!important;max-width:none!important;overflow-x:hidden}
 #tfa .tf-btn--primary{background:var(--amber)!important;color:var(--graphite)!important}
 #tfa .tf-btn--primary:hover{background:var(--amber-dark)!important}
 #tfa .tf-btn--ghost{background:transparent!important}
@@ -263,8 +263,8 @@
     <div class="tf-wrap">
       <div class="tf-stats tf-reveal">
         <div class="tf-stat"><div class="tf-n">8 lat</div><div class="tf-l">w budowaniu strategii sprzedaży i&nbsp;marketingu</div></div>
-        <div class="tf-stat"><div class="tf-n">60+</div><div class="tf-l">zrealizowanych strategii marketingowych dla firm w&nbsp;Polsce</div></div>
-        <div class="tf-stat"><div class="tf-n">40+</div><div class="tf-l">firm sektora MŚP, z&nbsp;którymi współpracowaliśmy</div></div>
+        <div class="tf-stat"><div class="tf-n">40+</div><div class="tf-l">wdrożonych strategii marketingowych dla firm w&nbsp;Polsce</div></div>
+        <div class="tf-stat"><div class="tf-n">70+</div><div class="tf-l">obsłużonych firm z&nbsp;sektora MŚP</div></div>
       </div>
     </div>
   </section>
@@ -432,7 +432,7 @@
       <div class="tf-founder-text tf-reveal">
         <span class="tf-eyebrow">Kto za tym stoi</span>
         <p class="tf-hi">Cześć, nazywam się Marcin&nbsp;Horowski.</p>
-        <p>Od 8&nbsp;lat projektuję i&nbsp;wdrażam strategie wzrostu dla firm z&nbsp;sektora MŚP w&nbsp;Polsce — do dziś <span class="tf-kicker">ponad 60 pełnych strategii dla ponad 40&nbsp;firm</span>. Buduję kompletne systemy wzrostu: od strategii komunikacji i&nbsp;oferty, przez reklamy i&nbsp;landing page'e, po automatyzacje i&nbsp;content — wszystko po to, żeby zamienić ruch w&nbsp;realny przychód.</p>
+        <p>Od 8&nbsp;lat projektuję i&nbsp;wdrażam strategie wzrostu dla firm z&nbsp;sektora MŚP w&nbsp;Polsce — do dziś <span class="tf-kicker">ponad 40 wdrożonych strategii dla ponad 70&nbsp;firm</span>. Buduję kompletne systemy wzrostu: od strategii komunikacji i&nbsp;oferty, przez reklamy i&nbsp;landing page'e, po automatyzacje i&nbsp;content — wszystko po to, żeby zamienić ruch w&nbsp;realny przychód.</p>
         <p>Widziałem dziesiątki właścicieli, którzy wydali tysiące złotych na agencje robiące „kampanie" — z&nbsp;których były leady, ale zero klientów.</p>
         <p>Widziałem też firmy, które dzięki dobrze zbudowanemu systemowi zyskały stały, przewidywalny wzrost przychodów miesiąc po miesiącu.</p>
         <p>Różnica nigdy nie leżała w&nbsp;samym budżecie. Leżała w&nbsp;tym, czy marketing był projektowany pod przychód — czy pod ładne wykresy. Dlatego całą naszą pracę opieramy o&nbsp;jedną zasadę: <span class="tf-rf">Revenue First</span>.</p>
@@ -517,4 +517,5 @@
     els.forEach(function(el){io.observe(el);});
   })();
 
+(function(){function fit(){var el=document.getElementById('tfa');if(!el)return;el.style.marginLeft='0px';el.style.marginRight='0px';el.style.width='auto';var left=el.getBoundingClientRect().left;el.style.marginLeft=(-left)+'px';el.style.width=document.documentElement.clientWidth+'px';}fit();window.addEventListener('resize',fit);window.addEventListener('load',fit);setTimeout(fit,300);setTimeout(fit,1200);})();
 </script>
