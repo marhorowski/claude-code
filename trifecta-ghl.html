@@ -1,4 +1,4 @@
-<!-- Trifecta Agency — wklej CAŁOŚĆ do jednego elementu Custom Code / HTML w GHL. Full-bleed + izolacja w środku. -->
+<!-- Trifecta Agency — wklej CAŁOŚĆ do jednego elementu Custom Code / HTML w GHL. Full-bleed + izolacja + kalendarz w środku. -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
 #tfa{margin:0}
@@ -196,8 +196,20 @@
 #tfa .tf-reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
 #tfa .tf-reveal.tf-in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){#tfa .tf-reveal{opacity:1;transform:none;transition:none}}
+#tfa .tf-hero{background:var(--dark);color:var(--dark-text)}
+#tfa .tf-hero::before{background:radial-gradient(circle at center,rgba(245,160,27,.30),transparent 62%)}
+#tfa .tf-hero::after{background:radial-gradient(circle at center,rgba(217,134,10,.20),transparent 64%)}
+#tfa .tf-hero .tf-hero-sub{color:var(--dark-muted)}
+#tfa .tf-hero .tf-btn--ghost{color:var(--dark-text);border-color:rgba(237,233,225,.28)}
+#tfa .tf-hero .tf-btn--ghost:hover{border-color:var(--amber)}
+#tfa .tf-cal-wrap{position:relative;z-index:1;margin-top:46px}
+#tfa .tf-cal-label{text-align:center;color:var(--dark-muted);font-family:var(--display);font-weight:700;font-size:1rem;margin-bottom:16px}
+#tfa .tf-cal-box{position:relative;background:var(--white);border-radius:18px;box-shadow:var(--shadow-card-lg);padding:8px;min-height:720px;overflow:hidden}
+#tfa .tf-cal-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;color:var(--muted);font-size:.95rem;line-height:1.6}
+#tfa .tf-cal-frame{position:relative;display:block;width:100%;border:0;min-height:720px;background:transparent}
 /* GHL hardening + full-bleed */
 #tfa{margin-left:calc(50% - 50vw)!important;margin-right:calc(50% - 50vw)!important;width:auto!important;max-width:none!important;overflow-x:hidden}
+#tfa .tf-hero{background:var(--dark)!important;color:var(--dark-text)!important}
 #tfa .tf-btn--primary{background:var(--amber)!important;color:var(--graphite)!important}
 #tfa .tf-btn--primary:hover{background:var(--amber-dark)!important}
 #tfa .tf-btn--ghost{background:transparent!important}
@@ -205,7 +217,7 @@
 #tfa .tf-sec--darkwarm{background:var(--dark-warm)!important}
 #tfa .tf-sec--soft{background:var(--bg-soft)!important}
 #tfa .tf-sec--white,#tfa .tf-marquee-band{background:var(--white)!important}
-#tfa .tf-card{background:var(--white)!important}
+#tfa .tf-card,#tfa .tf-cal-box{background:var(--white)!important}
 #tfa .tf-metcol{background:var(--dark-card)!important}
 #tfa .tf-footer{background:var(--footer)!important}
 #tfa img{border:0!important}
@@ -220,7 +232,7 @@
     <div class="tf-wrap">
       <div class="tf-hero-logo">
         <svg class="tf-tri" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <polygon points="8,90 92,90 66,76 31,70" fill="#161513"/>
+          <polygon points="8,90 92,90 66,76 31,70" fill="#3a3630"/>
           <polygon points="92,90 50,6 58,41 66,76" fill="#8A5A12"/>
           <polygon points="50,6 8,90 31,70 58,41" fill="#F5A01B"/>
         </svg>
@@ -230,7 +242,8 @@
         <h1 class="tf-h1">Projektujemy i&nbsp;wdrażamy <span class="tf-amber">strategie wzrostu</span>, które mają jeden cel: generować wzrost i&nbsp;zwiększać przychody.</h1>
         <p class="tf-hero-sub">Realizujemy strategie wzrostu według filozofii <span class="tf-rf">Revenue First</span>. Każde działanie, które projektujemy i&nbsp;wdrażamy, ma określony cel: przychód i&nbsp;optymalizację lejka marketingu i&nbsp;sprzedaży. Przyświeca nam jedno — rosnąć.</p>
         <div class="tf-actions">
-          <a class="tf-btn tf-btn--primary" href="mailto:marcin@trifectaos.pl?subject=Um%C3%B3w%20spotkanie%20%E2%80%94%20Trifecta%20Agency">Umów spotkanie</a>
+          <a class="tf-btn tf-btn--primary" href="#kalendarz">Umów spotkanie</a>
+          <a class="tf-btn tf-btn--ghost" href="#system">Strategia Revenue First</a>
         </div>
       </div>
     </div>
@@ -443,7 +456,7 @@
           </div>
         </div>
         <div class="tf-actions">
-          <a class="tf-btn tf-btn--primary" href="mailto:marcin@trifectaos.pl?subject=Um%C3%B3w%20spotkanie%20%E2%80%94%20Trifecta%20Agency">Umów spotkanie</a>
+          <a class="tf-btn tf-btn--primary" href="#kalendarz">Umów spotkanie</a>
         </div>
       </div>
     </div>
@@ -463,10 +476,18 @@
         <li><span class="tf-ck"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Skaluj biznes bez chaosu i&nbsp;bez ryzyka.</li>
       </ul>
       <div class="tf-actions">
-        <a class="tf-btn tf-btn--primary" href="mailto:marcin@trifectaos.pl?subject=Um%C3%B3w%20spotkanie%20%E2%80%94%20Trifecta%20Agency">Umów spotkanie</a>
+        <a class="tf-btn tf-btn--primary" href="#kalendarz">Umów spotkanie</a>
         <a class="tf-btn tf-btn--ghost" href="mailto:marcin@trifectaos.pl">marcin@trifectaos.pl</a>
       </div>
     </div>
+    <div class="tf-wrap tf-cal-wrap" id="kalendarz">
+      <div class="tf-cal-label">Wybierz dogodny termin — rozmowa online.</div>
+      <div class="tf-cal-box">
+        <div class="tf-cal-fallback">Kalendarz rezerwacji Trifecta Agency ładuje się na opublikowanej stronie (w podglądzie sandboxa może być zablokowany).</div>
+        <iframe class="tf-cal-frame" src="https://api.leadconnectorhq.com/widget/booking/YNg4UiJ5s5ML44GFQsPe" allow="payment" scrolling="no" title="Umów spotkanie — Trifecta Agency" id="YNg4UiJ5s5ML44GFQsPe_1787738024709"></iframe>
+      </div>
+    </div>
+    <script src="https://link.msgsndr.com/js/form_embed.js" type="text/javascript"></script>
   </section>
 
 </main>
