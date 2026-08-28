@@ -6,13 +6,14 @@ export default function Footer() {
       <div className="wrap">
         <div className="foot-grid">
           <div>
-            <a className="brand" href="#top">
-              <span className="monogram" aria-hidden="true">
-                {site.monogram}
+            <a className="foot-brand" href="#top">
+              <span className="foot-badge">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/img/logo-mark.png" alt={`Logo ${site.brand}`} />
               </span>
               <span>
-                <b>{site.name}</b>
-                <small>{site.role}</small>
+                <b>{site.brand}</b>
+                <small>{site.city}</small>
               </span>
             </a>
             <p className="foot-about">
@@ -42,14 +43,14 @@ export default function Footer() {
             <a href={site.instagramUrl} target="_blank" rel="noopener">
               Instagram: {site.instagramHandle}
             </a>
-            <a href={site.mapsUrl} target="_blank" rel="noopener">
-              Wizytówka Google
+            <a href={site.googleUrl} target="_blank" rel="noopener">
+              Wizytówka i opinie Google
             </a>
           </div>
         </div>
         <div className="foot-bottom">
           <span>
-            © {new Date().getFullYear()} Gabinet trychologiczny {site.name}. Wszelkie
+            © {new Date().getFullYear()} Gabinet trychologiczny {site.person}. Wszelkie
             prawa zastrzeżone.
           </span>
           <span>

@@ -2,7 +2,6 @@ import { site } from "@/lib/site";
 import {
   Phone,
   Calendar,
-  CalendarDots,
   Check,
   XCircle,
   Info,
@@ -13,7 +12,7 @@ import {
   ClipboardCheck,
   FileText,
   Cap,
-  User,
+  GoogleG,
 } from "./icons";
 
 /* ---------------------------------------------------------------- HERO --- */
@@ -22,10 +21,10 @@ export function Hero() {
     <section className="hero">
       <div className="wrap hero-grid">
         <div>
-          <span className="eyebrow">Gabinet trychologiczny · Pruszcz Gdański</span>
+          <span className="eyebrow">Gabinet trychologiczny · {site.city}</span>
           <h1>
-            Zanim kupi Pani kolejny szampon —&nbsp;
-            <em>sprawdźmy, co naprawdę dzieje się na skórze&nbsp;głowy.</em>
+            Zanim kupisz kolejny szampon —&nbsp;
+            <em>sprawdźmy, co naprawdę dzieje się na Twojej skórze&nbsp;głowy.</em>
           </h1>
           <p className="lede">
             Diagnostyka włosów i skóry głowy oparta na dowodach, nie na obietnicach.
@@ -34,12 +33,27 @@ export function Hero() {
           </p>
           <div className="hero-cta">
             <a className="btn btn-primary" href="#rezerwacja">
-              <Calendar /> Umów konsultację online
+              <Calendar /> Umów konsultację
             </a>
             <a className="btn btn-ghost" href={site.phoneHref}>
               <Phone /> {site.phoneDisplay}
             </a>
           </div>
+          <a
+            className="gbadge"
+            href={site.googleUrl}
+            target="_blank"
+            rel="noopener"
+            aria-label="Zobacz opinie w Google"
+          >
+            <GoogleG width={20} height={20} />
+            <span className="stars" aria-hidden="true">
+              ★★★★★
+            </span>
+            <span className="txt">
+              Opinie w Google <span>· zobacz, co mówią podopieczni</span>
+            </span>
+          </a>
           <div className="chips">
             <span className="chip">
               <Check /> Gabinet przy aptece
@@ -54,15 +68,8 @@ export function Hero() {
         </div>
         <div>
           <div className="arch">
-            <div className="ph">
-              <User />
-              <b>{site.name}</b>
-              <small>
-                miejsce na Pani portret zawodowy
-                <br />
-                (placeholder — do podmiany na zdjęcie)
-              </small>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/img/zofia.jpg" alt={`${site.person} — ${site.role}`} />
             <div className="hero-badge">
               <b>60 min</b>
               <small>tyle trwa rzetelna konsultacja — bez pośpiechu i zgadywania „na oko”</small>
@@ -76,10 +83,10 @@ export function Hero() {
 
 export function Wave() {
   return (
-    <svg className="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+    <svg className="wave" viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true">
       <path
         fill="currentColor"
-        d="M0,32 C240,64 480,0 720,16 C960,32 1200,64 1440,28 L1440,60 L0,60 Z"
+        d="M0,30 C240,58 480,2 720,16 C960,30 1200,58 1440,26 L1440,56 L0,56 Z"
       />
     </svg>
   );
@@ -96,7 +103,7 @@ export function Stats() {
   return (
     <section
       className="band"
-      style={{ paddingTop: 52, paddingBottom: 52 }}
+      style={{ paddingTop: 50, paddingBottom: 50 }}
       aria-label="Gabinet w liczbach"
     >
       <div className="wrap stats">
@@ -111,7 +118,77 @@ export function Stats() {
   );
 }
 
-/* ------------------------------------------------------------- PROBLEM --- */
+/* ------------------------------------------------ MOJE PODEJŚCIE (first) -- */
+export function Approach() {
+  const cards = [
+    {
+      Icon: Target,
+      tag: "Diagnoza przyczyny",
+      h: "Drążę temat do skutku",
+      p: "Dociekliwy wywiad, analiza badań krwi i prześwietlenie codziennej pielęgnacji. Szukam źródła problemu, nie tylko wyciszam objawy.",
+    },
+    {
+      Icon: Microscope,
+      tag: "Widać na ekranie",
+      h: "Badanie mikrokamerą na żywo",
+      p: "Na własne oczy widzisz na ekranie zatkane mieszki, stan skóry i gęstość włosów — koniec ze zgadywaniem „na oko”.",
+    },
+    {
+      Icon: Flask,
+      tag: "Farmacja + trychologia",
+      h: "Celowana suplementacja i dermopreparaty",
+      p: "Znam składy. Dobieram apteczne preparaty pod konkretny problem, a część płynów do zabiegów komponuję własnoręcznie.",
+    },
+    {
+      Icon: ClipboardCheck,
+      tag: "Praca od wewnątrz i z zewnątrz",
+      h: "Dwa fronty jednocześnie",
+      p: "Korekta niedoborów na podstawie wyników krwi (od wewnątrz) i odblokowanie mieszków oraz zabiegi stymulujące (od zewnątrz).",
+    },
+    {
+      Icon: FileText,
+      tag: "Konkret na wyjściu",
+      h: "Plan na piśmie, nie ogólniki",
+      p: "Z gabinetu wychodzisz z gotowym schematem pielęgnacji, listą preparatów i badań — dokładnie wiesz, co robić krok po kroku.",
+    },
+    {
+      Icon: XCircle,
+      tag: "Czego nie robię",
+      h: "Bez cudownych obietnic",
+      p: "Nie sprzedaję uniwersalnych kosmetyków bez badania i nie obiecuję nierealnych efektów. Postęp rozliczam twardymi zdjęciami z mikrokamery.",
+    },
+  ];
+  return (
+    <section id="podejscie">
+      <div className="wrap">
+        <div className="section-head">
+          <span className="eyebrow">Moje podejście</span>
+          <h2>Trychologia połączona z twardą wiedzą farmaceutyczną</h2>
+          <hr className="rule" />
+          <p className="lede">
+            Prowadzę gabinet przy aptece. Dzięki temu w jednym miejscu dostajesz
+            rzetelną analitykę i sprawdzone preparaty — dobrane pod Twój problem, a nie
+            pod chwytliwy slogan z reklamy.
+          </p>
+        </div>
+        <div className="grid-3">
+          {cards.map((c) => (
+            <div className="card" key={c.h}>
+              <div className="icon">
+                <c.Icon />
+              </div>
+              <span className="tag">{c.tag}</span>
+              <h3>{c.h}</h3>
+              <p>{c.p}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------ ZNASZ TO? --- */
 export function Problem() {
   const pains = [
     "Kolejne szampony „na wypadanie” z drogerii — bez żadnego efektu.",
@@ -120,7 +197,7 @@ export function Problem() {
     "„Poproszę coś na włosy” — w przekonaniu, że jedna flaszka załatwi sprawę.",
   ];
   return (
-    <section id="podejscie">
+    <section className="band" id="znasz">
       <div className="wrap">
         <div className="problem-grid">
           <div>
@@ -128,8 +205,8 @@ export function Problem() {
               <span className="eyebrow">Znasz to?</span>
               <h2>Doktor Google, apteczne półki i miesiące błądzenia</h2>
               <p className="lede">
-                Większość osób trafia do mnie po tym, jak sami próbowali rozwiązać
-                problem — bez diagnozy, w ciemno.
+                Większość osób trafia do mnie po tym, jak samodzielnie próbowali
+                rozwiązać problem — bez diagnozy, w ciemno.
               </p>
             </div>
             <ul className="pain">
@@ -159,97 +236,7 @@ export function Problem() {
   );
 }
 
-/* ------------------------------------------------------------ APPROACH --- */
-export function Approach() {
-  const cards = [
-    {
-      Icon: Target,
-      tag: "Diagnoza przyczyny",
-      h: "Drążę temat do skutku",
-      p: "Dociekliwy wywiad, analiza badań krwi i prześwietlenie codziennej pielęgnacji. Szukam źródła problemu, nie tylko wyciszam objawy.",
-    },
-    {
-      Icon: Microscope,
-      tag: "Widać na ekranie",
-      h: "Badanie mikrokamerą na żywo",
-      p: "Sama widzi Pani na ekranie zatkane mieszki, stan skóry i gęstość włosów — koniec ze zgadywaniem „na oko”.",
-    },
-    {
-      Icon: Flask,
-      tag: "Farmacja + trychologia",
-      h: "Celowana suplementacja i dermopreparaty",
-      p: "Znam składy. Dobieram apteczne preparaty pod konkretny problem, a część płynów do zabiegów komponuję własnoręcznie.",
-    },
-    {
-      Icon: ClipboardCheck,
-      tag: "Praca od wewnątrz i z zewnątrz",
-      h: "Dwa fronty jednocześnie",
-      p: "Korekta niedoborów na podstawie wyników krwi (od wewnątrz) i odblokowanie mieszków oraz zabiegi stymulujące (od zewnątrz).",
-    },
-    {
-      Icon: FileText,
-      tag: "Konkret na wyjściu",
-      h: "Plan na piśmie, nie ogólniki",
-      p: "Z gabinetu wychodzi Pani z gotowym schematem pielęgnacji, listą preparatów i badań — dokładnie wie, co robić krok po kroku.",
-    },
-    {
-      Icon: XCircle,
-      tag: "Czego nie robię",
-      h: "Bez cudownych obietnic",
-      p: "Nie sprzedaję uniwersalnych kosmetyków bez badania i nie obiecuję nierealnych efektów. Postęp rozliczam twardymi zdjęciami z mikrokamery.",
-    },
-  ];
-  return (
-    <section className="band" id="wyroznniki">
-      <div className="wrap">
-        <div className="section-head">
-          <span className="eyebrow">Moje podejście</span>
-          <h2>Trychologia połączona z twardą wiedzą farmaceutyczną</h2>
-          <p className="lede">
-            Prowadzę gabinet przy aptece. Dzięki temu w jednym miejscu dostaje Pani
-            rzetelną analitykę i sprawdzone preparaty — dobrane pod zdiagnozowany
-            problem, a nie pod chwytliwy slogan z reklamy.
-          </p>
-        </div>
-        <div className="grid-3">
-          {cards.slice(0, 3).map((c) => (
-            <ApproachCard key={c.h} {...c} />
-          ))}
-        </div>
-        <div className="grid-3" style={{ marginTop: 22 }}>
-          {cards.slice(3).map((c) => (
-            <ApproachCard key={c.h} {...c} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ApproachCard({
-  Icon,
-  tag,
-  h,
-  p,
-}: {
-  Icon: (props: any) => JSX.Element;
-  tag: string;
-  h: string;
-  p: string;
-}) {
-  return (
-    <div className="card">
-      <div className="icon">
-        <Icon />
-      </div>
-      <span className="tag">{tag}</span>
-      <h3>{h}</h3>
-      <p>{p}</p>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------ HELP WITH -- */
+/* ------------------------------------------------------------ HELP WITH --- */
 export function HelpWith() {
   const items = [
     {
@@ -275,6 +262,7 @@ export function HelpWith() {
         <div className="section-head">
           <span className="eyebrow">Z czym pomagam</span>
           <h2>Skóra głowy i włosy — u dorosłych, dzieci i seniorów</h2>
+          <hr className="rule" />
           <p className="lede">
             Do gabinetu trafiają pacjenci w każdym wieku. Każdy przypadek zaczyna się
             tak samo: od rzetelnej diagnostyki, a nie od gotowego schematu.
@@ -302,7 +290,7 @@ export function HelpWith() {
   );
 }
 
-/* --------------------------------------------------------------- OFFER --- */
+/* ---------------------------------------------------------- KONSULTACJA --- */
 export function Offer() {
   const steps = [
     ["0–35 min", "Głęboki wywiad", "Prześwietlenie zdrowia, diety, nawyków i analiza wyników badań krwi. To trzon całej wizyty."],
@@ -311,7 +299,7 @@ export function Offer() {
   ];
   const deliver = [
     ["Planem pielęgnacji", "Wyeliminowane błędy + konkretny schemat mycia i dbania o skórę głowy."],
-    ["Listą preparatów i suplementów", "Rozpiska aptecznych produktów pod Pani problem — do kupienia na miejscu."],
+    ["Listą preparatów i suplementów", "Rozpiska aptecznych produktów pod Twój problem — do kupienia na miejscu."],
     ["Listą celowanych badań krwi", "Spis konkretnych parametrów do wykonania, jeśli brakuje ich w diagnostyce."],
     ["Propozycją planu zabiegowego", "Harmonogram rekomendowanej serii zabiegów — jakie, ile i w jakich odstępach."],
   ];
@@ -322,8 +310,9 @@ export function Offer() {
           <span className="eyebrow">Pierwszy krok</span>
           <h2>Konsultacja trychologiczna</h2>
           <p className="lede">
-            Jedna wizyta, na której znajdujemy przyczynę problemu i wychodzi Pani z
-            konkretnym planem działania. To jest właściwy początek każdej kuracji.
+            Jedna wizyta w gabinecie, na której znajdujemy przyczynę problemu i
+            wychodzisz z konkretnym planem działania. To właściwy początek każdej
+            kuracji.
           </p>
         </div>
         <div className="offer-card">
@@ -333,7 +322,7 @@ export function Offer() {
                 60 minut, trzy etapy, zero pośpiechu
               </h3>
               <p style={{ color: "var(--ink-soft)" }}>
-                Dermatolog poświęca kilka minut. U mnie ma Pani pełną godzinę
+                Dermatolog poświęca kilka minut. U mnie masz pełną godzinę
                 szczegółowej analizy i badanie mikrokamerą na żywo.
               </p>
               <div className="steps">
@@ -345,7 +334,7 @@ export function Offer() {
                   </div>
                 ))}
               </div>
-              <h4 className="deliver-h">Z tej wizyty wychodzi Pani z:</h4>
+              <h4 className="deliver-h">Z tej wizyty wychodzisz z:</h4>
               <ul className="deliver">
                 {deliver.map(([b, s]) => (
                   <li key={b}>
@@ -359,11 +348,11 @@ export function Offer() {
               </ul>
             </div>
             <div className="offer-side">
-              <span className="eyebrow" style={{ color: "color-mix(in oklab,var(--ochre) 60%,#fff)" }}>
+              <span className="eyebrow" style={{ color: "var(--gold-2)" }}>
                 Cena
               </span>
               <div className="price">{site.consultationPrice}</div>
-              <div className="dur">Czas trwania: 60 minut</div>
+              <div className="dur">Czas trwania: 60 minut · w gabinecie</div>
               <ul>
                 <li>
                   <Check /> Badanie mikrokamerą UV
@@ -375,32 +364,33 @@ export function Offer() {
                   <Check /> Gotowy plan na piśmie
                 </li>
               </ul>
-              <a className="btn btn-booksy" href="#rezerwacja">
+              <a className="btn btn-gold" href="#rezerwacja">
                 <Calendar /> Rezerwuj przez Booksy
               </a>
-              <a className="btn btn-ghost offer-tel" href={site.phoneHref}>
+              <a className="btn offer-tel" href={site.phoneHref}>
                 <Phone /> {site.phoneDisplay}
               </a>
             </div>
           </div>
         </div>
         <p className="prep-note">
-          Przed wizytą prosimy nie myć głowy przez min. 24 h i przynieść aktualne
-          wyniki badań krwi, jeśli je Pani posiada.
+          Przed wizytą nie myj głowy przez min. 24 h i przynieś aktualne wyniki badań
+          krwi, jeśli je masz.
         </p>
       </div>
     </section>
   );
 }
 
-/* --------------------------------------------------------- DIAGNOSTICS --- */
+/* --------------------------------------------------------- DIAGNOSTYKA --- */
 export function Diagnostics() {
   return (
     <section id="diagnostyka">
       <div className="wrap">
         <div className="section-head">
           <span className="eyebrow">Diagnostyka i sprzęt</span>
-          <h2>Widzi Pani to samo, co ja — na ekranie</h2>
+          <h2>Widzisz to samo, co ja — na ekranie</h2>
+          <hr className="rule" />
           <p className="lede">
             Diagnoza nie opiera się na deklaracjach, tylko na obrazie skóry głowy i
             wynikach badań. To one decydują o planie kuracji.
@@ -413,7 +403,7 @@ export function Diagnostics() {
             </div>
             <h3>Mikrokamera ze światłem UV — Bomtech KONG</h3>
             <p>
-              Skóra głowy w dużym powiększeniu, na żywo na ekranie. Widać zatkane
+              Skóra głowy w dużym powiększeniu, na żywo na ekranie. Widzisz zatkane
               mieszki, stan skóry, gęstość włosów i miniaturyzację cebulek — a w
               świetle UV także „mikrożycie” na skórze. Zdjęcia zapisujemy, żeby
               później porównać efekty.
@@ -436,14 +426,14 @@ export function Diagnostics() {
   );
 }
 
-/* ------------------------------------------------------------- PROCESS --- */
+/* ------------------------------------------------------------- PROCES --- */
 export function Process() {
   const steps = [
-    ["Pierwszy kontakt i przygotowanie", "Rezerwuje Pani termin przez Booksy lub telefonicznie. Dostaje krótką instrukcję: nie myć głowy min. 24 h przed badaniem i przynieść aktualne wyniki badań krwi, jeśli są."],
+    ["Pierwszy kontakt i przygotowanie", "Rezerwujesz termin przez Booksy lub telefonicznie. Dostajesz krótką instrukcję: nie myj głowy min. 24 h przed badaniem i przynieś aktualne wyniki badań krwi, jeśli je masz."],
     ["Wizyta diagnostyczna (60 min)", "Wywiad, trichoskopia mikrokamerą i plan działania. Na miejscu korygujemy błędy pielęgnacyjne i ustalamy schemat suplementacji oraz dermokosmetyków do kupienia w aptece."],
-    ["Etap 1 — oczyszczenie przedpola", "Zabieg wstępny odblokowujący zapchane mieszki, usuwający łuskę lub redukujący stan zapalny. To przygotowanie skóry do przyjmowania substancji aktywnych."],
-    ["Etap 2 — terapia właściwa (3–6 miesięcy)", "Seria celowanych zabiegów w gabinecie połączona z konsekwentną pielęgnacją domową i suplementacją apteczną. Między wizytami ma Pani ze mną kontakt telefoniczny i mailowy."],
-    ["Etap 3 — kontrola i ocena efektów", "Ponowna trichoskopia i zestawienie zdjęć „przed i po” na ekranie w skali 1:1. Twarda ocena postępów i plan podtrzymujący efekty. Zero zgadywania — tylko dowody na ekranie."],
+    ["Etap 1 — oczyszczanie", "Zabieg wstępny odblokowujący zapchane mieszki, usuwający łuskę lub redukujący stan zapalny. To przygotowanie skóry do przyjmowania substancji aktywnych."],
+    ["Etap 2 — terapia właściwa (3–6 miesięcy)", "Seria celowanych zabiegów w gabinecie połączona z konsekwentną pielęgnacją domową i suplementacją apteczną. Między wizytami masz ze mną kontakt telefoniczny i mailowy."],
+    ["Etap 3 — kontrola i ocena efektów", "Ponowna trichoskopia i zestawienie zdjęć z mikrokamery na ekranie w skali 1:1. Twarda ocena postępów i plan podtrzymujący efekty. Zero zgadywania — tylko dowody na ekranie."],
   ];
   return (
     <section className="band" id="proces">
@@ -451,9 +441,10 @@ export function Process() {
         <div className="section-head">
           <span className="eyebrow">Jak wygląda współpraca</span>
           <h2>Od telefonu do trwałego efektu — krok po kroku</h2>
+          <hr className="rule" />
           <p className="lede">
             Terapia trychologiczna wymaga czasu i systematyczności. Oto dokładnie, na
-            co się Pani umawia.
+            co się umawiasz.
           </p>
         </div>
         <div className="timeline">
@@ -472,7 +463,7 @@ export function Process() {
   );
 }
 
-/* ---------------------------------------------------------- TREATMENTS --- */
+/* ---------------------------------------------------------- ZABIEGI --- */
 export function Treatments() {
   const items: { tag?: string; h: string; p: string }[] = [
     { tag: "Autorski", h: "Zabieg oczyszczający z infuzją tlenową", p: "Głębokie oczyszczenie skóry głowy z użyciem płynów, które komponuję własnoręcznie pod problem pacjenta. Odblokowuje mieszki i przygotowuje skórę do dalszej pracy." },
@@ -487,6 +478,7 @@ export function Treatments() {
         <div className="section-head">
           <span className="eyebrow">Zabiegi gabinetowe</span>
           <h2>Dobierane po diagnozie — nigdy przed nią</h2>
+          <hr className="rule" />
           <p className="lede">
             Zabiegi są elementem planu, który układamy na konsultacji. Poniżej te,
             które wykonuję najczęściej.
@@ -503,18 +495,22 @@ export function Treatments() {
           <div
             className="card"
             style={{
-              background: "color-mix(in oklab,var(--olive) 10%, var(--card))",
+              background: "rgba(45,72,53,.06)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
             }}
           >
-            <h3 style={{ color: "var(--olive)" }}>Nie wiem, czego potrzebuję</h3>
+            <h3>Nie wiesz, czego potrzebujesz?</h3>
             <p>
-              I nie musi Pani wiedzieć. To konsultacja pokaże, które zabiegi mają sens
-              w Pani przypadku — a które byłyby zbędnym kosztem.
+              I nie musisz wiedzieć. To konsultacja pokaże, które zabiegi mają sens w
+              Twoim przypadku — a które byłyby zbędnym kosztem.
             </p>
-            <a className="btn btn-primary" href="#rezerwacja" style={{ marginTop: 14, alignSelf: "flex-start" }}>
+            <a
+              className="btn btn-primary"
+              href="#rezerwacja"
+              style={{ marginTop: 14, alignSelf: "flex-start" }}
+            >
               Zacznij od konsultacji
             </a>
           </div>
@@ -524,7 +520,7 @@ export function Treatments() {
   );
 }
 
-/* ---------------------------------------------------------------- MYTHS -- */
+/* ------------------------------------------------------------- MITY --- */
 export function Myths() {
   const myths = [
     ["Częste mycie nasila wypadanie włosów.", "Mycie usuwa łój zapychający mieszki. Głowę myjemy tak często, jak wymaga tego skóra — nie rzadziej „na wszelki wypadek”."],
@@ -557,7 +553,7 @@ export function Myths() {
   );
 }
 
-/* ---------------------------------------------------------------- CASES -- */
+/* ------------------------------------------------------------- CASES --- */
 export function Cases() {
   const cases = [
     {
@@ -597,6 +593,7 @@ export function Cases() {
         <div className="section-head">
           <span className="eyebrow">Efekty i przypadki</span>
           <h2>Trzy historie z gabinetu</h2>
+          <hr className="rule" />
           <p className="lede">
             Prawdziwe przypadki podopiecznych — z zachowaniem anonimowości. Pokazują,
             jak wygląda droga od problemu do jego rozwiązania.
@@ -634,10 +631,9 @@ export function Cases() {
           <Info />
           <span>
             Cytaty pochodzą od podopiecznych gabinetu i zostały zanonimizowane.
-            Zdjęcia „przed i po” prezentujemy wyłącznie za pisemną zgodą pacjenta —
-            miejsce na galerię przygotujemy, gdy zgody będą dostępne (placeholder).
             Trychologia nie jest leczeniem — nie obiecuję gwarancji 100% odrostu;
-            gwarantuję rzetelną diagnostykę i uczciwe rozliczenie efektów na zdjęciach.
+            gwarantuję rzetelną diagnostykę i uczciwe rozliczenie efektów podczas wizyt
+            kontrolnych, na podstawie porównania zdjęć z mikrokamery na ekranie.
           </span>
         </p>
       </div>
@@ -645,28 +641,15 @@ export function Cases() {
   );
 }
 
-/* ---------------------------------------------------------------- ABOUT -- */
+/* -------------------------------------------------------- O MNIE + GABINET */
 export function About() {
   return (
     <section className="band" id="omnie">
       <div className="wrap">
         <div className="about-grid">
-          <div>
-            <div className="arch" style={{ aspectRatio: "3/4", borderRadius: "180px 180px 22px 22px" }}>
-              <div className="ph">
-                <User />
-                <b>{site.name}</b>
-                <small>
-                  portret / zdjęcie przy pracy
-                  <br />
-                  (placeholder — do podmiany)
-                </small>
-              </div>
-            </div>
-          </div>
           <div className="about-copy">
             <span className="eyebrow">O mnie</span>
-            <h2 style={{ margin: "12px 0 20px" }}>
+            <h2 style={{ margin: "12px 0 18px" }}>
               Do trychologii doprowadziły mnie… własne włosy
             </h2>
             <p>
@@ -687,8 +670,6 @@ export function About() {
               diagnostyczną z praktyką farmaceutyczną. Dziś w gabinecie nie sprzedaję
               obietnic ani powtarzalnych schematów — łączę badanie mikrokamerą z
               celowanym doborem preparatów, które naprawdę mają prawo zadziałać.
-              Oszczędzam podopiecznym lat błądzenia i fortuny wydanej na przypadkowe
-              tabletki.
             </p>
             <ul className="creds">
               <li>
@@ -719,84 +700,58 @@ export function About() {
               </li>
             </ul>
           </div>
+          <div>
+            <figure className="media-frame" style={{ margin: 0 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/img/gabinet.jpg"
+                alt="Gabinet trychologiczny w Pruszczu Gdańskim — stanowisko z mikrokamerą"
+              />
+              <figcaption>Gabinet w Pruszczu Gdańskim</figcaption>
+            </figure>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-/* -------------------------------------------------------------- PRICING -- */
+/* ------------------------------------------------------------- CENNIK --- */
 export function Pricing() {
-  const rows: { n: string; sub?: string; v: string; vSub?: string; highlight?: boolean }[] = [
-    { n: "Konsultacja trychologiczna", sub: "Pełna diagnostyka, 60 min", v: "190 zł", highlight: true },
+  const rows: { n: string; sub?: string; v: string }[] = [
+    { n: "Konsultacja trychologiczna", sub: "Pełna diagnostyka, 60 min", v: "190 zł" },
     { n: "Wizyta kontrolna", sub: "Trichoskopia i ocena postępów, 30 min", v: "100 zł" },
     { n: "Autorski zabieg oczyszczający", sub: "z infuzją tlenową", v: "250 zł" },
-    { n: "Mezoterapia mikroigłowa", v: "280 zł", vSub: " / pakiet 5: 1200 zł" },
-    { n: "Laseroterapia LLLT", v: "70 zł", vSub: " / pakiet 10: 600 zł" },
+    { n: "Mezoterapia mikroigłowa", v: "280 zł" },
+    { n: "Laseroterapia LLLT", v: "70 zł" },
     { n: "Darsonvalizacja skóry głowy", v: "50 zł" },
-    { n: "Autorski zabieg silnie stymulujący", sub: "Darsonval + mezoterapia + LLLT", v: "350 zł", vSub: " / pakiet 5: 1500 zł" },
+    { n: "Autorski zabieg silnie stymulujący", sub: "Darsonval + mezoterapia + LLLT", v: "350 zł" },
   ];
   return (
     <section id="cennik">
       <div className="wrap">
-        <div className="section-head">
+        <div className="section-head center">
           <span className="eyebrow">Cennik</span>
           <h2>Przejrzyste ceny — bo zaufanie zaczyna się od jasności</h2>
-          <p className="lede">
-            Preparaty apteczne kupuje Pani osobno, na podstawie schematu z konsultacji
-            — nie są ukryte w cenie usługi.
-          </p>
         </div>
-        <div className="price-grid">
-          <div>
-            <div className="card">
-              <div className="price-list">
-                {rows.map((r) => (
-                  <div className={`price-row${r.highlight ? " highlight-row" : ""}`} key={r.n}>
-                    <span className="n">
-                      {r.n}
-                      {r.sub && <small>{r.sub}</small>}
-                    </span>
-                    <span className="v">
-                      {r.v}
-                      {r.vSub && <small>{r.vSub}</small>}
-                    </span>
-                  </div>
-                ))}
-              </div>
+        <div className="price-wrap">
+          <div className="card">
+            <div className="price-list">
+              {rows.map((r, idx) => (
+                <div className={`price-row${idx === 0 ? " highlight-row" : ""}`} key={r.n}>
+                  <span className="n">
+                    {r.n}
+                    {r.sub && <small>{r.sub}</small>}
+                  </span>
+                  <span className="v">{r.v}</span>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="total-card">
-            <span className="eyebrow">Realny koszt całej terapii</span>
-            <div className="big">1 500 – 3 800 zł</div>
-            <p>
-              Za cały okres kuracji, łącznie z zabiegami i preparatami z apteki (ok.
-              150–400 zł miesięcznie na preparaty).
-            </p>
-            <ul>
-              <li>
-                <Check />
-                <span>
-                  <b>Wersja podstawowa (~1 500 zł):</b> konsultacja, zabieg
-                  oczyszczający, seria LLLT, kontrola i preparaty.
-                </span>
-              </li>
-              <li>
-                <Check />
-                <span>
-                  <b>Wersja zaawansowana (~3 800 zł):</b> pełny pakiet zabiegów
-                  stymulujących, dwie kontrole i kuracja apteczna na kilka miesięcy.
-                </span>
-              </li>
-              <li>
-                <Check />
-                <span>
-                  Dostępne pakiety zabiegowe. Dokładny plan i koszt ustalamy na
-                  konsultacji.
-                </span>
-              </li>
-            </ul>
-          </div>
+          <p className="price-note">
+            Preparaty i suplementy z apteki kupujesz osobno, na podstawie schematu z
+            konsultacji. Dostępne pakiety zabiegowe — szczegóły ustalamy na wizycie.
+          </p>
         </div>
       </div>
     </section>

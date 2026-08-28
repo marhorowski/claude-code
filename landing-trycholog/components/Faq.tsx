@@ -1,7 +1,7 @@
 const faqs: { q: string; a: string; open?: boolean }[] = [
   {
-    q: "Byłam już u dermatologa i nic nie dało. Czym to się różni?",
-    a: "Dermatolog poświęca zwykle kilka minut. U mnie ma Pani pełne 60 minut szczegółowej analizy: wywiad, interpretację badań krwi i badanie skóry głowy mikrokamerą na żywo. Szukamy przyczyny, a nie tylko wyciszamy objawy na chwilę.",
+    q: "Czym różni się wizyta u Ciebie od wizyty u dermatologa?",
+    a: "Dermatolog poświęca zwykle kilka minut. U mnie masz pełne 60 minut szczegółowej analizy: wywiad, interpretację badań krwi i badanie skóry głowy mikrokamerą na żywo. Szukamy przyczyny, a nie tylko wyciszamy objawy na chwilę.",
     open: true,
   },
   {
@@ -10,7 +10,7 @@ const faqs: { q: string; a: string; open?: boolean }[] = [
   },
   {
     q: "To pewnie znowu drogie kosmetyki?",
-    a: "Nie sprzedaję uniwersalnych, drogich kosmetyków. Dobieram celowane preparaty z apteki — specjalistyczne i takie, które w Pani przypadku mają prawo zadziałać. Preparaty kupuje Pani osobno, więc dokładnie wiadomo, za co Pani płaci.",
+    a: "Nie sprzedaję uniwersalnych, drogich kosmetyków. Dobieram celowane preparaty z apteki — specjalistyczne i takie, które w Twoim przypadku mają prawo zadziałać. Preparaty kupujesz osobno, więc dokładnie wiesz, za co płacisz.",
   },
   {
     q: "Czy to w ogóle zadziała?",
@@ -22,19 +22,19 @@ const faqs: { q: string; a: string; open?: boolean }[] = [
   },
   {
     q: "Jak mam się przygotować do wizyty?",
-    a: "Prosimy nie myć głowy przez minimum 24 godziny przed badaniem (skóra w naturalnym stanie daje prawdziwy obraz) i przynieść aktualne wyniki badań krwi, jeśli Pani je posiada.",
+    a: "Nie myj głowy przez minimum 24 godziny przed badaniem (skóra w naturalnym stanie daje prawdziwy obraz) i przynieś aktualne wyniki badań krwi, jeśli je masz.",
   },
   {
-    q: "Czy przyjmuje Pani dzieci?",
+    q: "Czy przyjmujesz dzieci?",
     a: "Tak. Przyjmuję pacjentów w każdym wieku — od dzieci po seniorów. Przy problemach dzieci i młodzieży (łupież, łuska, łojotok) rodzic dostaje rzetelną diagnozę i bezpieczny plan zamiast domowych eksperymentów.",
   },
   {
-    q: "Czy prowadzi Pani konsultacje online?",
+    q: "Czy prowadzisz konsultacje online?",
     a: "Nie. Rzetelna diagnostyka wymaga badania skóry głowy mikrokamerą na miejscu, dlatego konsultacje odbywają się wyłącznie w gabinecie w Pruszczu Gdańskim.",
   },
   {
     q: "Jak umówić wizytę?",
-    a: "Najprościej przez system rezerwacji online Booksy — wybiera Pani termin, który pasuje. Można też zadzwonić pod numer 666 161 191. Telefon odbieram osobiście w godzinach pracy, a jeśli nie odbiorę — zawsze oddzwaniam.",
+    a: "Najprościej przez system rezerwacji online Booksy — wybierasz termin, który Ci pasuje. Możesz też zadzwonić pod numer 666 161 191. Telefon odbieram osobiście w godzinach pracy, a jeśli nie odbiorę — zawsze oddzwaniam.",
   },
 ];
 
@@ -44,7 +44,7 @@ export default function Faq() {
       <div className="wrap" style={{ maxWidth: 820 }}>
         <div className="section-head center">
           <span className="eyebrow">Najczęstsze pytania</span>
-          <h2>Zanim się Pani umówi</h2>
+          <h2>Zanim się umówisz</h2>
         </div>
         {faqs.map((f) => (
           <details className="faq" key={f.q} open={f.open}>

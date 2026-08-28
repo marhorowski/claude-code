@@ -30,8 +30,8 @@ export default function Home() {
         <Hero />
         <Wave />
         <Stats />
-        <Problem />
         <Approach />
+        <Problem />
         <HelpWith />
         <Offer />
         <Diagnostics />
