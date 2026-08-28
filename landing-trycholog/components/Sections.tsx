@@ -70,10 +70,6 @@ export function Hero() {
           <div className="arch">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/img/zofia.jpg" alt={`${site.person} — ${site.role}`} />
-            <div className="hero-badge">
-              <b>60 min</b>
-              <small>tyle trwa rzetelna konsultacja — bez pośpiechu i zgadywania „na oko”</small>
-            </div>
           </div>
         </div>
       </div>
