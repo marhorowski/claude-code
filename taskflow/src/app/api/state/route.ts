@@ -11,15 +11,25 @@ function wsSuffix(req: Request): string {
   return ws.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64) || "default";
 }
 
-async function requireUser(
-  p: Pool,
-  req: Request
-): Promise<{ userId: string } | NextResponse> {
-  const userId = await sessionUser(p, req);
-  if (!userId) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+/**
+ * Zwraca identyfikator „właściciela" stanu. Logowanie jest opcjonalne:
+ * - jeśli jest ważna sesja, używamy jej użytkownika,
+ * - w przeciwnym razie (aplikacja jednoosobowa) używamy jedynego istniejącego
+ *   konta, żeby dane z chmury się zachowały,
+ * - a gdy kont nie ma — wspólnego klucza „shared".
+ */
+async function resolveUser(p: Pool, req: Request): Promise<string> {
+  const sess = await sessionUser(p, req);
+  if (sess) return sess;
+  try {
+    const { rows } = await p.query(
+      "SELECT id FROM ergon_users ORDER BY created_at ASC LIMIT 1"
+    );
+    if (rows.length) return rows[0].id as string;
+  } catch {
+    // brak tabeli/kont — spadamy do wspólnego klucza
   }
-  return { userId };
+  return "shared";
 }
 
 export async function GET(req: Request) {
@@ -27,9 +37,8 @@ export async function GET(req: Request) {
   if (!p) return NextResponse.json({ error: "no-database" }, { status: 501 });
   try {
     await ensureTables(p);
-    const auth = await requireUser(p, req);
-    if (auth instanceof NextResponse) return auth;
-    const id = `u:${auth.userId}:${wsSuffix(req)}`;
+    const userId = await resolveUser(p, req);
+    const id = `u:${userId}:${wsSuffix(req)}`;
 
     let { rows } = await p.query(
       "SELECT data, updated_at FROM ergon_state WHERE id = $1",
@@ -67,9 +76,8 @@ export async function PUT(req: Request) {
   if (!p) return NextResponse.json({ error: "no-database" }, { status: 501 });
   try {
     await ensureTables(p);
-    const auth = await requireUser(p, req);
-    if (auth instanceof NextResponse) return auth;
-    const id = `u:${auth.userId}:${wsSuffix(req)}`;
+    const userId = await resolveUser(p, req);
+    const id = `u:${userId}:${wsSuffix(req)}`;
 
     const body = await req.json();
     if (typeof body !== "object" || body === null || !("data" in body)) {
