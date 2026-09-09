@@ -43,6 +43,8 @@ import {
   Trophy,
   Brain,
   LogOut,
+  ChevronDown,
+  ChevronRight,
   type LucideIcon,
 } from "lucide-react";
 import { useCloudSync, type SyncStatus } from "@/lib/sync";
@@ -140,6 +142,7 @@ function AppInner() {
   const [plan, setPlan] = useState<"day" | "week" | null>(null);
   const [brainDump, setBrainDump] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [projectsOpen, setProjectsOpen] = useState(true);
 
   const inboxCount = useStore(
     (s) => s.tasks.filter((t) => !t.completedAt && !t.projectId).length
@@ -190,54 +193,102 @@ function AppInner() {
           </div>
           <div className="meander-subtle mx-5" />
           <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
-            {NAV.map((item) => (
-              <button
-                key={item.key}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                  view.kind === item.key ||
-                  (item.key === "projects" && view.kind === "project")
-                    ? "bg-gradient-to-r from-bronze-500/25 to-bronze-500/5 text-bronze-300 font-medium"
-                    : "text-stone2-300 hover:bg-ink-800"
-                }`}
-                onClick={() => navigate(item.key)}
-              >
-                <item.icon className="h-4 w-4 shrink-0" />
-                <span className="flex-1 text-left">{item.label}</span>
-                {item.key === "inbox" && inboxCount > 0 && (
-                  <span className="chip bg-bronze-500/15 text-bronze-300">
-                    {inboxCount}
-                  </span>
-                )}
-              </button>
-            ))}
+            {NAV.map((item) => {
+              const active =
+                view.kind === item.key ||
+                (item.key === "projects" && view.kind === "project");
 
-            {projects.length > 0 && (
-              <div className="pt-3">
-                <div className="px-3 pb-1 text-[11px] uppercase text-stone2-400">
-                  Projekty
-                </div>
-                {projects.map((p) => (
-                  <button
-                    key={p.id}
-                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                      view.kind === "project" && view.id === p.id
-                        ? "bg-ink-700 text-stone2-100"
-                        : "text-stone2-300 hover:bg-ink-800"
-                    }`}
-                    onClick={() => {
-                      setView({ kind: "project", id: p.id });
-                      setNavOpen(false);
-                    }}
-                  >
-                    <span
-                      className="h-2 w-2 rounded-full shrink-0"
-                      style={{ background: p.color }}
-                    />
-                    <span className="truncate text-left">{p.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+              if (item.key === "projects") {
+                return (
+                  <div key={item.key}>
+                    <div
+                      className={`flex w-full items-center rounded-lg text-sm transition-colors ${
+                        active
+                          ? "bg-gradient-to-r from-bronze-500/25 to-bronze-500/5 text-bronze-300 font-medium"
+                          : "text-stone2-300 hover:bg-ink-800"
+                      }`}
+                    >
+                      <button
+                        className="flex flex-1 items-center gap-3 px-3 py-2"
+                        onClick={() => {
+                          navigate("projects");
+                          setProjectsOpen(true);
+                        }}
+                      >
+                        <item.icon className="h-4 w-4 shrink-0" />
+                        <span className="flex-1 text-left">{item.label}</span>
+                      </button>
+                      <button
+                        className="px-2 py-2 text-stone2-400 hover:text-bronze-300"
+                        onClick={() => setProjectsOpen((o) => !o)}
+                        aria-label={
+                          projectsOpen ? "Zwiń projekty" : "Rozwiń projekty"
+                        }
+                        aria-expanded={projectsOpen}
+                      >
+                        {projectsOpen ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+
+                    {projectsOpen && (
+                      <div className="ml-4 mt-0.5 space-y-0.5 border-l border-ink-700 pl-2">
+                        {projects.map((p) => (
+                          <button
+                            key={p.id}
+                            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                              view.kind === "project" && view.id === p.id
+                                ? "bg-ink-700 text-stone2-100"
+                                : "text-stone2-300 hover:bg-ink-800"
+                            }`}
+                            onClick={() => {
+                              setView({ kind: "project", id: p.id });
+                              setNavOpen(false);
+                            }}
+                          >
+                            <span
+                              className="h-2 w-2 shrink-0 rounded-full"
+                              style={{ background: p.color }}
+                            />
+                            <span className="truncate text-left">
+                              {p.name}
+                            </span>
+                          </button>
+                        ))}
+                        {!projects.length && (
+                          <p className="px-3 py-1.5 text-xs text-stone2-400/70">
+                            Brak projektów. Dodaj w zakładce Projekty.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <button
+                  key={item.key}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                    active
+                      ? "bg-gradient-to-r from-bronze-500/25 to-bronze-500/5 text-bronze-300 font-medium"
+                      : "text-stone2-300 hover:bg-ink-800"
+                  }`}
+                  onClick={() => navigate(item.key)}
+                >
+                  <item.icon className="h-4 w-4 shrink-0" />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {item.key === "inbox" && inboxCount > 0 && (
+                    <span className="chip bg-bronze-500/15 text-bronze-300">
+                      {inboxCount}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
           <div className="border-t border-ink-700 p-3">
             {login && (

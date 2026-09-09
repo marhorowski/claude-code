@@ -132,7 +132,7 @@ function mergeDaySummaries(local: unknown, remote: unknown): unknown[] {
 export function mergeStates(local: Rec, remote: Rec): Rec {
   return {
     tasks: mergeById(local.tasks, remote.tasks),
-    projects: mergeById(local.projects, remote.projects),
+    projects: mergeById(local.projects, remote.projects, "updatedAt"),
     goals: mergeById(local.goals, remote.goals),
     habits: mergeHabits(local.habits, remote.habits),
     journal: mergeJournal(local.journal, remote.journal),

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { fmtHM } from "@/lib/dates";
-import { Plus, Target } from "lucide-react";
+import { Plus, Target, Flag } from "lucide-react";
 
 export default function ProjectsView({
   onOpenProject,
@@ -45,10 +45,15 @@ export default function ProjectsView({
           const activeCount = pt.filter((t) => !t.completedAt).length;
           const sec = pt.reduce((a, t) => a + t.timeSpentSec, 0);
           const goal = goals.find((g) => g.id === p.goalId);
+          const milestones = p.milestones ?? [];
+          const msDone = milestones.filter((m) => m.done).length;
+          const msPct = milestones.length
+            ? Math.round((msDone / milestones.length) * 100)
+            : 0;
           return (
             <button
               key={p.id}
-              className="card p-4 text-left hover:border-bronze-600/50 transition-colors"
+              className="card flex flex-col p-4 text-left hover:border-bronze-600/50 transition-colors"
               onClick={() => onOpenProject(p.id)}
             >
               <div className="flex items-center gap-2">
@@ -60,11 +65,35 @@ export default function ProjectsView({
                   {p.name}
                 </span>
               </div>
+              {p.objective && (
+                <div className="mt-1 line-clamp-2 text-xs text-stone2-300">
+                  {p.objective}
+                </div>
+              )}
               <div className="mt-1 text-xs text-stone2-400">
                 {activeCount} aktywnych zadań · {fmtHM(sec)}
               </div>
+              {milestones.length > 0 && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-[11px] text-stone2-400">
+                    <span className="inline-flex items-center gap-1">
+                      <Flag className="h-3 w-3 text-bronze-400" />
+                      Kamienie milowe
+                    </span>
+                    <span>
+                      {msDone}/{milestones.length}
+                    </span>
+                  </div>
+                  <div className="mt-1 h-1.5 rounded-full bg-ink-700">
+                    <div
+                      className="h-1.5 rounded-full bg-bronze-400"
+                      style={{ width: `${msPct}%` }}
+                    />
+                  </div>
+                </div>
+              )}
               {goal && (
-                <div className="mt-2 chip border border-ink-600 bg-ink-900 text-stone2-300">
+                <div className="mt-2 chip w-fit border border-ink-600 bg-ink-900 text-stone2-300">
                   <Target className="h-3 w-3 text-bronze-400" />
                   {goal.title}
                 </div>

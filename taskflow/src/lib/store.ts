@@ -5,6 +5,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import {
   Task,
   Project,
+  Milestone,
   Goal,
   KeyResult,
   Settings,
@@ -114,6 +115,14 @@ interface AppState {
   addProject: (name: string, goalId?: ID | null) => Project;
   updateProject: (id: ID, patch: Partial<Project>) => void;
   deleteProject: (id: ID) => void;
+  addMilestone: (projectId: ID, text: string) => void;
+  toggleMilestone: (projectId: ID, milestoneId: ID) => void;
+  updateMilestone: (
+    projectId: ID,
+    milestoneId: ID,
+    patch: Partial<Milestone>
+  ) => void;
+  deleteMilestone: (projectId: ID, milestoneId: ID) => void;
 
   // cele
   addGoal: (title: string, why: string, isMain: boolean) => Goal;
@@ -277,12 +286,16 @@ export const useStore = create<AppState>()(
         })),
 
       addProject: (name, goalId = null) => {
+        const now = new Date().toISOString();
         const project: Project = {
           id: uid(),
           name: name.trim(),
           color: PROJECT_COLORS[get().projects.length % PROJECT_COLORS.length],
           goalId,
-          createdAt: new Date().toISOString(),
+          objective: "",
+          milestones: [],
+          createdAt: now,
+          updatedAt: now,
         };
         set((s) => ({ projects: [...s.projects, project] }));
         return project;
@@ -291,7 +304,9 @@ export const useStore = create<AppState>()(
       updateProject: (id, patch) =>
         set((s) => ({
           projects: s.projects.map((p) =>
-            p.id === id ? { ...p, ...patch } : p
+            p.id === id
+              ? { ...p, ...patch, updatedAt: new Date().toISOString() }
+              : p
           ),
         })),
 
@@ -302,6 +317,83 @@ export const useStore = create<AppState>()(
             t.projectId === id ? { ...t, projectId: null } : t
           ),
         })),
+
+      addMilestone: (projectId, text) => {
+        const t = text.trim();
+        if (!t) return;
+        const now = new Date().toISOString();
+        const milestone: Milestone = {
+          id: uid(),
+          text: t,
+          done: false,
+          doneAt: null,
+          createdAt: now,
+        };
+        set((s) => ({
+          projects: s.projects.map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  milestones: [...(p.milestones ?? []), milestone],
+                  updatedAt: now,
+                }
+              : p
+          ),
+        }));
+      },
+
+      toggleMilestone: (projectId, milestoneId) => {
+        const now = new Date().toISOString();
+        set((s) => ({
+          projects: s.projects.map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  milestones: (p.milestones ?? []).map((m) =>
+                    m.id === milestoneId
+                      ? { ...m, done: !m.done, doneAt: !m.done ? now : null }
+                      : m
+                  ),
+                  updatedAt: now,
+                }
+              : p
+          ),
+        }));
+      },
+
+      updateMilestone: (projectId, milestoneId, patch) => {
+        const now = new Date().toISOString();
+        set((s) => ({
+          projects: s.projects.map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  milestones: (p.milestones ?? []).map((m) =>
+                    m.id === milestoneId ? { ...m, ...patch } : m
+                  ),
+                  updatedAt: now,
+                }
+              : p
+          ),
+        }));
+      },
+
+      deleteMilestone: (projectId, milestoneId) => {
+        const now = new Date().toISOString();
+        set((s) => ({
+          projects: s.projects.map((p) =>
+            p.id === projectId
+              ? {
+                  ...p,
+                  milestones: (p.milestones ?? []).filter(
+                    (m) => m.id !== milestoneId
+                  ),
+                  updatedAt: now,
+                }
+              : p
+          ),
+        }));
+      },
 
       addGoal: (title, why, isMain) => {
         const goal: Goal = {

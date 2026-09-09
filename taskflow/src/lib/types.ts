@@ -25,12 +25,23 @@ export interface Task {
   onTime: OnTime | null;
 }
 
+export interface Milestone {
+  id: ID;
+  text: string;
+  done: boolean;
+  doneAt: string | null; // ISO — kiedy odklikany
+  createdAt: string;
+}
+
 export interface Project {
   id: ID;
   name: string;
   color: string;
   goalId: ID | null;
+  objective: string; // konkretny cel projektu
+  milestones: Milestone[]; // kamienie milowe do odklikania
   createdAt: string;
+  updatedAt?: string; // ISO — do scalania synchronizacji
 }
 
 export interface KeyResult {
