@@ -107,6 +107,27 @@
     color:var(--ash-mut); font-family:var(--sans); font-weight:600; text-transform:uppercase; letter-spacing:.14em; font-size:.8rem;
     background:linear-gradient(180deg,#1a1310,#0f0b0a); }
 
+  /* FORMULARZ ZGŁOSZENIOWY */
+  .apply{ max-width:640px; margin:0 auto; background:var(--soot-2); border:1px solid var(--line-2); border-radius:16px;
+    padding:clamp(22px,4vw,36px); box-shadow:0 40px 80px -36px rgba(0,0,0,.8); }
+  .apply .lead{ margin:0 0 22px; text-align:center; color:var(--ash-dim); font-size:.98rem; }
+  .field{ margin:0 0 16px; }
+  .field label{ display:block; margin:0 0 6px; font-weight:600; font-size:.88rem; color:var(--ash); }
+  .field input{ width:100%; padding:14px 16px; font:inherit; font-size:1rem; color:var(--ash);
+    background:var(--soot); border:1px solid var(--line-2); border-radius:10px; transition:border-color .2s, box-shadow .2s; }
+  .field input::placeholder{ color:var(--ash-mut); }
+  .field input:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,151,31,.22); }
+  .consent{ display:flex; gap:10px; align-items:flex-start; margin:6px 0 22px; font-size:.8rem; line-height:1.5; color:var(--ash-mut); }
+  .consent input{ flex:none; width:18px; height:18px; margin:2px 0 0; accent-color:var(--ember); }
+  .hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+  .apply .cta{ width:100%; }
+  .apply .cta[disabled]{ opacity:.6; cursor:wait; transform:none; }
+  .form-msg{ margin:14px 0 0; text-align:center; font-size:.92rem; min-height:1.4em; }
+  .form-msg.err{ color:#F08A5D; }
+  .apply-done{ text-align:center; padding:20px 0; }
+  .apply-done h3{ margin:0 0 10px; font-family:var(--display); font-weight:700; font-size:1.5rem; color:#F6F2EC; }
+  .apply-done p{ margin:0; color:var(--ash-dim); }
+
   footer{ border-top:1px solid var(--line); padding:24px 0 32px; text-align:center; }
   footer .flinks{ font-size:.82rem; color:var(--ash-mut); }
   footer .flinks a{ color:var(--ash-mut); text-decoration:none; border-bottom:1px solid var(--line-2); }
@@ -164,12 +185,29 @@
     <!-- KROK DRUGI + KALENDARZ: rezerwacja odbywa się na tej stronie -->
     <section class="cal" id="kalendarz">
       <div class="wrap">
-        <div class="step-label"><span class="k">Krok drugi</span><h2>Zarezerwuj spotkanie</h2></div>
-        <div class="cal-frame">
-          <!-- WKLEJ TU EMBED KALENDARZA GHL (GHL → Calendars → wybrany kalendarz → Embed:
-               <iframe ...></iframe> + <script src="https://link.msgsndr.com/js/form_embed.js"></script>).
-               Po dodaniu iframe usuń poniższy .cal-hint. Po rezerwacji GHL sam przekieruje na stronę podziękowania. -->
-          <div class="cal-hint">Miejsce na kalendarz GHL</div>
+        <div class="step-label"><span class="k">Krok drugi</span><h2>Zgłoś się na rozmowę</h2></div>
+        <div class="apply">
+          <form id="apply-form" novalidate>
+            <p class="lead">Zostaw dane — oddzwonimy i umówimy dogodny termin rozmowy.</p>
+            <div class="field"><label for="f-name">Imię i nazwisko</label>
+              <input id="f-name" name="name" type="text" autocomplete="name" required placeholder="Jan Kowalski"></div>
+            <div class="field"><label for="f-phone">Telefon</label>
+              <input id="f-phone" name="phone" type="tel" autocomplete="tel" required placeholder="+48 600 000 000"></div>
+            <div class="field"><label for="f-email">E-mail</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" required placeholder="jan@firma.pl"></div>
+            <div class="field"><label for="f-business">Rodzaj działalności</label>
+              <input id="f-business" name="business" type="text" required placeholder="np. firma budowlana, 12 osób"></div>
+            <div class="hp" aria-hidden="true"><label>Strona www <input name="website" tabindex="-1" autocomplete="off"></label></div>
+            <label class="consent"><input type="checkbox" name="consent" value="tak" required>
+              <span>Wyrażam zgodę na przetwarzanie moich danych osobowych przez Karol Pabian w celu kontaktu w sprawie mojego zgłoszenia, zgodnie z RODO. Zgodę mogę w każdej chwili wycofać.</span></label>
+            <button class="cta" type="submit">Wyślij zgłoszenie
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            <p class="form-msg" role="status" aria-live="polite"></p>
+          </form>
+          <div class="apply-done" hidden>
+            <h3>Dziękujemy, zgłoszenie przyjęte!</h3>
+            <p>Odezwiemy się w ciągu 24 godzin, żeby umówić rozmowę.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -188,5 +226,36 @@
   /* CTA "Zarezerwuj spotkanie" = zwykły link (przekierowanie na stronę rezerwacji).
      Podmien href przycisku (PODMIEN-NA-LINK-DO-STRONY-REZERWACJI) na URL swojej strony z kalendarzem. */
   [].forEach.call(document.querySelectorAll('[data-noop]'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); }); });
+
+  /* FORMULARZ → Google Sheets (Apps Script Web App). Wklej URL wdrożenia (…/exec): */
+  var FORM_ENDPOINT = "";
+
+  var form = document.getElementById('apply-form');
+  if(!form) return;
+  var msg = form.querySelector('.form-msg'), btn = form.querySelector('button[type=submit]');
+  function fail(t){ msg.textContent = t; msg.className = 'form-msg err'; }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    msg.textContent = ''; msg.className = 'form-msg';
+    var f = form.elements;
+    if(!f.name.value.trim() || !f.phone.value.trim() || !f.email.value.trim() || !f.business.value.trim())
+      return fail('Uzupełnij wszystkie pola.');
+    if(!f.email.checkValidity()) return fail('Podaj poprawny adres e-mail.');
+    if(f.phone.value.replace(/\D/g,'').length < 9) return fail('Podaj poprawny numer telefonu.');
+    if(!f.consent.checked) return fail('Zaznacz zgodę na przetwarzanie danych.');
+    if(f.website.value) return; // honeypot: bot
+    if(!FORM_ENDPOINT) return fail('Formularz chwilowo nie działa. Spróbuj ponownie później.');
+
+    var data = new URLSearchParams();
+    ['name','phone','email','business'].forEach(function(k){ data.append(k, f[k].value.trim()); });
+    data.append('consent', 'tak');
+    data.append('page', location.href);
+
+    btn.disabled = true;
+    fetch(FORM_ENDPOINT, { method:'POST', mode:'no-cors', body:data })
+      .then(function(){ form.hidden = true; form.nextElementSibling.hidden = false; })
+      .catch(function(){ btn.disabled = false; fail('Nie udało się wysłać. Sprawdź połączenie i spróbuj ponownie.'); });
+  });
 })();
 </script>
