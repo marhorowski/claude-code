@@ -1,5 +1,10 @@
 {
-  "installCommand": "cd taskflow && npm install",
-  "buildCommand": "cd taskflow && npm run build",
-  "outputDirectory": "taskflow/.next"
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "",
+  "outputDirectory": "trifecta",
+  "cleanUrls": true,
+  "redirects": [
+    { "source": "/", "destination": "/vsl-alchemik", "permanent": false }
+  ]
 }
