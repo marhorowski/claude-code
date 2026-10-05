@@ -228,7 +228,7 @@
   [].forEach.call(document.querySelectorAll('[data-noop]'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); }); });
 
   /* FORMULARZ → Google Sheets (Apps Script Web App). Wklej URL wdrożenia (…/exec): */
-  var FORM_ENDPOINT = "";
+  var FORM_ENDPOINT = "https://script.google.com/macros/s/AKfycbzu314cJ8l00kkPP0S7O41_pYeRgN0ZHPMx70ZiUA-EmJ1exAjjPHDRS9Yh5PV43RG4/exec";
 
   var form = document.getElementById('apply-form');
   if(!form) return;
