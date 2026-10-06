@@ -3,8 +3,5 @@
   "installCommand": "",
   "buildCommand": "",
   "outputDirectory": "trifecta",
-  "cleanUrls": true,
-  "redirects": [
-    { "source": "/", "destination": "/vsl-alchemik", "permanent": false }
-  ]
+  "cleanUrls": true
 }
