@@ -227,18 +227,54 @@
   .reveal.in{opacity:1;transform:none}
   @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
 
-  /* ===== hero dark + kalendarz ===== */
+  /* ===== hero dark ===== */
   .hero{background:var(--dark);color:var(--dark-text)}
   .hero::before{background:radial-gradient(circle at center,rgba(245,160,27,.30),transparent 62%)}
   .hero::after{background:radial-gradient(circle at center,rgba(217,134,10,.20),transparent 64%)}
   .hero .hero-sub{color:var(--dark-muted)}
   .hero .btn--ghost{color:var(--dark-text);border-color:rgba(237,233,225,.28)}
   .hero .btn--ghost:hover{border-color:var(--amber)}
-  .cal-wrap{position:relative;z-index:1;margin-top:46px}
-  .cal-label{text-align:center;color:var(--dark-muted);font-family:var(--display);font-weight:700;font-size:1rem;margin-bottom:16px}
-  .cal-box{position:relative;background:var(--white);border-radius:18px;box-shadow:var(--shadow-card-lg);padding:8px;min-height:720px;overflow:hidden}
-  .cal-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:30px;color:var(--muted);font-size:.95rem;line-height:1.6}
-  .cal-frame{position:relative;display:block;width:100%;border:0;min-height:720px;background:transparent}
+
+  /* ===== schemat: kroki ===== */
+  .snode.step{background:var(--white);border:1px solid var(--badge-line);color:var(--graphite);padding:20px 30px;width:560px;text-align:left}
+  .snode.step .kk{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:var(--display);font-weight:700;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber-dark);margin-bottom:6px}
+  .snode.step .days{background:var(--badge-bg);border:1px solid var(--badge-line);color:var(--brown);border-radius:999px;padding:4px 10px;letter-spacing:.08em}
+  .snode.step .st{font-family:var(--display);font-weight:800;font-size:1.18rem;line-height:1.25;color:var(--graphite)}
+  .snode.step p{margin:8px 0 0;font-size:.94rem;color:var(--muted)}
+  .snode.step ul{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+  .snode.step li{position:relative;padding-left:26px;font-size:.96rem;font-weight:500}
+  .snode.step li::before{content:"";position:absolute;left:0;top:4px;width:16px;height:16px;border-radius:50%;background:var(--amber) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23161513' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/10px no-repeat}
+  .snode.top.scale{padding:16px 40px}
+  @media (max-width:720px){.snode.step{width:100%;padding:18px 20px}}
+
+  /* ===== pop-up: konsultacja ===== */
+  .bk{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,14,12,.72);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
+  .bk.open{opacity:1;visibility:visible}
+  .bk-box{position:relative;width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;background:var(--dark);color:var(--dark-text);border:1px solid rgba(245,160,27,.28);border-radius:20px;box-shadow:0 40px 90px rgba(0,0,0,.55);padding:34px 30px 28px;transform:translateY(14px);transition:transform .25s}
+  .bk.open .bk-box{transform:none}
+  .bk.step2 .bk-box{max-width:760px;padding:28px 20px 20px}
+  .bk-x{position:absolute;top:12px;right:12px;width:38px;height:38px;border:0;border-radius:50%;background:rgba(237,233,225,.08);color:var(--dark-text);font-size:1.5rem;line-height:1;cursor:pointer}
+  .bk-x:hover{background:rgba(237,233,225,.16)}
+  .bk-steps{display:flex;gap:8px;justify-content:center;margin-bottom:18px;font-family:var(--display);font-weight:700;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dark-muted)}
+  .bk-steps span{padding:5px 11px;border-radius:999px;border:1px solid rgba(237,233,225,.16)}
+  .bk-steps span.on{background:var(--amber);border-color:var(--amber);color:var(--graphite)}
+  .bk h3{margin:0 0 8px;text-align:center;font-family:var(--display);font-weight:800;font-size:1.5rem;line-height:1.2;color:#fff;letter-spacing:-.01em}
+  .bk h3 em{font-style:normal;color:var(--amber)}
+  .bk-lead{margin:0 0 18px;text-align:center;color:var(--dark-muted);font-size:.95rem}
+  .bk-gets{list-style:none;margin:0 0 22px;padding:16px 18px;display:grid;gap:10px;background:rgba(237,233,225,.04);border:1px solid rgba(237,233,225,.1);border-radius:14px;font-size:.92rem;color:var(--dark-muted)}
+  .bk-gets b{display:block;color:var(--dark-text);font-family:var(--display)}
+  .bk-f{margin:0 0 12px}
+  .bk-f label{display:block;margin:0 0 6px;font-weight:600;font-size:.86rem}
+  .bk-f input{width:100%;padding:13px 15px;font:inherit;font-size:1rem;color:var(--dark-text);background:var(--dark-card);border:1px solid rgba(237,233,225,.16);border-radius:10px;box-sizing:border-box}
+  .bk-f input::placeholder{color:#7f786d}
+  .bk-f input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,160,27,.22)}
+  .bk-ok{display:flex;gap:10px;align-items:flex-start;margin:14px 0 18px;font-size:.78rem;line-height:1.5;color:var(--dark-muted)}
+  .bk-ok input{flex:none;width:18px;height:18px;margin:1px 0 0;accent-color:var(--amber)}
+  .bk-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .bk .btn{width:100%}
+  .bk-err{min-height:1.3em;margin:10px 0 0;text-align:center;color:#F08A5D;font-size:.9rem}
+  .bk-cal{min-height:660px;border-radius:14px;overflow:hidden;background:var(--white)}
+  body.bk-lock{overflow:hidden}
 </style>
 </head>
 <body>
@@ -259,7 +295,7 @@
         <h1 class="h1">Projektujemy i&nbsp;wdrażamy <span class="amber">strategie wzrostu</span>, które mają jeden cel: generować wzrost i&nbsp;zwiększać przychody.</h1>
         <p class="hero-sub">Realizujemy strategie wzrostu według filozofii <span class="rf">Revenue First</span>. Każde działanie, które projektujemy i&nbsp;wdrażamy, ma określony cel: przychód i&nbsp;optymalizację lejka marketingu i&nbsp;sprzedaży. Przyświeca nam jedno — rosnąć.</p>
         <div class="actions">
-          <a class="btn btn--primary" href="#kalendarz">Umów spotkanie</a>
+          <a class="btn btn--primary" href="#konsultacja" data-book>Umów spotkanie</a>
           <a class="btn btn--ghost" href="#system">Strategia Revenue First</a>
         </div>
       </div>
@@ -299,44 +335,56 @@
     </div>
   </section>
 
-  <!-- ================= REVENUE FIRST STRATEGY ================= -->
+  <!-- ================= STRATEGIA REVENUE FIRST ================= -->
   <section class="sec sec--soft" id="system">
     <div class="wrap">
       <div class="sec-head center reveal">
         <span class="eyebrow" style="justify-content:center">Nasz system</span>
-        <h2 class="h2"><span class="rf">Revenue First</span> Strategy</h2>
-        <p class="lead">Jeden spójny system zamiast przypadkowych działań. Zaczyna się od strategii, a&nbsp;potem rozchodzi na to, co zarabia od zaraz, i&nbsp;to, co buduje wzrost w&nbsp;czasie.</p>
+        <h2 class="h2">Strategia <span class="rf">Revenue First</span></h2>
+        <p class="lead">Jeden spójny system zamiast przypadkowych działań. W&nbsp;7&nbsp;dni od strategii do pierwszych sprzedaży — a&nbsp;potem skalujemy to, co działa, i&nbsp;budujemy wzrost na lata.</p>
       </div>
       <div class="schema reveal">
-        <div class="snode top"><div class="k">Fundament systemu</div><div class="v"><span class="rf">Revenue First</span> Strategy</div></div>
+        <div class="snode top"><div class="k">Fundamenty systemu</div><div class="v">strategia <span class="rf">Revenue First</span></div></div>
         <span class="conn mid" aria-hidden="true"></span>
-        <div class="snode found"><span class="kk">Krok 1</span>Strategia komunikacji</div>
+        <div class="snode step">
+          <span class="kk">Krok 1 <span class="days">Dzień 1–3</span></span>
+          <div class="st">Strategia ofertowa i&nbsp;strategia komunikacji</div>
+          <p>Dopracowujemy ofertę i&nbsp;przekaz tak, żeby od pierwszego dnia trafiały w&nbsp;to, za co klient chce zapłacić.</p>
+        </div>
         <span class="conn short" aria-hidden="true"></span>
-        <div class="snode found"><span class="kk">Krok 2</span>Strategia ofertowa</div>
+        <div class="snode step">
+          <span class="kk">Krok 2 <span class="days">Dzień 4–7</span></span>
+          <div class="st">Materiały reklamowe i&nbsp;szybka walidacja oferty</div>
+          <ul>
+            <li>Pierwsze materiały reklamowe Meta Ads (Facebook i&nbsp;Instagram)</li>
+            <li>Pierwsze zapytania</li>
+            <li>Pierwsze umówione rozmowy sprzedażowe</li>
+            <li>Pierwsze domknięte sprzedaże</li>
+          </ul>
+        </div>
+        <span class="conn short" aria-hidden="true"></span>
+        <div class="snode top scale"><div class="k">Krok 3</div><div class="v">Strategia skalowania</div></div>
         <span class="conn long" aria-hidden="true"></span>
         <div class="fork" aria-hidden="true"><span class="stem"></span></div>
         <div class="schema-cols">
           <div class="col col--short">
-            <div class="col-head"><span class="col-tag">Short Term</span><p>Działania, które ruszają od zaraz i&nbsp;zaczynają generować przychód natychmiast.</p></div>
+            <div class="col-head"><span class="col-tag">Efekt natychmiastowy</span><p>Skalujemy to, co sprzedaje, i&nbsp;domykamy lejek, żeby przychód rósł z&nbsp;miesiąca na miesiąc.</p></div>
             <ul>
-              <li>Reklamy Meta (Facebook &amp; Instagram)</li>
-              <li>Google Ads</li>
-              <li>Reklamy YouTube</li>
-              <li>Landing page'e</li>
-              <li>Opracowanie właściwego lejka sprzedażowego</li>
+              <li>Skalowanie reklam Meta (Facebook i&nbsp;Instagram)</li>
+              <li>Landing page</li>
+              <li>Opracowanie pełnego lejka sprzedażowego</li>
               <li>Skrypty sprzedażowe</li>
               <li>Skrypty settingowe</li>
             </ul>
           </div>
           <div class="col col--long">
-            <div class="col-head"><span class="col-tag">Long Term</span><p>Działania, które budują zaufanie i&nbsp;wzrost — procentują w&nbsp;kolejnych kwartałach.</p></div>
+            <div class="col-head"><span class="col-tag">Efekt długoterminowy</span><p>Budujemy zaufanie, autorytet i&nbsp;automatyzacje, które procentują w&nbsp;kolejnych kwartałach.</p></div>
             <ul>
-              <li>Content na YouTube</li>
-              <li>Content na Instagramie i&nbsp;Facebooku</li>
-              <li>Mailingi</li>
-              <li>Ścieżki automatyzacji</li>
-              <li>Strony internetowe</li>
-              <li>Automatyzacje procesów</li>
+              <li>Strategia contentu na YouTube</li>
+              <li>Strategia contentu na Instagramie i&nbsp;Facebooku</li>
+              <li>Ścieżki mailingowe</li>
+              <li>Automatyzacje mailowe i&nbsp;SMS</li>
+              <li>Automatyzacja procesów</li>
             </ul>
           </div>
         </div>
@@ -473,7 +521,7 @@
           </div>
         </div>
         <div class="actions">
-          <a class="btn btn--primary" href="#kalendarz">Umów spotkanie</a>
+          <a class="btn btn--primary" href="#konsultacja" data-book>Umów spotkanie</a>
         </div>
       </div>
     </div>
@@ -493,18 +541,11 @@
         <li><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Skaluj biznes bez chaosu i&nbsp;bez ryzyka.</li>
       </ul>
       <div class="actions">
-        <a class="btn btn--primary" href="#kalendarz">Umów spotkanie</a>
+        <a class="btn btn--primary" href="#konsultacja" data-book>Umów spotkanie</a>
         <a class="btn btn--ghost" href="mailto:marcin@trifectaos.pl">marcin@trifectaos.pl</a>
       </div>
     </div>
-    <div class="wrap cal-wrap" id="kalendarz">
-      <div class="cal-label">Wybierz dogodny termin — rozmowa online.</div>
-      <div class="cal-box">
-        <div class="cal-fallback">Kalendarz rezerwacji Trifecta Agency ładuje się na opublikowanej stronie (w podglądzie sandboxa może być zablokowany).</div>
-        <iframe class="cal-frame" src="https://api.leadconnectorhq.com/widget/booking/YNg4UiJ5s5ML44GFQsPe" allow="payment" scrolling="no" title="Umów spotkanie — Trifecta Agency" id="YNg4UiJ5s5ML44GFQsPe_1787738024709"></iframe>
-      </div>
-    </div>
-    <script src="https://link.msgsndr.com/js/form_embed.js" type="text/javascript"></script>
+
   </section>
 
 </main>
@@ -552,6 +593,81 @@
     },{threshold:.1,rootMargin:'0px 0px -8% 0px'});
     els.forEach(function(el){io.observe(el);});
   })();
+</script>
+
+<!-- ================= POP-UP: BEZPŁATNA KONSULTACJA ================= -->
+<div class="bk" id="konsultacja" role="dialog" aria-modal="true" aria-labelledby="bk-title" aria-hidden="true">
+  <div class="bk-box">
+    <button class="bk-x" type="button" aria-label="Zamknij" data-close>&times;</button>
+    <div class="bk-steps"><span class="on" data-s="1">1. Dane</span><span data-s="2">2. Termin</span></div>
+    <div class="bk-p1">
+      <h3 id="bk-title">Bezpłatna, <em>30&#8209;minutowa</em> konsultacja</h3>
+      <p class="bk-lead">Diagnoza Twojego lejka i&nbsp;konkretny plan działania. Sprawdzimy, ile przychodu możesz wycisnąć ze swojego marketingu i&nbsp;sprzedaży — według strategii <span class="rf">Revenue First</span>.</p>
+      <form id="bk-form" novalidate>
+        <div class="bk-f"><label for="bk-name">Imię i nazwisko</label><input id="bk-name" name="name" type="text" autocomplete="name" required placeholder="Jan Kowalski"></div>
+        <div class="bk-f"><label for="bk-phone">Numer telefonu</label><input id="bk-phone" name="phone" type="tel" autocomplete="tel" required placeholder="+48 600 000 000"></div>
+        <div class="bk-f"><label for="bk-email">Adres e-mail</label><input id="bk-email" name="email" type="email" autocomplete="email" required placeholder="jan@firma.pl"></div>
+        <div class="bk-hp" aria-hidden="true"><label>Strona www <input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <label class="bk-ok"><input type="checkbox" name="consent" value="tak" required>
+          <span>Zgadzam się na kontakt telefoniczny i&nbsp;mailowy ze strony Trifecta Agency w&nbsp;sprawie konsultacji. Administratorem danych jest Trifecta Agency; dane przetwarzamy wyłącznie w&nbsp;celu kontaktu. Zgodę możesz wycofać w&nbsp;każdej chwili, pisząc na marcin@trifectaos.pl.</span></label>
+        <button class="btn btn--primary" type="submit">Umawiam bezpłatną konsultację</button>
+        <p class="bk-err" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+    <div class="bk-p2" hidden>
+      <h3>Wybierz termin konsultacji</h3>
+      <p class="bk-lead">Mamy Twoje dane. Zarezerwuj dogodny termin — rozmowa online, 30&nbsp;minut.</p>
+      <div class="bk-cal" id="bk-cal"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var ENDPOINT = "https://script.google.com/macros/s/AKfycbzu314cJ8l00kkPP0S7O41_pYeRgN0ZHPMx70ZiUA-EmJ1exAjjPHDRS9Yh5PV43RG4/exec";
+  var CALENDLY = "https://calendly.com/konsultacja_horowski/dentprofit-konsultacja?hide_gdpr_banner=1";
+
+  var bk = document.getElementById('konsultacja'), form = document.getElementById('bk-form');
+  var err = bk.querySelector('.bk-err'), lastFocus = null;
+
+  function open(e){
+    if(e) e.preventDefault();
+    lastFocus = document.activeElement;
+    bk.classList.add('open'); bk.setAttribute('aria-hidden','false'); document.body.classList.add('bk-lock');
+    setTimeout(function(){ var f = bk.querySelector('.bk-p1:not([hidden]) input'); if(f) f.focus(); }, 60);
+  }
+  function close(){
+    bk.classList.remove('open'); bk.setAttribute('aria-hidden','true'); document.body.classList.remove('bk-lock');
+    if(lastFocus) lastFocus.focus();
+  }
+  [].forEach.call(document.querySelectorAll('[data-book]'), function(a){ a.addEventListener('click', open); });
+  bk.addEventListener('click', function(e){ if(e.target === bk || e.target.hasAttribute('data-close')) close(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && bk.classList.contains('open')) close(); });
+  if(location.hash === '#konsultacja') open();
+
+  function showCalendar(name, email){
+    bk.querySelector('.bk-p1').hidden = true; bk.querySelector('.bk-p2').hidden = false; bk.classList.add('step2'); bk.querySelector('.bk-box').scrollTop = 0;
+    [].forEach.call(bk.querySelectorAll('.bk-steps span'), function(s){ s.classList.toggle('on', s.getAttribute('data-s') === '2'); });
+    var src = CALENDLY + '&embed_type=Inline&embed_domain=' + encodeURIComponent(location.host)
+      + '&name=' + encodeURIComponent(name) + '&email=' + encodeURIComponent(email);
+    document.getElementById('bk-cal').innerHTML =
+      '<iframe src="' + src + '" title="Umów konsultację — kalendarz" width="100%" height="660" frameborder="0" style="display:block;border:0"></iframe>';
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault(); err.textContent = '';
+    var f = form.elements, name = f.name.value.trim(), phone = f.phone.value.trim(), email = f.email.value.trim();
+    if(!name || !phone || !email) return err.textContent = 'Uzupełnij wszystkie pola.';
+    if(!f.email.checkValidity()) return err.textContent = 'Podaj poprawny adres e-mail.';
+    if(phone.replace(/\D/g,'').length < 9) return err.textContent = 'Podaj poprawny numer telefonu.';
+    if(!f.consent.checked) return err.textContent = 'Zaznacz zgodę na kontakt.';
+    if(f.website.value) return; // honeypot: bot
+
+    var data = new URLSearchParams({ name: name, phone: phone, email: email, business: 'Trifecta — konsultacja', consent: 'tak', page: location.href });
+    try { fetch(ENDPOINT, { method: 'POST', mode: 'no-cors', body: data, keepalive: true }); } catch(_){}
+    showCalendar(name, email);
+  });
+})();
 </script>
 </body>
 </html>
