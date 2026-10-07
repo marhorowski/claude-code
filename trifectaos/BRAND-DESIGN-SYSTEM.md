@@ -151,16 +151,27 @@ border-radius:16px; padding:22px 34px; font:800 44px Manrope;
 
 ---
 
-## 7. Nagłówek wyniku — HIERARCHIA (kluczowe)
+## 7. Szablon „Wynik klienta" — HIERARCHIA (kluczowe)
 
-Kolejność i waga (od góry):
-1. **Usługa / produkt** — Manrope 800, DUŻY (story ~46px / post ~40px), np. „Program B2B dla branży beauty". Ma być mocno widoczny.
-2. **Headline z metryką** — Manrope 800, NAJWIĘKSZY (story ~78px / post ~64px), amber highlight na liczbie, np. „**159** umówionych spotkań w 2 miesiące".
-3. **Zrzut dowodowy** — w białej, zaokrąglonej kafli z cieniem.
-4. **Caption ze statami** — Inter 600, `#D6CEBF`, np. „ROAS 29 · 25 klientów · 271 zł/klient".
-5. **Banner przychodu** (opcjonalnie) — gdy jest kwota, np. „≈197 500 zł przychodu".
+Szablon wzorcowy: `templates/wynik-klienta.html` (render: `social/wyniki-klientow/beauty-b2b-159-spotkan.png`).
+Zasada nadrzędna: **grafika ma być czytelna w feedzie IG bez wchodzenia w post** — wszystkie napisy duże.
 
-> Branża może być zaszyta w linii usługi (np. „…dla branży beauty") zamiast osobnego pilla. Pill branży stosujemy głównie na okładkach firm.
+Układ (od góry, wyśrodkowany, tło `--dark-warm` + poświata):
+1. **Eyebrow / usługa+branża** — Manrope 800, UPPERCASE, **bursztyn `#F5A01B`**, DUŻY (~50px, tej samej rangi co nagłówek). Np. „Program B2B · branża beauty". Bez osobnego pilla beauty — branża zaszyta w linii.
+2. **Nagłówek — najważniejsze metryki biznesowe**, każda w osobnej linii, **wszystkie tej samej wielkości i koloru** (Manrope 800, ~72px, `#F7F4EE`, bez highlightu). Jedna informacja = jedna linia. Np.:
+   `≈197 500 zł przychodu` / `159 umówionych spotkań` / `w 2 miesiące`.
+3. **Trzy ramki statów** (`#1c1509`, border `#43340f`, radius 20) — kolejne metryki wg ważności: liczba bursztyn (~62px) + etykieta UPPERCASE `#AD9E84` (~25px). Np. `29× Zwrot z reklam · 25 Nowych klientów · 42,59 zł Za spotkanie`.
+4. **Zrzut dowodowy** — w białej, zaokrąglonej kafli z cieniem (szer. 980px).
+5. **Caption — metryka najmniej ważna** — Inter 600, `#AD9E84`, ~30px. Np. „271 zł za pozyskanego klienta".
+6. **Lockup „Trifecta Agency"** na dole (sygnet 48px + wordmark, „Agency" bursztyn), nad nim cienki separator.
+
+**Kolejność ważności metryk** (najpierw najważniejsze — w nagłówku, potem ramki, na końcu caption):
+przychód → ilość umówionych spotkań → zwrot z reklamy (ROAS) → koszt za spotkanie → ilość leadów → koszt za leada.
+
+Zasady metryk:
+- **Nie powtarzaj tej samej informacji** dwa razy (np. ROAS i „X× zwrot" to jedno).
+- ROAS zapisuj jako `29×`. Gdy znasz kwotę — podaj **przychód w zł** (lepszy niż sam mnożnik), np. „≈197 500 zł przychodu".
+- Najważniejsze metryki (przychód, spotkania) idą do nagłówka; mniej ważne do ramek; najmniej ważna (koszt/klient, koszt/lead) do captionu.
 
 ---
 
@@ -171,8 +182,8 @@ Wszystkie grafiki social: tło `--dark-warm` + poświata (blok z §2), logo „T
 | Typ | Wymiary | Układ |
 |---|---|---|
 | **Landing hero / web** | responsywne | jasne tło, patrz §1–6 |
-| **Story wyniku** | 1080×1920 (9:16) | usługa → headline → zrzut → caption → (banner) → logo |
-| **Post wyniku** | 1080×1350 (4:5) | jw., bardziej kompaktowo |
+| **Story wyniku** | 1080×1920 (9:16) | eyebrow(usługa+branża) → nagłówek 1–3 linie metryk (ta sama wielkość) → 3 ramki statów → zrzut → caption → lockup. Szablon: `templates/wynik-klienta.html`. Szczegóły w §7. |
+| **Post wyniku** | 1080×1350 (4:5) | jw., kompaktowo (mniejsze marginesy, zrzut węższy). |
 | **Okładka firmy (relacja/wyróżnione)** | 1080×1920 | eyebrow „Współpraca z TrifectaOS" → **logo w białej kafli** (640×400) → **pill branży** → wynik (Manrope 800 ~62px) → zakres (Inter 500 ~30px) → logo |
 | **Okładka firmy BEZ logo** | 1080×1920 | eyebrow → **duża NAZWA firmy** (Manrope 800 ~120px) → pill branży → (wynik + zakres, jeśli są) → logo |
 | **Okładka modułu (Akademia)** | 1460×752 | wyśrodkowane: lockup „Trifecta Agency Akademia" → eyebrow „MODUŁ" → duży tytuł (Manrope 800 ~122px) → subheading (Inter 500 ~52px). Bez numeracji. |
