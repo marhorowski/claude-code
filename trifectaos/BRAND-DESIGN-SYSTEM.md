@@ -153,14 +153,15 @@ border-radius:16px; padding:22px 34px; font:800 44px Manrope;
 
 ## 7. Szablon „Wynik klienta" — HIERARCHIA (kluczowe)
 
-Szablon wzorcowy: `templates/wynik-klienta.html` (render: `social/wyniki-klientow/beauty-b2b-159-spotkan.png`).
+Szablon wzorcowy: `templates/wynik-klienta.html` (rendery w `social/wyniki-klientow/story/` i `/post/`).
 Zasada nadrzędna: **grafika ma być czytelna w feedzie IG bez wchodzenia w post** — wszystkie napisy duże.
+**ZAWSZE dwa formaty:** post 4:5 (1080×1350, folder `post/`) + relacja 9:16 (1080×1920, folder `story/`). Ta sama treść, różni się tylko wysokość `html,body` (układ jest flex-center z lockupem w `absolute` na dole, więc działa dla obu).
 
 Układ (od góry, wyśrodkowany, tło `--dark-warm` + poświata):
-1. **Eyebrow / usługa+branża** — Manrope 800, UPPERCASE, **bursztyn `#F5A01B`**, DUŻY (~50px, tej samej rangi co nagłówek). Np. „Program B2B · branża beauty". Bez osobnego pilla beauty — branża zaszyta w linii.
-2. **Nagłówek — najważniejsze metryki biznesowe**, każda w osobnej linii, **wszystkie tej samej wielkości i koloru** (Manrope 800, ~72px, `#F7F4EE`, bez highlightu). Jedna informacja = jedna linia. Np.:
+1. **Eyebrow / usługa+branża** — Manrope 800, UPPERCASE, **bursztyn `#F5A01B`**, DUŻY (~48px). **ZAWSZE jedna linia** (`white-space:nowrap`) — gdy tekst jest długi, SKRACAMY (np. „Usługi księgowo-prawne · kancelaria w Niemczech" → „Kancelaria prawno-księgowa"). Branża zaszyta w linii, bez osobnego pilla.
+2. **Nagłówek — najważniejsze metryki biznesowe**, każda w osobnej linii, **wszystkie tej samej wielkości i koloru** (Manrope 800, ~72px, `#F7F4EE`, bez highlightu). Jedna informacja = jedna linia. **ZAWSZE minimum 2 białe metryki** (gdy case ma jedną liczbę, dobieramy drugą: cadence „co miesiąc" / „w 1 miesiąc", albo druga realna metryka). Np.:
    `≈197 500 zł przychodu` / `159 umówionych spotkań` / `w 2 miesiące`.
-3. **Trzy ramki statów** (`#1c1509`, border `#43340f`, radius 20) — kolejne metryki wg ważności: liczba bursztyn (~62px) + etykieta UPPERCASE `#AD9E84` (~25px). Np. `29× Zwrot z reklam · 25 Nowych klientów · 42,59 zł Za spotkanie`.
+3. **Ramki statów** (`#1c1509`, border `#43340f`, radius 20) — kolejne metryki wg ważności: liczba bursztyn (~62px, przy długich wartościach jak „od 3 000 zł" zmniejsz do ~50px) + etykieta UPPERCASE `#AD9E84` (~25px). **3 ramki** gdy jest komplet metryk (grid 3×, `width:980`), **2 ramki** gdy mniej (grid 2×, `width:~700`, wyśrodkowane). Np. `29× Zwrot z reklam · 25 Nowych klientów · 42,59 zł Za spotkanie`.
 4. **Zrzut dowodowy** — w białej, zaokrąglonej kafli z cieniem (szer. 980px).
 5. **Caption — metryka najmniej ważna** — Inter 600, `#AD9E84`, ~30px. Np. „271 zł za pozyskanego klienta".
 6. **Lockup „Trifecta Agency"** na dole (sygnet 48px + wordmark, „Agency" bursztyn), nad nim cienki separator.
