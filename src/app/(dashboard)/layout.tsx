@@ -2,7 +2,7 @@
 
 import { useState, useEffect, createContext, useContext } from "react";
 import { useSession, signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
@@ -31,6 +31,7 @@ export default function DashboardLayout({
 }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedClientId, setSelectedClientId] = useState("");
@@ -48,7 +49,11 @@ export default function DashboardLayout({
         .then((data: Array<{ id: string; name: string }>) => {
           setClients(data);
           if (data.length > 0 && !selectedClientId) {
-            setSelectedClientId(data[0].id);
+            const cn = searchParams.get("cn");
+            const preselect = cn
+              ? data.find((c) => c.name.toLowerCase() === cn.toLowerCase())
+              : null;
+            setSelectedClientId(preselect ? preselect.id : data[0].id);
           }
         })
         .catch(() => {});
