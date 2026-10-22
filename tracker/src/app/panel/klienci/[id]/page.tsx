@@ -1,5 +1,7 @@
+import { randomBytes } from "node:crypto";
 import Link from "next/link";
 import { headers } from "next/headers";
+import { SheetSection } from "@/components/admin/SheetSection";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
@@ -17,6 +19,11 @@ export default async function ClientPage({ params, searchParams }: { params: { i
     include: { users: { orderBy: { createdAt: "asc" } }, _count: { select: { entries: true } } },
   });
   if (!client) notFound();
+
+  // Tajny klucz do skryptu arkusza: tworzony raz, przy pierwszym wejściu na stronę klienta.
+  const secret =
+    client.sheetSecret ??
+    (await prisma.client.update({ where: { id: client.id }, data: { sheetSecret: randomBytes(24).toString("base64url") } })).sheetSecret!;
 
   const h = headers();
   const formUrl = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("x-forwarded-host") ?? h.get("host")}/f/${client.formToken}`;
@@ -50,6 +57,8 @@ export default async function ClientPage({ params, searchParams }: { params: { i
             </div>
             <div className="mt-3"><RegenerateLinkButton clientId={client.id} /></div>
           </section>
+
+          <SheetSection client={client} secret={secret} />
 
           <section className="card overflow-hidden">
             <h2 className="border-b border-line px-5 py-4 text-[16px] font-bold">Konta do logowania</h2>

@@ -13,6 +13,12 @@ model Client {
   name      String
   formToken String   @unique
   createdAt DateTime @default(now())
+  // Arkusz Google (Apps Script): adres wdrożenia, tajny klucz w skrypcie, stan ostatniej synchronizacji.
+  sheetUrl      String?
+  sheetSecret   String?
+  sheetName     String?
+  sheetSyncedAt DateTime?
+  sheetError    String?
   entries   Entry[]
   users     User[]
 }

@@ -7,6 +7,7 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { ACTIVE_CLIENT_COOKIE, newFormToken } from "@/lib/clients";
 import { hashPassword, MIN_PASSWORD_LENGTH } from "@/lib/passwords";
+import { isValidSheetUrl, syncAll } from "@/lib/sheets";
 import type { FormState } from "./auth-actions";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
@@ -111,6 +112,37 @@ export async function createUser(_prev: FormState, fd: FormData): Promise<FormSt
   });
   refresh();
   return { ok: `Dodano konto ${user.email}. Przekaż tej osobie email i hasło.` };
+}
+
+/** Podłącza arkusz: sprawdza adres pełną synchronizacją (wszystkie wpisy) i dopiero wtedy go zapisuje. */
+export async function connectSheet(_prev: FormState, fd: FormData): Promise<FormState> {
+  await requireAdmin();
+  const clientId = str(fd, "clientId");
+  const url = str(fd, "url");
+  if (!isValidSheetUrl(url)) {
+    return { error: "To nie wygląda na adres wdrożenia Apps Script. Powinien zaczynać się od https://script.google.com/macros/s/ i kończyć na /exec." };
+  }
+  const reply = await syncAll(clientId, url);
+  if (!reply.ok) return { error: `Arkusz nie przyjął danych: ${reply.error}` };
+  await prisma.client.update({
+    where: { id: clientId },
+    data: { sheetUrl: url, sheetName: reply.name ?? null, sheetSyncedAt: new Date(), sheetError: null },
+  });
+  refresh();
+  return { ok: `Połączono z arkuszem${reply.name ? ` „${reply.name}”` : ""} i wysłano wszystkie wpisy.` };
+}
+
+export async function resyncSheet(clientId: string): Promise<string> {
+  await requireAdmin();
+  const reply = await syncAll(clientId);
+  refresh();
+  return reply.ok ? "Wysłano wszystkie wpisy i odświeżono zakładki z formułami." : `Nie udało się: ${reply.error}`;
+}
+
+export async function disconnectSheet(clientId: string) {
+  await requireAdmin();
+  await prisma.client.update({ where: { id: clientId }, data: { sheetUrl: null, sheetName: null, sheetSyncedAt: null, sheetError: null } });
+  refresh();
 }
 
 export async function setUserPassword(id: string, password: string): Promise<string | null> {

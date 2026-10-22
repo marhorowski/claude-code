@@ -18,6 +18,9 @@ Stack: Next.js 14, Prisma + Postgres (Neon na Vercelu, schemat `tracker`), Tailw
   `/panel/dane` — edycja surowych wpisów, `/panel/konto` — zmiana hasła
 - `/panel/klienci` (admin) — firmy, ich linki do formularza, konta osób i administratorów;
   przełącznik w nagłówku wybiera firmę, której wyniki ogląda admin
+- Arkusz Google: `src/lib/apps-script.ts` (skrypt wklejany do arkusza, z kluczem klienta),
+  `src/lib/sheets.ts` (wysyłanie wpisów), `src/lib/sheet-spec.ts` (wskaźniki jako formuły arkusza —
+  test pilnuje zgodności z aplikacją). Podłączenie: strona klienta → „Arkusz Google”.
 
 ## Lokalnie
 

@@ -6,6 +6,7 @@ import { getCurrentClient } from "@/lib/clients";
 import { findConflict, parseEntry, type EntryInput } from "@/lib/entries";
 import { getArea } from "@/lib/fields";
 import { formatDay, toDate, toIso } from "@/lib/periods";
+import { syncDelete, syncEntry } from "@/lib/sheets";
 
 export type ActionResult = { ok: true; message: string } | { ok: false; errors: string[] };
 
@@ -31,24 +32,33 @@ async function saveEntry(clientId: string, input: EntryInput, editingId?: string
   const sameRange = ranges.find((r) => r.dateFrom === input.dateFrom && r.dateTo === input.dateTo);
   const label = `${getArea(input.area)?.label}, ${describeRange(input.dateFrom, input.dateTo)}`;
 
+  let savedId: string;
+  let message: string;
   if (editingId) {
     if (sameRange && sameRange.id !== editingId) {
       return { ok: false, errors: ["Wpis z dokładnie tym zakresem dat już istnieje. Edytuj tamten albo go usuń."] };
     }
-    await prisma.entry.update({ where: { id: editingId, clientId }, data });
-    revalidatePath("/panel", "layout");
-    return { ok: true, message: `Zapisano zmiany: ${label}.` };
+    savedId = (await prisma.entry.update({ where: { id: editingId, clientId }, data })).id;
+    message = `Zapisano zmiany: ${label}.`;
+  } else if (sameRange) {
+    savedId = (await prisma.entry.update({ where: { id: sameRange.id }, data })).id;
+    message = `Zastąpiono wcześniejszy wpis: ${label}.`;
+  } else {
+    savedId = (await prisma.entry.create({ data: { ...data, clientId, area: input.area } })).id;
+    message = `Zapisano: ${label}.`;
   }
-
-  if (sameRange) {
-    await prisma.entry.update({ where: { id: sameRange.id }, data });
-    revalidatePath("/panel", "layout");
-    return { ok: true, message: `Zastąpiono wcześniejszy wpis: ${label}.` };
-  }
-
-  await prisma.entry.create({ data: { ...data, clientId, area: input.area } });
   revalidatePath("/panel", "layout");
-  return { ok: true, message: `Zapisano: ${label}.` };
+  await toSheet(() => syncEntry(savedId));
+  return { ok: true, message };
+}
+
+/** Arkusz nigdy nie blokuje zapisu: błąd zostaje zapisany przy kliencie (sheets.ts), tu tylko go nie przepuszczamy. */
+async function toSheet(job: () => Promise<void>) {
+  try {
+    await job();
+  } catch (e) {
+    console.error("Synchronizacja z arkuszem nie powiodła się", e);
+  }
 }
 
 export async function submitPublicEntry(token: string, form: Record<string, string>): Promise<ActionResult> {
@@ -69,6 +79,7 @@ export async function savePanelEntry(form: Record<string, string>, editingId?: s
 
 export async function deleteEntry(id: string): Promise<void> {
   const client = await getCurrentClient();
-  await prisma.entry.delete({ where: { id, clientId: client.id } });
+  const removed = await prisma.entry.delete({ where: { id, clientId: client.id } });
   revalidatePath("/panel", "layout");
+  await toSheet(() => syncDelete(client.id, removed.area, removed.id));
 }
