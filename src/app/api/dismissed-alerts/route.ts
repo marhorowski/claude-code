@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSessionOrAdmin } from "@/lib/getSession";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getSessionOrAdmin();
   if (!session) return NextResponse.json([], { status: 200 });
 
   const { searchParams } = new URL(req.url);
@@ -20,7 +19,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getSessionOrAdmin();
   if (!session) return NextResponse.json({ error: "Brak dostępu" }, { status: 401 });
 
   const { clientId, alertKey } = await req.json();
@@ -36,7 +35,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getSessionOrAdmin();
   if (!session) return NextResponse.json({ error: "Brak dostępu" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);

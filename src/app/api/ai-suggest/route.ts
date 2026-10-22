@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getSessionOrAdmin } from "@/lib/getSession";
 import { prisma } from "@/lib/prisma";
 import Anthropic from "@anthropic-ai/sdk";
 import { KNOWLEDGE_BASE } from "@/lib/knowledge";
@@ -8,7 +7,7 @@ import { KNOWLEDGE_BASE } from "@/lib/knowledge";
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  const session = await getSessionOrAdmin();
   if (!session) return NextResponse.json({ error: "Brak dostępu" }, { status: 401 });
   if (session.user.role !== "ADMIN" && session.user.role !== "LIDER") {
     return NextResponse.json({ error: "Brak uprawnień" }, { status: 403 });
