@@ -1,7 +1,7 @@
 // Dane dashboardu: kafelki north star (z poprzednim okresem i serią do wykresu) oraz panele lejka.
 import { AREAS } from "./fields";
 import { METRICS } from "./metrics";
-import { addDays, bucketKey, bucketsInRange, daysInRange, type Grouping } from "./periods";
+import { addDays, bucketBounds, bucketKey, daysInRange, type Grouping } from "./periods";
 import { buildReport, type ReportColumn, type ReportEntry } from "./report";
 import type { PanelDef, ViewDef } from "./views";
 
@@ -51,15 +51,33 @@ const shiftMonths = (iso: string, n: number) => {
   return d.toISOString().slice(0, 10);
 };
 
+export interface Comparison {
+  from: string;
+  to: string;
+  /** Data z poprzedniego okresu → odpowiadająca jej data w bieżącym (do nałożenia na wykres). */
+  toCurrent: (iso: string) => string;
+  toPrevious: (iso: string) => string;
+}
+
+const monthIndex = (iso: string) => Number(iso.slice(0, 4)) * 12 + Number(iso.slice(5, 7));
+
 /**
- * Poprzedni okres tej samej długości, tuż przed bieżącym. Przy podziale na tygodnie i miesiące
- * przesuwamy o pełne tygodnie / miesiące, żeby kolumny wykresu się pokrywały.
+ * Analogiczny okres wstecz dla dowolnego zakresu:
+ * - zakres od 1. dnia miesiąca → te same dni tyle miesięcy wcześniej (1–22 paź ↔ 1–22 wrz),
+ * - każdy inny → tyle samo dni tuż przed nim (17 dni ↔ poprzednie 17 dni).
  */
-export function previousRange(from: string, to: string, grouping: Grouping): { from: string; to: string } {
-  const n = bucketsInRange(from, to, grouping).length;
-  if (grouping === "month") return { from: shiftMonths(from, -n), to: shiftMonths(to, -n) };
-  const days = grouping === "week" ? 7 * n : daysInRange(from, to);
-  return { from: addDays(from, -days), to: addDays(to, -days) };
+export function comparisonFor(from: string, to: string): Comparison {
+  if (from.endsWith("-01")) {
+    const m = monthIndex(to) - monthIndex(from) + 1;
+    return { from: shiftMonths(from, -m), to: shiftMonths(to, -m), toCurrent: (d) => shiftMonths(d, m), toPrevious: (d) => shiftMonths(d, -m) };
+  }
+  const days = daysInRange(from, to);
+  return { from: addDays(from, -days), to: addDays(from, -1), toCurrent: (d) => addDays(d, days), toPrevious: (d) => addDays(d, -days) };
+}
+
+export function previousRange(from: string, to: string): { from: string; to: string } {
+  const { from: f, to: t } = comparisonFor(from, to);
+  return { from: f, to: t };
 }
 
 export interface KpiData extends MeasureInfo {
@@ -96,6 +114,8 @@ export interface DashboardData {
   total: ReportColumn;
   columns: ReportColumn[];
   previous: { from: string; to: string };
+  /** Daty poprzedniego okresu odpowiadające każdej kolumnie. */
+  prevBucketRanges: { from: string; to: string }[];
   /** Ostatnia kolumna obejmuje dzisiejszy dzień, więc jest niepełna. */
   partialLast: boolean;
 }
@@ -124,9 +144,13 @@ export function buildDashboard(
   range: { from: string; to: string; grouping: Grouping; today: string },
 ): DashboardData {
   const { from, to, grouping, today } = range;
-  const previous = previousRange(from, to, grouping);
+  const cmp = comparisonFor(from, to);
   const current = buildReport(entries, from, to, grouping);
-  const before = buildReport(entries, previous.from, previous.to, grouping);
+  // Wpisy z poprzedniego okresu przesunięte na daty bieżącego: każda kolumna porównuje się z jej odpowiednikiem.
+  const shifted = entries
+    .filter((e) => e.dateTo >= cmp.from && e.dateTo <= cmp.to)
+    .map((e) => ({ ...e, dateTo: cmp.toCurrent(e.dateTo) }));
+  const before = buildReport(shifted, from, to, grouping);
 
   const kpis = view.northStar.map((k): KpiData => ({
     key: k.key,
@@ -141,13 +165,22 @@ export function buildDashboard(
   const lastKey = current.columns.at(-1)?.key;
   const partialLast = to >= today && lastKey === bucketKey(today, grouping);
 
+  // Podpis poprzedniego okresu dla każdej kolumny: jej daty (przycięte do zakresu) przeniesione wstecz.
+  const prevBucketRanges = current.columns.map((c) => {
+    const b = bucketBounds(c.key, grouping);
+    const start = b.start < from ? from : b.start;
+    const end = b.end > to ? to : b.end;
+    return { from: cmp.toPrevious(start), to: cmp.toPrevious(end) };
+  });
+
   return {
     bucketKeys: current.columns.map((c) => c.key),
     kpis,
     panels: view.panels.map((p) => buildPanel(p, current.total)),
     total: current.total,
     columns: current.columns,
-    previous,
+    previous: { from: cmp.from, to: cmp.to },
+    prevBucketRanges,
     partialLast,
   };
 }

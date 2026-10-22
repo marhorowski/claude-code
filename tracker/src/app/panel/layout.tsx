@@ -1,5 +1,7 @@
 import { headers } from "next/headers";
+import Link from "next/link";
 import { HeaderNav } from "@/components/HeaderNav";
+import { Logo } from "@/components/Logo";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
 import { getCurrentClient } from "@/lib/clients";
@@ -22,8 +24,10 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-line bg-card/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 min-[1800px]:max-w-[1640px]">
-          <span className="truncate font-semibold">{client.name}</span>
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:px-6">
+          <Link href="/panel" aria-label="TrifectaOS — wyniki" className="shrink-0"><Logo size={22} /></Link>
+          <span className="hidden h-5 w-px bg-line sm:block" aria-hidden />
+          <span className="hidden truncate font-display font-bold text-ink-2 sm:block">{client.name}</span>
           <HeaderNav
             items={[
               { href: "/panel", label: "Wyniki" },
@@ -42,7 +46,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6 min-[1800px]:max-w-[1640px]">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
 }

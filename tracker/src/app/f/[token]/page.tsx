@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { EntryForm } from "@/components/EntryForm";
+import { Logo } from "@/components/Logo";
 import { submitPublicEntry } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +17,10 @@ export default async function PublicFormPage({ params }: { params: { token: stri
 
   return (
     <main className="mx-auto max-w-lg px-4 py-8">
-      <h1 className="text-xl font-semibold">Raport dzienny</h1>
-      <p className="mb-6 text-sm text-muted">{client.name}</p>
-      <div className="rounded-2xl bg-card p-5 border border-line shadow-card">
+      <Logo size={26} />
+      <p className="eyebrow mt-8">{client.name}</p>
+      <h1 className="mb-6 mt-1 text-[28px] font-extrabold tracking-[-0.02em]">Raport dzienny</h1>
+      <div className="card p-6">
         <EntryForm onSubmit={submit} />
       </div>
     </main>

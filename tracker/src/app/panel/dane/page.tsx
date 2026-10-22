@@ -28,7 +28,7 @@ export default async function DataPage({ searchParams }: { searchParams: { area?
             </Link>
           ))}
         </div>
-        <Link href={`/panel/dane/nowy?area=${area.key}`} className="ml-auto rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90">
+        <Link href={`/panel/dane/nowy?area=${area.key}`} className="ml-auto btn-primary">
           Dodaj wpis
         </Link>
       </div>

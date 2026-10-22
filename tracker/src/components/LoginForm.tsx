@@ -6,7 +6,7 @@ import { login } from "@/app/auth-actions";
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="w-full rounded-xl bg-accent px-4 py-3 font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60">
+    <button type="submit" disabled={pending} className="btn-primary w-full py-3">
       {pending ? "Logowanie…" : "Zaloguj się"}
     </button>
   );

@@ -33,9 +33,13 @@ export function rangePresets(today: string): RangePreset[] {
 
 export const DEFAULT_PRESET = "4w";
 
-export function rangeLabel(from: string, to: string, today: string): string {
-  const preset = rangePresets(today).find((p) => p.from === from && p.to === to);
-  if (preset) return preset.label;
+/** „6 paź – 17 paź 2026”, „14 paź 2026” (jeden dzień), z rokiem przy obu datach, gdy się różnią. */
+export function datesLabel(from: string, to: string): string {
+  if (from === to) return `${formatDay(from)} ${from.slice(0, 4)}`;
   const sameYear = from.slice(0, 4) === to.slice(0, 4);
   return `${formatDay(from)}${sameYear ? "" : ` ${from.slice(0, 4)}`} – ${formatDay(to)} ${to.slice(0, 4)}`;
+}
+
+export function rangeLabel(from: string, to: string, today: string): string {
+  return rangePresets(today).find((p) => p.from === from && p.to === to)?.label ?? datesLabel(from, to);
 }

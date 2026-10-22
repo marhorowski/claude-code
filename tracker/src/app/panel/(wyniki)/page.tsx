@@ -2,9 +2,9 @@ import { prisma } from "@/lib/db";
 import { getCurrentClient } from "@/lib/clients";
 import { AREAS } from "@/lib/fields";
 import { METRICS } from "@/lib/metrics";
-import { bucketLabel, bucketsInRange, formatDay, isIsoDate, todayInPoland, toIso, type Grouping } from "@/lib/periods";
+import { bucketLabel, formatDay, isIsoDate, todayInPoland, toIso, type Grouping } from "@/lib/periods";
 import { buildDashboard, previousRange } from "@/lib/dashboard";
-import { DEFAULT_PRESET, rangeLabel, rangePresets } from "@/lib/ranges";
+import { datesLabel, DEFAULT_PRESET, rangePresets } from "@/lib/ranges";
 import { getView, VIEWS } from "@/lib/views";
 import { ReportTable, type ReportRow } from "@/components/ReportTable";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -23,7 +23,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
   const to = isIsoDate(searchParams.to ?? "") && searchParams.to! <= today ? searchParams.to! : preset.to;
   const from = isIsoDate(searchParams.from ?? "") && searchParams.from! <= to ? searchParams.from! : preset.from;
   const grouping: Grouping = GROUPINGS.includes(searchParams.group as Grouping) ? (searchParams.group as Grouping) : preset.grouping;
-  const previous = previousRange(from, to, grouping);
+  const previous = previousRange(from, to);
 
   const entries = await prisma.entry.findMany({
     where: { clientId: client.id, dateTo: { gte: new Date(`${previous.from}T00:00:00Z`), lte: new Date(`${to}T00:00:00Z`) } },
@@ -31,7 +31,6 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
   });
   const rows = entries.map((e) => ({ dateTo: toIso(e.dateTo), values: e.values as Record<string, number> }));
   const data = buildDashboard(rows, view, { from, to, grouping, today });
-  const prevKeys = bucketsInRange(previous.from, previous.to, grouping);
 
   // Szczegóły: wszystkie pola i wskaźniki zakładki, north star na początku.
   const northStar = view.northStar.map((k) => k.key);
@@ -61,7 +60,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
       <div className="max-w-xs text-center">
         <p className="font-medium">Brak wpisów w tym okresie</p>
         <p className="mt-1 text-[13px] text-muted">
-          Wyślij pierwszy raport przez <a href={`/f/${client.formToken}`} target="_blank" className="text-accent hover:underline">formularz</a> albo wybierz inny zakres.
+          Wyślij pierwszy raport przez <a href={`/f/${client.formToken}`} target="_blank" className="text-brown hover:underline">formularz</a> albo wybierz inny zakres.
         </p>
       </div>
     </div>
@@ -70,11 +69,15 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
   return (
     <PendingProvider>
       <div className="space-y-6">
-        <div>
+        <div className="space-y-4">
           <DashboardHeader views={VIEWS.map((v) => ({ key: v.key, label: v.label }))} view={view.key} from={from} to={to} grouping={grouping} today={today} />
-          <p className="mt-3 text-[13px] text-muted">
-            {view.question} <span className="tnum">· wpisów w okresie: {data.total.entryCount}</span>
-          </p>
+          <div>
+            <p className="eyebrow">{view.label}</p>
+            <h1 className="mt-1 text-[26px] font-extrabold leading-tight tracking-[-0.02em] sm:text-[30px]">{view.question}</h1>
+            <p className="tnum mt-1.5 text-[13px] text-muted">
+              {datesLabel(from, to)} w porównaniu z {datesLabel(previous.from, previous.to)} · wpisów: {data.total.entryCount}
+            </p>
+          </div>
         </div>
 
         <PendingDim>
@@ -82,9 +85,9 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
             kpis={data.kpis}
             labels={data.bucketKeys.map((k) => bucketLabel(k, grouping))}
             axisLabels={data.bucketKeys.map(axisLabel)}
-            prevLabels={prevKeys.map((k) => bucketLabel(k, grouping))}
+            prevLabels={data.prevBucketRanges.map((r) => (r.from === r.to ? formatDay(r.from) : `${formatDay(r.from)} – ${formatDay(r.to)}`))}
             partialLast={data.partialLast}
-            previousLabel={`Poprzedni okres (${rangeLabel(previous.from, previous.to, today)})`}
+            previousLabel={`Poprzedni okres (${datesLabel(previous.from, previous.to)})`}
             empty={empty}
           />
 
@@ -93,7 +96,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-[15px] font-semibold">Szczegóły w podziale na okresy</h2>
+            <h2 className="text-[18px] font-extrabold tracking-[-0.02em]">Szczegóły w podziale na okresy</h2>
             {tables.map((t) => (
               <ReportTable
                 key={t.title}

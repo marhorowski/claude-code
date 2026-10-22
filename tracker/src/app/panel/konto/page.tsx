@@ -10,11 +10,11 @@ export default async function AccountPage() {
   return (
     <div className="mx-auto max-w-md space-y-4">
       <div>
-        <h1 className="text-xl font-semibold">Moje konto</h1>
+        <h1 className="text-xl font-extrabold tracking-[-0.02em]">Moje konto</h1>
         <p className="text-sm text-muted">{user.name} · {user.email}</p>
       </div>
       <div className="rounded-2xl bg-card p-5 border border-line shadow-card">
-        <h2 className="mb-4 font-semibold">Zmiana hasła</h2>
+        <h2 className="mb-4 font-bold">Zmiana hasła</h2>
         <StatusForm action={changePassword} submitLabel="Zmień hasło">
           <input type="email" name="username" autoComplete="username" defaultValue={user.email} hidden readOnly />
           <label className="block">

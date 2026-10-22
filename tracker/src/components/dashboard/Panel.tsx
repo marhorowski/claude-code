@@ -5,7 +5,7 @@ import { formatShare, formatValue } from "@/lib/format";
 export function Panel({ panel }: { panel: PanelData }) {
   return (
     <section className="card flex flex-col p-4">
-      <h3 className="px-3 pb-2 text-[15px] font-semibold">{panel.title}</h3>
+      <h3 className="px-3 pb-2 text-[15px] font-bold">{panel.title}</h3>
       <ul className="flex-1">
         {panel.rows.map((r) => (
           <li key={r.key} className="relative flex h-11 items-center gap-3 rounded-[10px] px-3 pb-1.5 text-[14px] hover:bg-soft/60">

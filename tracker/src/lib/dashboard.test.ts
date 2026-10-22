@@ -15,16 +15,34 @@ const entries: ReportEntry[] = [
   { dateTo: "2026-10-20", values: { plannedMeetings: 12, attendedMeetings: 9, postponedMeetings: 1, cancelledMeetings: 0, noShows: 2, closings: 3, followUpClosings: 1, revenue: 30000, followUpRevenue: 10000, plannedFollowUps: 4, followUpsDone: 2 } },
 ];
 
-describe("previousRange", () => {
-  it("dni: ten sam rozmiar tuż przed", () => {
-    expect(previousRange("2026-10-12", "2026-10-25", "day")).toEqual({ from: "2026-09-28", to: "2026-10-11" });
+describe("analogiczny okres wstecz", () => {
+  it("dowolny zakres: tyle samo dni tuż przed", () => {
+    expect(previousRange("2026-10-12", "2026-10-25")).toEqual({ from: "2026-09-28", to: "2026-10-11" });
+    // 2 tygodnie i 3 dni (17 dni)
+    expect(previousRange("2026-10-02", "2026-10-18")).toEqual({ from: "2026-09-15", to: "2026-10-01" });
   });
-  it("tygodnie: pełne tygodnie wstecz", () => {
-    expect(previousRange("2026-10-12", "2026-10-22", "week")).toEqual({ from: "2026-09-28", to: "2026-10-08" });
+  it("od 1. dnia miesiąca: te same dni wcześniejszego miesiąca", () => {
+    expect(previousRange("2026-10-01", "2026-10-22")).toEqual({ from: "2026-09-01", to: "2026-09-22" });
+    expect(previousRange("2026-03-01", "2026-03-31")).toEqual({ from: "2026-02-01", to: "2026-02-28" });
+    expect(previousRange("2025-11-01", "2026-10-22")).toEqual({ from: "2024-11-01", to: "2025-10-22" });
   });
-  it("miesiące: pełne miesiące wstecz, z przycięciem dnia", () => {
-    expect(previousRange("2025-11-01", "2026-10-31", "month")).toEqual({ from: "2024-11-01", to: "2025-10-31" });
-    expect(previousRange("2026-03-01", "2026-03-31", "month")).toEqual({ from: "2026-02-01", to: "2026-02-28" });
+  it("poprzedni okres nakłada się kolumna w kolumnę", () => {
+    const d = buildDashboard(
+      [
+        { dateTo: "2026-09-16", values: { leads: 5 } }, // 1. dzień poprzedniego okresu → 1. kolumna
+        { dateTo: "2026-10-01", values: { leads: 7 } }, // ostatni dzień poprzedniego → ostatnia kolumna
+        { dateTo: "2026-10-03", values: { leads: 9 } },
+      ],
+      getView("marketing"),
+      { from: "2026-10-02", to: "2026-10-18", grouping: "day", today: "2026-10-22" },
+    );
+    const leads = d.kpis.find((k) => k.key === "leads")!;
+    expect(leads.prevSeries[0]).toBeNull(); // 15 wrz: brak wpisu
+    expect(leads.prevSeries[1]).toBe(5);
+    expect(leads.prevSeries.at(-1)).toBe(7);
+    expect(leads.value).toBe(9);
+    expect(leads.prev).toBe(12);
+    expect(d.prevBucketRanges[1]).toEqual({ from: "2026-09-16", to: "2026-09-16" });
   });
 });
 

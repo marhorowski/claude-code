@@ -2,72 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tokeny kolorów: kanały RGB (dla przezroczystości: bg-accent/10). Ciemne wartości poniżej. */
+/*
+ * Tokeny TrifectaOS (jasny motyw). Kanały RGB, żeby działała przezroczystość (bg-accent/10).
+ * Bursztyn punktowo: zaznaczenie, linia wykresu, CTA. Brąz: pieniądze i tekst akcentu (czytelny na jasnym).
+ */
 :root {
-  --page: 248 248 246;
+  --page: 250 249 247;      /* #FAF9F7 ciepła biel */
   --card: 255 255 255;
-  --soft: 241 241 239;
-  --ink: 23 23 26;
-  --ink-2: 72 72 77;
-  --muted: 102 102 109;
-  --accent: 62 99 221;
-  --on-accent: 255 255 255;
-  --money: 15 127 87;
-  --up: 15 127 87;
-  --down: 210 63 69;
-  --line: rgb(0 0 0 / 0.075);
-  --line-strong: rgb(0 0 0 / 0.14);
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02);
-  --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.18), 0 0 0 1px rgb(0 0 0 / 0.06);
+  --soft: 242 239 233;      /* #F2EFE9 */
+  --ink: 22 21 19;          /* #161513 grafit */
+  --ink-2: 58 55 50;
+  --muted: 91 88 82;        /* #5B5852 */
+  --accent: 245 160 27;     /* #F5A01B bursztyn */
+  --accent-dark: 217 134 10;/* #D9860A */
+  --on-accent: 22 21 19;    /* tekst na bursztynie: grafit */
+  --brown: 138 90 18;       /* #8A5A12 */
+  --money: 138 90 18;
+  --up: 30 125 79;
+  --down: 196 58 46;
+  --line: #e3ded4;
+  --line-strong: #d3ccbf;
+  --shadow-card: 0 1px 2px rgb(22 21 19 / 0.04), 0 10px 30px rgb(22 21 19 / 0.06);
+  --shadow-pop: 0 24px 60px rgb(22 21 19 / 0.14), 0 0 0 1px rgb(22 21 19 / 0.06);
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --page: 11 11 13;
-    --card: 20 20 23;
-    --soft: 28 28 32;
-    --ink: 243 243 245;
-    --ink-2: 196 196 202;
-    --muted: 140 140 149;
-    --accent: 123 150 255;
-    --on-accent: 11 11 13;
-    --money: 52 196 139;
-    --up: 52 196 139;
-    --down: 255 107 112;
-    --line: rgb(255 255 255 / 0.08);
-    --line-strong: rgb(255 255 255 / 0.16);
-    --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.02);
-    --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.08);
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme="dark"] {
-  --page: 11 11 13;
-  --card: 20 20 23;
-  --soft: 28 28 32;
-  --ink: 243 243 245;
-  --ink-2: 196 196 202;
-  --muted: 140 140 149;
-  --accent: 123 150 255;
-  --on-accent: 11 11 13;
-  --money: 52 196 139;
-  --up: 52 196 139;
-  --down: 255 107 112;
-  --line: rgb(255 255 255 / 0.08);
-  --line-strong: rgb(255 255 255 / 0.16);
-  --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.02);
-  --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.08);
-  color-scheme: dark;
 }
 
 @layer components {
   .label { @apply block text-[13px] font-medium text-ink-2; }
-  .input { @apply mt-1 block w-full rounded-lg border border-line-strong bg-card px-3 py-2 text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent; }
+  .input { @apply mt-1 block w-full rounded-xl border border-line-strong bg-card px-3 py-2 text-ink focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30; }
   .card { @apply rounded-2xl border border-line bg-card shadow-card; }
-  .btn-primary { @apply rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60; }
+  .btn-primary { @apply rounded-xl bg-accent px-5 py-2.5 font-display text-[14px] font-extrabold text-on-accent shadow-[0_8px_20px_rgb(245_160_27_/_0.28)] transition hover:-translate-y-px hover:bg-accent-dark disabled:translate-y-0 disabled:opacity-50 disabled:shadow-none; }
+  .eyebrow { @apply font-display text-[12px] font-bold uppercase tracking-[.14em] text-brown; }
   .tnum { font-variant-numeric: tabular-nums; }
 }
 
-body { @apply bg-page text-[14px] text-ink antialiased; }
+body { @apply bg-page font-sans text-[14px] text-ink antialiased; }
+input[type="checkbox"], input[type="radio"] { accent-color: rgb(var(--accent)); }
+h1, h2, h3 { @apply font-display; }

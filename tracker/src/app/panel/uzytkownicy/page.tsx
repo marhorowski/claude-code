@@ -16,7 +16,7 @@ export default async function UsersPage() {
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <section className="overflow-x-auto rounded-2xl bg-card border border-line shadow-card">
-        <h2 className="border-b border-line px-4 py-3 font-semibold">Konta</h2>
+        <h2 className="border-b border-line px-4 py-3 font-bold">Konta</h2>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-muted">
@@ -42,7 +42,7 @@ export default async function UsersPage() {
       </section>
 
       <section className="rounded-2xl bg-card p-5 border border-line shadow-card">
-        <h2 className="mb-1 font-semibold">Dodaj konto</h2>
+        <h2 className="mb-1 font-bold">Dodaj konto</h2>
         <p className="mb-4 text-sm text-muted">Klient widzi tylko dane klienta „{client.name}”.</p>
         <StatusForm action={createUser} submitLabel="Dodaj konto">
           <label className="block">

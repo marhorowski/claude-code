@@ -79,14 +79,14 @@ export function Overview({ kpis, labels, axisLabels, prevLabels, partialLast, pr
             >
               <div
                 className={`h-full rounded-xl px-3 py-3 transition-colors group-focus-visible:ring-2 group-focus-visible:ring-accent ${
-                  on ? (x.money ? "bg-money/[.07] ring-1 ring-inset ring-money/25" : "bg-accent/[.06] ring-1 ring-inset ring-accent/20") : "group-hover:bg-soft/70"
+                  on ? (x.money ? "bg-money/[.07] ring-1 ring-inset ring-money/30" : "bg-accent/[.12] ring-1 ring-inset ring-accent/40") : "group-hover:bg-soft/70"
                 }`}
               >
                 <div className={`flex items-center justify-between gap-2 text-[13px] ${on ? "font-medium text-ink" : "text-ink-2"}`}>
                   <span className="truncate" title={x.label}>{x.label}</span>
                   <Delta k={x} />
                 </div>
-                <div className={`tnum mt-1 truncate text-[26px] font-semibold leading-[1.15] tracking-[-.03em] ${on ? "text-ink" : "text-ink-2"}`} title={formatValue(x.value, x.unit)}>
+                <div className={`tnum mt-1 truncate font-display text-[22px] font-extrabold sm:text-[28px] leading-[1.1] tracking-[-.02em] ${on ? (x.money ? "text-brown" : "text-ink") : "text-ink-2"}`} title={formatValue(x.value, x.unit)}>
                   {formatKpi(x.value, x.unit)}
                 </div>
                 <div className="mt-0.5 line-clamp-2 min-h-[2lh] text-[12px] leading-snug text-muted">{x.hint}</div>
@@ -99,7 +99,7 @@ export function Overview({ kpis, labels, axisLabels, prevLabels, partialLast, pr
 
       <div className="relative p-4 sm:p-6">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[15px] font-semibold">{k.label}</h2>
+          <h2 className="text-[16px] font-bold">{k.label}</h2>
           <div className="flex items-center gap-4 text-[12px] text-muted">
             <span className="flex items-center gap-1.5"><span className="h-0.5 w-4 rounded" style={{ background: colorOf(k) }} />Ten okres</span>
             <span className="flex items-center gap-1.5"><span className="w-4 border-t border-dashed border-muted" />{previousLabel}</span>

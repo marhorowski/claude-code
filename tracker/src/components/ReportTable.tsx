@@ -23,7 +23,7 @@ export function ReportTable({ title, rows, columns, total, leadRows = 0 }: Props
 
   return (
     <section className="rounded-2xl bg-card border border-line shadow-card">
-      <h2 className="border-b border-line px-4 py-3 font-semibold">{title}</h2>
+      <h2 className="border-b border-line px-4 py-3 font-bold">{title}</h2>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>

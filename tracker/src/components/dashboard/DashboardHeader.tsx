@@ -99,7 +99,7 @@ export function DashboardHeader({ views, view, from, to, grouping, today }: Prop
                         className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left hover:bg-soft"
                       >
                         {p.label}
-                        {activePreset?.key === p.key && <span className="text-accent">✓</span>}
+                        {activePreset?.key === p.key && <span className="text-brown">✓</span>}
                       </button>
                     </li>
                   ))}
@@ -109,7 +109,7 @@ export function DashboardHeader({ views, view, from, to, grouping, today }: Prop
                       className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left hover:bg-soft"
                     >
                       Własny zakres…
-                      {!activePreset && <span className="text-accent">✓</span>}
+                      {!activePreset && <span className="text-brown">✓</span>}
                     </button>
                   </li>
                 </ul>

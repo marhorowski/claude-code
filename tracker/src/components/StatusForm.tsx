@@ -7,7 +7,7 @@ import type { FormState } from "@/app/auth-actions";
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60">
+    <button type="submit" disabled={pending} className="btn-primary">
       {pending ? "Zapisywanie…" : label}
     </button>
   );

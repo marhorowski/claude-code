@@ -47,7 +47,17 @@ export function bucketKey(iso: string, grouping: Grouping): string {
   return mondayOf(iso);
 }
 
-const MONTHS = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
+/** Pierwszy i ostatni dzień okresu o danym kluczu. */
+export function bucketBounds(key: string, grouping: Grouping): { start: string; end: string } {
+  if (grouping === "day") return { start: key, end: key };
+  if (grouping === "week") return { start: key, end: addDays(key, 6) };
+  const start = `${key}-01`;
+  const next = toDate(start);
+  next.setUTCMonth(next.getUTCMonth() + 1);
+  return { start, end: addDays(toIso(next), -1) };
+}
+
+const MONTHS =["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
 
 export function formatDay(iso: string): string {
   return `${Number(iso.slice(8, 10))} ${MONTHS[Number(iso.slice(5, 7)) - 1]}`;

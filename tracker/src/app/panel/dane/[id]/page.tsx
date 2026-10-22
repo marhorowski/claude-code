@@ -21,7 +21,7 @@ export default async function EditEntryPage({ params }: { params: { id: string }
   return (
     <div className="mx-auto max-w-lg">
       <Link href={`/panel/dane?area=${area.key}`} className="text-sm text-muted hover:underline">← Dane</Link>
-      <h1 className="mb-4 mt-2 text-xl font-semibold">Edycja wpisu: {area.label}</h1>
+      <h1 className="mb-4 mt-2 text-xl font-extrabold tracking-[-0.02em]">Edycja wpisu: {area.label}</h1>
       <div className="rounded-2xl bg-card p-5 border border-line shadow-card">
         <EntryForm
           onSubmit={save}
