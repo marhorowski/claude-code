@@ -17,8 +17,8 @@ export default async function PublicFormPage({ params }: { params: { token: stri
   return (
     <main className="mx-auto max-w-lg px-4 py-8">
       <h1 className="text-xl font-semibold">Raport dzienny</h1>
-      <p className="mb-6 text-sm text-slate-500">{client.name}</p>
-      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+      <p className="mb-6 text-sm text-muted">{client.name}</p>
+      <div className="rounded-2xl bg-card p-5 border border-line shadow-card">
         <EntryForm onSubmit={submit} />
       </div>
     </main>

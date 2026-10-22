@@ -68,13 +68,13 @@ export function EntryForm({ onSubmit, initial, lockArea, defaultArea, afterSaveH
   return (
     <form onSubmit={submit} className="space-y-6">
       {!lockArea && (
-        <div className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1">
+        <div className="grid grid-cols-3 gap-1 rounded-xl bg-soft p-1">
           {AREAS.map((a) => (
             <button
               key={a.key}
               type="button"
               onClick={() => { setArea(a.key); setResult(null); }}
-              className={`rounded-lg px-2 py-2 text-sm font-medium transition ${area === a.key ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+              className={`rounded-lg px-2 py-2 text-sm font-medium transition ${area === a.key ? "bg-card text-ink shadow-card" : "text-muted hover:text-ink"}`}
             >
               {a.label}
             </button>
@@ -95,17 +95,17 @@ export function EntryForm({ onSubmit, initial, lockArea, defaultArea, afterSaveH
             </label>
           )}
         </div>
-        <label className="flex items-center gap-2 text-sm text-slate-600">
+        <label className="flex items-center gap-2 text-sm text-ink-2">
           <input
             type="checkbox"
             checked={isRange}
             onChange={(e) => { setIsRange(e.target.checked); if (e.target.checked && dateTo < dateFrom) setDateTo(dateFrom); }}
-            className="h-4 w-4 rounded border-slate-300"
+            className="h-4 w-4 rounded border-line-strong"
           />
           Wpis zbiorczy za zakres dat
         </label>
         {isRange && crossesMonth(dateFrom, effectiveTo) && (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <p className="rounded-lg bg-soft px-3 py-2 text-sm text-ink-2">
             Zakres obejmuje dwa miesiące. Cały wpis policzy się do miesiąca daty „do”. Dla dokładniejszych podsumowań wyślij dwa osobne wpisy, po jednym na miesiąc.
           </p>
         )}
@@ -115,9 +115,9 @@ export function EntryForm({ onSubmit, initial, lockArea, defaultArea, afterSaveH
         {def.fields.map((f) => (
           <label key={f.key} className="block">
             <span className="label">
-              {f.label} <span className="font-normal text-slate-400">({f.unit === "PLN" ? "zł" : "szt."})</span>
+              {f.label} <span className="font-normal text-muted">({f.unit === "PLN" ? "zł" : "szt."})</span>
             </span>
-            {f.hint && <span className="block text-xs text-slate-400">{f.hint}</span>}
+            {f.hint && <span className="block text-xs text-muted">{f.hint}</span>}
             <input
               inputMode={f.unit === "PLN" ? "decimal" : "numeric"}
               required
@@ -129,18 +129,18 @@ export function EntryForm({ onSubmit, initial, lockArea, defaultArea, afterSaveH
           </label>
         ))}
         <label className="block">
-          <span className="label">Uwagi <span className="font-normal text-slate-400">(opcjonalnie)</span></span>
+          <span className="label">Uwagi <span className="font-normal text-muted">(opcjonalnie)</span></span>
           <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className="input" />
         </label>
       </fieldset>
 
       {result && (
-        <div className={`rounded-lg px-3 py-2 text-sm ${result.ok ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"}`}>
+        <div className={`rounded-lg px-3 py-2 text-sm ${result.ok ? "bg-up/10 text-up" : "bg-down/10 text-down"}`}>
           {result.ok ? result.message : <ul className="list-disc space-y-1 pl-4">{result.errors.map((e) => <li key={e}>{e}</li>)}</ul>}
         </div>
       )}
 
-      <button type="submit" disabled={pending} className="w-full rounded-xl bg-slate-900 px-4 py-3 font-medium text-white hover:bg-slate-700 disabled:opacity-60">
+      <button type="submit" disabled={pending} className="w-full rounded-xl bg-accent px-4 py-3 font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60">
         {pending ? "Zapisywanie…" : "Wyślij"}
       </button>
     </form>

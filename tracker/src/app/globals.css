@@ -2,9 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .label { @apply block text-sm font-medium text-slate-700; }
-  .input { @apply mt-1 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-900 shadow-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500; }
+/* Tokeny kolorów: kanały RGB (dla przezroczystości: bg-accent/10). Ciemne wartości poniżej. */
+:root {
+  --page: 248 248 246;
+  --card: 255 255 255;
+  --soft: 241 241 239;
+  --ink: 23 23 26;
+  --ink-2: 72 72 77;
+  --muted: 102 102 109;
+  --accent: 62 99 221;
+  --on-accent: 255 255 255;
+  --money: 15 127 87;
+  --up: 15 127 87;
+  --down: 210 63 69;
+  --line: rgb(0 0 0 / 0.075);
+  --line-strong: rgb(0 0 0 / 0.14);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02);
+  --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.18), 0 0 0 1px rgb(0 0 0 / 0.06);
+  color-scheme: light;
 }
 
-body { @apply bg-slate-50 text-slate-900 antialiased; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page: 11 11 13;
+    --card: 20 20 23;
+    --soft: 28 28 32;
+    --ink: 243 243 245;
+    --ink-2: 196 196 202;
+    --muted: 140 140 149;
+    --accent: 123 150 255;
+    --on-accent: 11 11 13;
+    --money: 52 196 139;
+    --up: 52 196 139;
+    --down: 255 107 112;
+    --line: rgb(255 255 255 / 0.08);
+    --line-strong: rgb(255 255 255 / 0.16);
+    --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.02);
+    --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.08);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --page: 11 11 13;
+  --card: 20 20 23;
+  --soft: 28 28 32;
+  --ink: 243 243 245;
+  --ink-2: 196 196 202;
+  --muted: 140 140 149;
+  --accent: 123 150 255;
+  --on-accent: 11 11 13;
+  --money: 52 196 139;
+  --up: 52 196 139;
+  --down: 255 107 112;
+  --line: rgb(255 255 255 / 0.08);
+  --line-strong: rgb(255 255 255 / 0.16);
+  --shadow-card: 0 0 0 1px rgb(255 255 255 / 0.02);
+  --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.08);
+  color-scheme: dark;
+}
+
+@layer components {
+  .label { @apply block text-[13px] font-medium text-ink-2; }
+  .input { @apply mt-1 block w-full rounded-lg border border-line-strong bg-card px-3 py-2 text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent; }
+  .card { @apply rounded-2xl border border-line bg-card shadow-card; }
+  .btn-primary { @apply rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60; }
+  .tnum { font-variant-numeric: tabular-nums; }
+}
+
+body { @apply bg-page text-[14px] text-ink antialiased; }

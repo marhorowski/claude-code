@@ -9,8 +9,8 @@ export default async function LoginPage({ searchParams }: { searchParams: { next
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-4 py-8">
       <h1 className="text-xl font-semibold">Logowanie</h1>
-      <p className="mb-6 text-sm text-slate-500">Tracker marketingu i sprzedaży</p>
-      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+      <p className="mb-6 text-sm text-muted">Tracker marketingu i sprzedaży</p>
+      <div className="rounded-2xl bg-card p-5 border border-line shadow-card">
         <LoginForm next={searchParams.next ?? "/panel"} />
       </div>
     </main>

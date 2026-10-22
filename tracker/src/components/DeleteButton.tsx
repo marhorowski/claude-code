@@ -12,7 +12,7 @@ export function DeleteButton({ id, label }: { id: string; label: string }) {
       onClick={() => {
         if (confirm(`Usunąć wpis: ${label}?`)) startTransition(() => deleteEntry(id));
       }}
-      className="text-rose-600 hover:underline disabled:opacity-50"
+      className="text-down hover:underline disabled:opacity-50"
     >
       {pending ? "Usuwanie…" : "Usuń"}
     </button>

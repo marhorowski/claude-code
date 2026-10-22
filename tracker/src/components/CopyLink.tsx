@@ -12,7 +12,7 @@ export function CopyLink({ url }: { url: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }}
-      className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"
+      className="rounded-lg border border-line-strong bg-card px-3 py-1.5 text-sm hover:bg-soft"
     >
       {copied ? "Skopiowano" : "Kopiuj link do formularza"}
     </button>

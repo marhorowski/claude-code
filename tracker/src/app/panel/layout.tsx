@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { headers } from "next/headers";
+import { HeaderNav } from "@/components/HeaderNav";
 import { prisma } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
 import { getCurrentClient } from "@/lib/clients";
@@ -21,27 +21,28 @@ export default async function PanelLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-          <span className="font-semibold">{client.name}</span>
-          <nav className="flex flex-wrap gap-4 text-sm">
-            <Link href="/panel" className="text-slate-600 hover:text-slate-900">Wyniki</Link>
-            <Link href="/panel/dane" className="text-slate-600 hover:text-slate-900">Dane</Link>
-            <a href={formUrl} target="_blank" className="text-slate-600 hover:text-slate-900">Formularz ↗</a>
-            {session.role === "ADMIN" && (
-              <Link href="/panel/uzytkownicy" className="text-slate-600 hover:text-slate-900">Użytkownicy</Link>
-            )}
-          </nav>
-          <div className="ml-auto flex items-center gap-3 text-sm">
-            <CopyLink url={formUrl} />
-            <Link href="/panel/konto" className="text-slate-600 hover:text-slate-900">{user.name}</Link>
+      <header className="sticky top-0 z-20 border-b border-line bg-card/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 min-[1800px]:max-w-[1640px]">
+          <span className="truncate font-semibold">{client.name}</span>
+          <HeaderNav
+            items={[
+              { href: "/panel", label: "Wyniki" },
+              { href: "/panel/dane", label: "Dane" },
+              ...(session.role === "ADMIN" ? [{ href: "/panel/uzytkownicy", label: "Użytkownicy" }] : []),
+              { href: "/panel/konto", label: "Moje konto" },
+              { href: formUrl, label: "Formularz", external: true },
+            ]}
+          />
+          <div className="ml-auto flex items-center gap-3 text-[13.5px]">
+            <span className="hidden sm:block"><CopyLink url={formUrl} /></span>
+            <span className="hidden text-ink-2 lg:block">{user.name}</span>
             <form action={logout}>
-              <button className="text-slate-500 hover:text-slate-900">Wyloguj</button>
+              <button className="text-muted hover:text-ink">Wyloguj</button>
             </form>
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 py-6 min-[1800px]:max-w-[1640px]">{children}</main>
     </div>
   );
 }

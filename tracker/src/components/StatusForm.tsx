@@ -7,7 +7,7 @@ import type { FormState } from "@/app/auth-actions";
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" disabled={pending} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-60">
+    <button type="submit" disabled={pending} className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60">
       {pending ? "Zapisywanie…" : label}
     </button>
   );
@@ -32,8 +32,8 @@ export function StatusForm({
   return (
     <form ref={ref} action={formAction} className="space-y-4">
       {children}
-      {state?.error && <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">{state.error}</p>}
-      {state?.ok && <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{state.ok}</p>}
+      {state?.error && <p className="rounded-lg bg-down/10 px-3 py-2 text-sm text-down">{state.error}</p>}
+      {state?.ok && <p className="rounded-lg bg-up/10 px-3 py-2 text-sm text-up">{state.ok}</p>}
       <SubmitButton label={submitLabel} />
     </form>
   );
