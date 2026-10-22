@@ -42,34 +42,21 @@ export default function DashboardLayout({
   }, [status]);
 
   useEffect(() => {
-    if (session) {
-      fetch("/api/clients")
-        .then((r) => r.json())
-        .then((data: Array<{ id: string; name: string }>) => {
-          setClients(data);
-          if (data.length > 0 && !selectedClientId) {
-            const cn = new URLSearchParams(window.location.search).get("cn");
-            const preselect = cn
-              ? data.find((c) => c.name.toLowerCase().includes(cn.toLowerCase()))
-              : null;
-            setSelectedClientId(preselect ? preselect.id : data[0].id);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [session]);
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-primary)" }}>
-        <div style={{ color: "var(--text-muted)" }}>Ładowanie...</div>
-      </div>
-    );
-  }
-
-  if (status === "unauthenticated") {
-    return null;
-  }
+    fetch("/api/clients")
+      .then((r) => r.json())
+      .then((data: Array<{ id: string; name: string }>) => {
+        if (!Array.isArray(data)) return;
+        setClients(data);
+        if (data.length > 0 && !selectedClientId) {
+          const cn = new URLSearchParams(window.location.search).get("cn");
+          const preselect = cn
+            ? data.find((c) => c.name.toLowerCase().includes(cn.toLowerCase()))
+            : null;
+          setSelectedClientId(preselect ? preselect.id : data[0].id);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const selectedClient = clients.find((c) => c.id === selectedClientId);
 
