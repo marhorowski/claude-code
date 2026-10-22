@@ -73,9 +73,10 @@ model DailyForm {
   postponedMeetings  Int?    // przełożone spotkania
   noShows            Int?    // no show
   closings           Int?    // domknięte sprzedaże
-  revenue            Float?  // przychód zakontraktowany netto
+  revenue            Float?  // przychód z nowych domknięć
   followUpsDone      Int?    // follow-upy odbyte dzisiaj
   followUpClosings   Int?    // domknięcia z follow-upów
+  followUpRevenue    Float?  // przychód z domknięć follow-upowych
   // Setting
   callsMade          Int?    // wykonane telefony
   conductedCalls     Int?    // przeprowadzone rozmowy

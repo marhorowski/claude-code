@@ -28,6 +28,7 @@ const EMPTY_FORM = {
   revenue: "",
   followUpsDone: "",
   followUpClosings: "",
+  followUpRevenue: "",
   // Setting
   callsMade: "",
   conductedCalls: "",
@@ -98,6 +99,7 @@ export default function PublicFormPage({ params }: { params: { token: string } }
         payload.revenue = n(form.revenue);
         payload.followUpsDone = ni(form.followUpsDone);
         payload.followUpClosings = ni(form.followUpClosings);
+        payload.followUpRevenue = n(form.followUpRevenue);
       } else if (dept === "setting") {
         payload.callsMade = ni(form.callsMade);
         payload.conductedCalls = ni(form.conductedCalls);
@@ -288,7 +290,19 @@ export default function PublicFormPage({ params }: { params: { token: string } }
                     <label className={LBL}>Domknięcia z follow-upów</label>
                     <input type="number" min="0" value={form.followUpClosings} onChange={set("followUpClosings")} className={INP} style={inpStyle} placeholder="0" />
                   </div>
+                  <div className="col-span-2">
+                    <label className={LBL}>Przychód z follow-upów (PLN)</label>
+                    <input type="number" min="0" value={form.followUpRevenue} onChange={set("followUpRevenue")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
                 </div>
+                {(form.revenue || form.followUpRevenue) && (
+                  <div className="flex justify-between items-center mt-3 px-3 py-2 rounded-lg text-sm" style={{ background: "rgba(0,255,136,0.06)", border: "1px solid rgba(0,255,136,0.15)" }}>
+                    <span style={{ color: "#aaa" }}>Łączny przychód zakontraktowany netto</span>
+                    <span style={{ color: "#00ff88", fontWeight: 700 }}>
+                      {((form.revenue ? +form.revenue : 0) + (form.followUpRevenue ? +form.followUpRevenue : 0)).toLocaleString("pl-PL")} PLN
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}

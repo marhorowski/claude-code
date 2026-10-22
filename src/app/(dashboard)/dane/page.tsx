@@ -17,7 +17,7 @@ interface DailyFormData {
   plannedMeetings: number | null; attendedMeetings: number | null;
   cancelledMeetings: number | null; postponedMeetings: number | null;
   noShows: number | null; closings: number | null; revenue: number | null;
-  followUpsDone: number | null; followUpClosings: number | null;
+  followUpsDone: number | null; followUpClosings: number | null; followUpRevenue: number | null;
   // Setting
   callsMade: number | null; conductedCalls: number | null; meetingsBooked: number | null;
   // Marketing
@@ -62,7 +62,7 @@ export default function DanePage() {
     plannedMeetings: "", attendedMeetings: "",
     cancelledMeetings: "", postponedMeetings: "", noShows: "",
     closings: "", revenue: "",
-    followUpsDone: "", followUpClosings: "",
+    followUpsDone: "", followUpClosings: "", followUpRevenue: "",
     notes: "",
   });
   const [revSuggested, setRevSuggested] = useState(false);
@@ -107,7 +107,7 @@ export default function DanePage() {
   // Auto-fill closing form
   useEffect(() => {
     if (!cPersonId || !cDate) {
-      setCForm({ plannedMeetings: "", attendedMeetings: "", cancelledMeetings: "", postponedMeetings: "", noShows: "", closings: "", revenue: "", followUpsDone: "", followUpClosings: "", notes: "" });
+      setCForm({ plannedMeetings: "", attendedMeetings: "", cancelledMeetings: "", postponedMeetings: "", noShows: "", closings: "", revenue: "", followUpsDone: "", followUpClosings: "", followUpRevenue: "", notes: "" });
       setRevSuggested(false);
       return;
     }
@@ -123,11 +123,12 @@ export default function DanePage() {
         revenue: ex.revenue?.toString() ?? "",
         followUpsDone: ex.followUpsDone?.toString() ?? "",
         followUpClosings: ex.followUpClosings?.toString() ?? "",
+        followUpRevenue: ex.followUpRevenue?.toString() ?? "",
         notes: ex.notes ?? "",
       });
       setRevSuggested(false);
     } else {
-      setCForm({ plannedMeetings: "", attendedMeetings: "", cancelledMeetings: "", postponedMeetings: "", noShows: "", closings: "", revenue: "", followUpsDone: "", followUpClosings: "", notes: "" });
+      setCForm({ plannedMeetings: "", attendedMeetings: "", cancelledMeetings: "", postponedMeetings: "", noShows: "", closings: "", revenue: "", followUpsDone: "", followUpClosings: "", followUpRevenue: "", notes: "" });
       setRevSuggested(false);
     }
   }, [cPersonId, cDate, daily]);
@@ -204,6 +205,7 @@ export default function DanePage() {
         revenue: cForm.revenue ? +cForm.revenue : null,
         followUpsDone: cForm.followUpsDone ? +cForm.followUpsDone : null,
         followUpClosings: cForm.followUpClosings ? +cForm.followUpClosings : null,
+        followUpRevenue: cForm.followUpRevenue ? +cForm.followUpRevenue : null,
         notes: cForm.notes || null,
       });
       showMsg("Zapisano dane sprzedaży!", true);
@@ -437,7 +439,22 @@ export default function DanePage() {
                   <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
                     value={cForm.followUpClosings} onChange={e => setCForm(p => ({ ...p, followUpClosings: e.target.value }))} />
                 </div>
+                <div className="col-span-2">
+                  <label className={LBL}>Przychód z follow-upów (PLN)</label>
+                  <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
+                    value={cForm.followUpRevenue} onChange={e => setCForm(p => ({ ...p, followUpRevenue: e.target.value }))} />
+                </div>
               </div>
+
+              {/* Łączny przychód */}
+              {(cForm.revenue || cForm.followUpRevenue) && (
+                <div className="mt-3" style={calcRowStyle}>
+                  <span style={{ color: "var(--text-muted)" }}>Łączny przychód zakontraktowany netto</span>
+                  <span style={{ color: "var(--neon)", fontWeight: 700 }}>
+                    {((cForm.revenue ? +cForm.revenue : 0) + (cForm.followUpRevenue ? +cForm.followUpRevenue : 0)).toLocaleString("pl-PL")} PLN
+                  </span>
+                </div>
+              )}
             </div>
 
             <div>

@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
     revenue,
     followUpsDone,
     followUpClosings,
+    followUpRevenue,
     callsMade,
     conductedCalls,
     meetingsBooked,
@@ -102,6 +103,7 @@ export async function POST(req: NextRequest) {
     revenue: revenue ?? null,
     followUpsDone: followUpsDone ?? null,
     followUpClosings: followUpClosings ?? null,
+    followUpRevenue: followUpRevenue ?? null,
     callsMade: callsMade ?? null,
     conductedCalls: conductedCalls ?? null,
     meetingsBooked: meetingsBooked ?? null,
@@ -135,7 +137,7 @@ export async function POST(req: NextRequest) {
     const totalPlannedMeetings = dailyForms.reduce((s, f) => s + (f.plannedMeetings ?? 0), 0);
     const totalAttended = dailyForms.reduce((s, f) => s + (f.attendedMeetings ?? 0), 0);
     const totalClosings = dailyForms.reduce((s, f) => s + (f.closings ?? 0), 0);
-    const totalRevenue = dailyForms.reduce((s, f) => s + (f.revenue ?? 0), 0);
+    const totalRevenue = dailyForms.reduce((s, f) => s + (f.revenue ?? 0) + (f.followUpRevenue ?? 0), 0);
     const totalLeads = dailyForms.reduce((s, f) => s + (f.dailyLeads ?? 0), 0);
     const adSpend = dailyForms.reduce((s, f) => s + (f.dailyAdSpend ?? 0), 0);
 
