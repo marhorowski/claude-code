@@ -14,6 +14,19 @@ model Client {
   formToken String   @unique
   createdAt DateTime @default(now())
   entries   Entry[]
+  users     User[]
+}
+
+// ADMIN widzi wszystko; CLIENT widzi tylko dane swojego klienta.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("CLIENT")
+  client       Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId     String?
+  createdAt    DateTime @default(now())
 }
 
 // Jeden wpis z formularza: dzienny (dateFrom = dateTo) albo zbiorczy za zakres dat.

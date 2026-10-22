@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { checkBasicAuth } from "@/lib/auth";
+import { SESSION_COOKIE, verifySession } from "@/lib/session";
 
-export function middleware(req: NextRequest) {
-  if (checkBasicAuth(req.headers.get("authorization"), process.env.ADMIN_PASSWORD)) return NextResponse.next();
-  return new NextResponse("Wymagane logowanie", {
-    status: 401,
-    headers: { "WWW-Authenticate": 'Basic realm="Panel", charset="UTF-8"' },
-  });
+export async function middleware(req: NextRequest) {
+  const session = await verifySession(req.cookies.get(SESSION_COOKIE)?.value);
+  if (session) return NextResponse.next();
+  const login = new URL("/logowanie", req.url);
+  login.searchParams.set("next", req.nextUrl.pathname + req.nextUrl.search);
+  return NextResponse.redirect(login);
 }
 
 export const config = { matcher: ["/panel/:path*"] };

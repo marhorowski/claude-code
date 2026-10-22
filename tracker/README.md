@@ -11,17 +11,20 @@ Stack: Next.js 14, Prisma + Postgres (Neon na Vercelu, schemat `tracker`), Tailw
 - `src/lib/metrics.ts` — wzory wskaźników
 - `src/lib/periods.ts` — tygodnie ISO, miesiące, zakresy dat
 - `src/lib/entries.ts` — walidacja wpisów i reguła nakładania się zakresów
+- `src/lib/session.ts`, `src/lib/auth.ts` — logowanie (podpisane ciasteczko, „Zapamiętaj mnie” = 90 dni)
 - `/f/[token]` — publiczny formularz klienta
-- `/panel` — wyniki (dni / tygodnie / miesiące), `/panel/dane` — edycja surowych wpisów
+- `/logowanie` — logowanie emailem i hasłem
+- `/panel` — wyniki w zakładkach Ogólny / Marketing / Setting i sprzedaż (north star na górze),
+  `/panel/dane` — edycja surowych wpisów, `/panel/uzytkownicy` — konta (admin), `/panel/konto` — zmiana hasła
 
 ## Lokalnie
 
 ```bash
-cp .env.example .env   # ustaw TRACKER_DATABASE_URL i ADMIN_PASSWORD
+cp .env.example .env   # ustaw TRACKER_DATABASE_URL, ADMIN_EMAIL, ADMIN_PASSWORD, SESSION_SECRET
 npm install
 npm run db:push
-npm run dev            # panel: login "admin" + ADMIN_PASSWORD
-npm test               # testy wzorów
+npm run dev            # pierwsze logowanie danymi ADMIN_EMAIL + ADMIN_PASSWORD zakłada konto admina
+npm test               # testy wzorów i sesji
 ```
 
 Na Vercelu adres bazy brany jest z `database_url_POSTGRES_PRISMA_URL` (integracja Neon),

@@ -1,16 +1,14 @@
 import Link from "next/link";
-import { getCurrentClient } from "@/lib/clients";
 import { AREAS, getArea } from "@/lib/fields";
 import { EntryForm } from "@/components/EntryForm";
-import { saveAdminEntry } from "@/app/actions";
+import { savePanelEntry } from "@/app/actions";
 
-export default async function NewEntryPage({ searchParams }: { searchParams: { area?: string } }) {
-  const client = await getCurrentClient();
+export default function NewEntryPage({ searchParams }: { searchParams: { area?: string } }) {
   const area = getArea(searchParams.area ?? "") ?? AREAS[0];
 
   async function save(form: Record<string, string>) {
     "use server";
-    return saveAdminEntry(client.id, form);
+    return savePanelEntry(form);
   }
 
   return (

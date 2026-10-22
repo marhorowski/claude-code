@@ -1,9 +1,8 @@
 "use server";
 
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { checkBasicAuth } from "@/lib/auth";
+import { getCurrentClient } from "@/lib/clients";
 import { findConflict, parseEntry, type EntryInput } from "@/lib/entries";
 import { getArea } from "@/lib/fields";
 import { formatDay, toDate, toIso } from "@/lib/periods";
@@ -60,19 +59,16 @@ export async function submitPublicEntry(token: string, form: Record<string, stri
   return saveEntry(client.id, parsed.entry);
 }
 
-function assertAdmin() {
-  if (!checkBasicAuth(headers().get("authorization"), process.env.ADMIN_PASSWORD)) throw new Error("Brak dostępu");
-}
-
-export async function saveAdminEntry(clientId: string, form: Record<string, string>, editingId?: string): Promise<ActionResult> {
-  assertAdmin();
+// Klient zawsze wynika z sesji, nigdy z danych przesłanych przez przeglądarkę.
+export async function savePanelEntry(form: Record<string, string>, editingId?: string): Promise<ActionResult> {
+  const client = await getCurrentClient();
   const parsed = parseEntry(form);
   if (!parsed.ok) return parsed;
-  return saveEntry(clientId, parsed.entry, editingId);
+  return saveEntry(client.id, parsed.entry, editingId);
 }
 
 export async function deleteEntry(id: string): Promise<void> {
-  assertAdmin();
-  await prisma.entry.delete({ where: { id } });
+  const client = await getCurrentClient();
+  await prisma.entry.delete({ where: { id, clientId: client.id } });
   revalidatePath("/panel", "layout");
 }

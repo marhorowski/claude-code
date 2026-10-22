@@ -5,7 +5,7 @@ import { getCurrentClient } from "@/lib/clients";
 import { getArea, type Area } from "@/lib/fields";
 import { toIso } from "@/lib/periods";
 import { EntryForm } from "@/components/EntryForm";
-import { saveAdminEntry } from "@/app/actions";
+import { savePanelEntry } from "@/app/actions";
 
 export default async function EditEntryPage({ params }: { params: { id: string } }) {
   const client = await getCurrentClient();
@@ -15,7 +15,7 @@ export default async function EditEntryPage({ params }: { params: { id: string }
 
   async function save(form: Record<string, string>) {
     "use server";
-    return saveAdminEntry(client.id, form, params.id);
+    return savePanelEntry(form, params.id);
   }
 
   return (

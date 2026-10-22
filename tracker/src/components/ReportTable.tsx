@@ -13,9 +13,11 @@ interface Props {
   rows: ReportRow[];
   columns: { label: string; data: ReportColumn }[];
   total: ReportColumn;
+  /** Ile pierwszych wierszy to north star: pogrubione, z linią pod spodem. */
+  leadRows?: number;
 }
 
-export function ReportTable({ title, rows, columns, total }: Props) {
+export function ReportTable({ title, rows, columns, total, leadRows = 0 }: Props) {
   const cell = (col: ReportColumn, row: ReportRow) =>
     formatValue(row.kind === "sum" ? col.sums[row.key] ?? null : col.metrics[row.key], row.unit);
 
@@ -35,8 +37,8 @@ export function ReportTable({ title, rows, columns, total }: Props) {
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              <tr key={row.key} className={`border-t border-slate-100 ${row.kind === "metric" && rows[i - 1]?.kind === "sum" ? "border-t-slate-300" : ""}`}>
-                <td className={`sticky left-0 whitespace-nowrap bg-white px-4 py-2 ${row.kind === "metric" ? "font-medium" : "text-slate-600"}`}>{row.label}</td>
+              <tr key={row.key} className={`border-t ${i > 0 && i === leadRows ? "border-t-slate-300" : "border-slate-100"}`}>
+                <td className={`sticky left-0 whitespace-nowrap bg-white px-4 py-2 ${i < leadRows ? "font-semibold" : row.kind === "metric" ? "font-medium" : "text-slate-600"}`}>{row.label}</td>
                 {columns.map((c) => (
                   <td key={c.data.key} className="whitespace-nowrap px-3 py-2 text-right tabular-nums">{cell(c.data, row)}</td>
                 ))}

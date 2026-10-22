@@ -2,7 +2,7 @@
 // potem dzielimy — nigdy nie uśredniamy dziennych procentów.
 
 export type Sums = Record<string, number>;
-export type MetricUnit = "PLN" | "%" | "×";
+export type MetricUnit = "PLN" | "%" | "×" | "szt.";
 export type MetricGroup = "marketing" | "setting" | "sales" | "total";
 
 export interface MetricDef {
@@ -44,6 +44,9 @@ export const METRICS: MetricDef[] = [
   { key: "followUpClosingRate", label: "Closing follow-upów", group: "sales", unit: "%", better: "higher", calc: (s) => ratio(v(s, "followUpClosings"), v(s, "followUpsDone"), 100) },
   { key: "avgDealValue", label: "Średnia wartość sprzedaży", group: "sales", unit: "PLN", better: "higher", calc: (s) => ratio(totalRevenue(s), totalClosings(s)) },
 
+  // Bez żadnego wpisu sprzedażowego w okresie: „—”, a nie 0.
+  { key: "totalClosings", label: "Sprzedaże łącznie", group: "total", unit: "szt.", better: "higher", calc: (s) => ("closings" in s ? totalClosings(s) : null) },
+  { key: "totalRevenue", label: "Przychód łącznie", group: "total", unit: "PLN", better: "higher", calc: (s) => ("revenue" in s ? totalRevenue(s) : null) },
   { key: "totalCostPerCall", label: "Łączny koszt za rozmowę", group: "total", unit: "PLN", better: "lower", calc: (s) => ratio(v(s, "adSpend"), v(s, "meetingsBooked") + v(s, "vslMeetingsBooked")) },
   { key: "totalBookingRate", label: "Booking Rate łącznie", group: "total", unit: "%", better: "higher", calc: (s) => ratio(v(s, "meetingsBooked") + v(s, "vslMeetingsBooked"), v(s, "leads"), 100) },
   { key: "leadToClose", label: "Lead-to-Close Rate", group: "total", unit: "%", better: "higher", calc: (s) => ratio(totalClosings(s), v(s, "leads"), 100) },
