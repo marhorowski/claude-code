@@ -7,7 +7,7 @@ type Cell = { v: unknown; f?: string };
 class MockSheet {
   cells = new Map<string, Cell>();
   formats = new Map<string, string>();
-  constructor(public name: string) {}
+  constructor(public name: string, public locale = "en") {}
   key = (r: number, c: number) => `${r},${c}`;
   getName = () => this.name;
   getMaxRows = () => 1000;
@@ -37,6 +37,7 @@ class MockSheet {
       setValues(rows: unknown[][]) { rows.forEach((row, i) => row.forEach((v, j) => sheet.cells.set(sheet.key(r0 + i, c0 + j), { v }))); return range; },
       setFormulas(rows: string[][]) { rows.forEach((row, i) => row.forEach((f, j) => sheet.cells.set(sheet.key(r0 + i, c0 + j), { v: "", f }))); return range; },
       setFormula(f: string) { sheet.cells.set(sheet.key(r0, c0), { v: "", f }); return range; },
+      getValue() { const c = sheet.cells.get(sheet.key(r0, c0)); return c?.f === "=SUM(1,2)" ? (sheet.locale === "pl" ? "#ERROR!" : 3) : c?.v ?? ""; },
       getValues() { return Array.from({ length: nr }, (_, i) => Array.from({ length: nc }, (_, j) => sheet.cells.get(sheet.key(r0 + i, c0 + j))?.v ?? "")); },
       clearContent() { for (let i = 0; i < nr; i++) for (let j = 0; j < nc; j++) sheet.cells.delete(sheet.key(r0 + i, c0 + j)); return range; },
       setNumberFormat(f: string) { sheet.formats.set(`${r0},${c0}`, f); return range; },
@@ -48,18 +49,19 @@ class MockSheet {
   formula(a1: string) { const m = /^([A-Z]+)(\d+)$/.exec(a1)!; const c = [...m[1]].reduce((acc, ch) => acc * 26 + ch.charCodeAt(0) - 64, 0); return this.cells.get(this.key(Number(m[2]), c))?.f; }
 }
 class MockSpreadsheet {
+  constructor(public locale = "en") {}
   sheets: MockSheet[] = [new MockSheet("Arkusz1")];
   getName = () => "Tracker — test";
   getSheets = () => this.sheets;
   getSheetByName = (n: string) => this.sheets.find((s) => s.name === n) ?? null;
-  insertSheet = (n: string) => { const s = new MockSheet(n); this.sheets.push(s); return s; };
+  insertSheet = (n: string) => { const s = new MockSheet(n, this.locale); this.sheets.push(s); return s; };
   deleteSheet = (s: MockSheet) => { this.sheets = this.sheets.filter((x) => x !== s); };
 }
 
-function load(secret: string) {
-  const ss = new MockSpreadsheet();
+function load(secret: string, locale = "en") {
+  const ss = new MockSpreadsheet(locale);
   const globals = {
-    SpreadsheetApp: { getActiveSpreadsheet: () => ss },
+    SpreadsheetApp: { getActiveSpreadsheet: () => ss, flush() {} },
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
     ContentService: { MimeType: { JSON: "json" }, createTextOutput: (t: string) => ({ setMimeType: () => JSON.parse(t) }) },
   };
@@ -117,5 +119,14 @@ describe("skrypt Apps Script", () => {
     expect(t.formula(`${toLetter(cplCol)}2`)).toBe(`=ARRAYFORMULA(IF($A2:$A="",,IFERROR((B2:B)/(E2:E)*1,"")))`);
     expect(ss.getSheetByName("Miesięcznie")!.formula("A2")).toContain("'Marketing'!E2:E");
     expect(ss.getSheetByName("Podsumowanie")!.formula("B3")).toBe(`=IFERROR(INDEX('Tygodniowo'!B:B,2),"")`);
+  });
+
+  it("polska wersja Arkuszy: średniki zamiast przecinków, arkusz testowy usunięty", () => {
+    const { ss, post } = load("k", "pl");
+    post({ secret: "k", action: "setup", schema, entries: [] });
+    const t = ss.getSheetByName("Tygodniowo")!;
+    expect(t.formula("B2")).toBe(`=ARRAYFORMULA(IF($A2:$A="";;SUMIF('Marketing'!$D$2:$D;$A2:$A;'Marketing'!F$2:F)))`);
+    expect(ss.getSheetByName("Podsumowanie")!.formula("B3")).toBe(`=IFERROR(INDEX('Tygodniowo'!B:B;2);"")`);
+    expect(ss.getSheetByName("_kpi_probe")).toBeNull();
   });
 });

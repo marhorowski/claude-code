@@ -8,6 +8,11 @@ import { requireAdmin } from "@/lib/auth";
 import { ACTIVE_CLIENT_COOKIE, newFormToken } from "@/lib/clients";
 import { hashPassword, MIN_PASSWORD_LENGTH } from "@/lib/passwords";
 import { isValidSheetUrl, syncAll } from "@/lib/sheets";
+import { parseVslRows, readVslWorkbook } from "@/lib/import-vsl";
+import { findConflict } from "@/lib/entries";
+import { formatValue } from "@/lib/format";
+import { toDate, toIso } from "@/lib/periods";
+import { datesLabel } from "@/lib/ranges";
 import type { FormState } from "./auth-actions";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
@@ -143,6 +148,71 @@ export async function disconnectSheet(clientId: string) {
   await requireAdmin();
   await prisma.client.update({ where: { id: clientId }, data: { sheetUrl: null, sheetName: null, sheetSyncedAt: null, sheetError: null } });
   refresh();
+}
+
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+
+/**
+ * Import historii z arkusza śledzenia VSL (.xlsx). mode=preview tylko liczy, mode=import zapisuje:
+ * ten sam dzień zastępuje istniejący wpis, a dzień w środku wpisu zbiorczego jest pomijany.
+ */
+export async function importVsl(_prev: FormState, fd: FormData): Promise<FormState> {
+  await requireAdmin();
+  const clientId = str(fd, "clientId");
+  const client = await prisma.client.findUnique({ where: { id: clientId } });
+  if (!client) return { error: "Nie ma takiego klienta." };
+  const file = fd.get("file");
+  if (!(file instanceof File) || file.size === 0) return { error: "Wybierz plik .xlsx." };
+  if (file.size > MAX_IMPORT_BYTES) return { error: "Plik jest większy niż 5 MB." };
+
+  let parsed;
+  try {
+    parsed = parseVslRows(await readVslWorkbook(await file.arrayBuffer()));
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Nie udało się odczytać pliku." };
+  }
+  if (!parsed.entries.length) return { error: "W pliku nie ma dni z danymi." };
+
+  const existing = await prisma.entry.findMany({ where: { clientId }, select: { id: true, area: true, dateFrom: true, dateTo: true } });
+  const byArea = (area: string) =>
+    existing.filter((e) => e.area === area).map((e) => ({ id: e.id, dateFrom: toIso(e.dateFrom), dateTo: toIso(e.dateTo) }));
+  const plan = parsed.entries.map((e) => {
+    const ranges = byArea(e.area);
+    const same = ranges.find((r) => r.dateFrom === e.dateFrom && r.dateTo === e.dateTo);
+    return { entry: e, action: same ? "replace" : findConflict(ranges, e) ? "skip" : "create" };
+  });
+  const count = (a: string) => plan.filter((p) => p.action === a).length;
+  const perArea = (a: string) => parsed.entries.filter((e) => e.area === a).length;
+  const t = parsed.totals;
+  const summary =
+    `${parsed.days} dni (${datesLabel(parsed.from!, parsed.to!)}): ${perArea("marketing")} wpisów marketingowych, ${perArea("setting")} settingowych, ${perArea("sales")} sprzedażowych. ` +
+    `Sumy: wydatek ${formatValue(t.adSpend ?? 0, "PLN")}, leady ${formatValue(t.leads ?? 0, "szt.")}, umówione z VSL ${formatValue(t.vslMeetingsBooked ?? 0, "szt.")}, ` +
+    `odbyte spotkania ${formatValue(t.attendedMeetings ?? 0, "szt.")}, sprzedaże ${formatValue(t.closings ?? 0, "szt.")}, przychód ${formatValue(t.revenue ?? 0, "PLN")}` +
+    (parsed.cash ? ` (zaksięgowano ${formatValue(parsed.cash, "PLN")} — zapisane w uwagach)` : "") +
+    `. Nowych: ${count("create")}, zastąpi istniejące: ${count("replace")}, pominie (nachodzi na wpis zbiorczy): ${count("skip")}.` +
+    (parsed.warnings.length ? ` Uwaga: ${parsed.warnings.join(" ")}` : "");
+
+  if (str(fd, "mode") !== "import") return { ok: `Podgląd — nic jeszcze nie zapisano. ${summary}` };
+
+  await prisma.$transaction(
+    plan
+      .filter((p) => p.action !== "skip")
+      .map(({ entry: e }) => {
+        const data = { values: e.values, notes: e.notes, dateFrom: toDate(e.dateFrom), dateTo: toDate(e.dateTo) };
+        return prisma.entry.upsert({
+          where: { clientId_area_dateFrom_dateTo: { clientId, area: e.area, dateFrom: data.dateFrom, dateTo: data.dateTo } },
+          create: { ...data, clientId, area: e.area },
+          update: data,
+        });
+      }),
+  );
+  let sheetNote = "";
+  if (client.sheetUrl) {
+    const reply = await syncAll(clientId);
+    sheetNote = reply.ok ? " Arkusz Google zaktualizowany." : ` Arkusz Google: ${reply.error}`;
+  }
+  refresh();
+  return { ok: `Zaimportowano. ${summary}${sheetNote}` };
 }
 
 export async function setUserPassword(id: string, password: string): Promise<string | null> {

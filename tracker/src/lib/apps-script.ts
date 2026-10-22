@@ -13,6 +13,21 @@ var AREAS = ["marketing", "setting", "sales"];
 var META = [["id", "ID wpisu"], ["dateFrom", "Data od"], ["dateTo", "Data do"], ["week", "Tydzień (od pon.)"], ["month", "Miesiąc"]];
 var TAIL = [["notes", "Uwagi"], ["updatedAt", "Ostatnia zmiana"]];
 var WEEK_COL = 4, MONTH_COL = 5, FIRST_FIELD_COL = 6;
+var SEP = ","; // separator argumentów formuł; w polskiej wersji Arkuszy to „;” (ustalane w setup)
+
+/** Sprawdza, czy arkusz przyjmuje przecinek w formułach (wersja angielska), czy średnik (np. polska). */
+function detectSeparator(ss) {
+  var probe = ss.insertSheet("_kpi_probe");
+  probe.getRange("A1").setFormula("=SUM(1,2)");
+  SpreadsheetApp.flush();
+  SEP = probe.getRange("A1").getValue() === 3 ? "," : ";";
+  ss.deleteSheet(probe);
+}
+
+/** Formuły piszemy z przecinkami; przy średnikowym arkuszu zamieniamy (w formułach nie ma przecinków w tekstach). */
+function fx(f) {
+  return SEP === "," ? f : f.replace(/,/g, ";");
+}
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -93,6 +108,7 @@ function removeRow(ss, area, id) {
 
 /** Pełna synchronizacja: przepisuje dane i od nowa buduje zakładki z formułami. */
 function setup(ss, schema, entries) {
+  detectSeparator(ss);
   AREAS.forEach(function (area) {
     var r = rawSheet(ss, schema, area);
     var last = r.sh.getLastRow();
@@ -147,7 +163,7 @@ function buildAggregate(ss, schema, name, periodCol, periodLabel) {
 
   var pc = letter(periodCol);
   var stack = AREAS.map(function (a) { return q(RAW[a]) + "!" + pc + "2:" + pc; }).join(";");
-  sh.getRange("A2").setFormula("=IFERROR(SORT(UNIQUE(FILTER({" + stack + "},{" + stack + "}<>\"\")),1,FALSE),\"\")");
+  sh.getRange("A2").setFormula(fx("=IFERROR(SORT(UNIQUE(FILTER({" + stack + "},{" + stack + "}<>\"\")),1,FALSE),\"\")"));
 
   var colOf = {};
   fields.forEach(function (f, i) {
@@ -155,9 +171,9 @@ function buildAggregate(ss, schema, name, periodCol, periodLabel) {
     colOf[f.key] = c;
     var src = q(RAW[f.area]) + "!";
     var rc = letter(f.rawCol);
-    sh.getRange(c + "2").setFormula(
+    sh.getRange(c + "2").setFormula(fx(
       "=ARRAYFORMULA(IF($A2:$A=\"\",,SUMIF(" + src + "$" + pc + "$2:$" + pc + ",$A2:$A," + src + rc + "$2:" + rc + ")))"
-    );
+    ));
   });
 
   schema.metrics.forEach(function (m, i) {
@@ -166,7 +182,7 @@ function buildAggregate(ss, schema, name, periodCol, periodLabel) {
     var expr = m.den.length
       ? "IFERROR(" + sum(m.num) + "/" + sum(m.den) + "*" + m.mult + ",\"\")"
       : sum(m.num) + "*" + m.mult;
-    sh.getRange(c + "2").setFormula("=ARRAYFORMULA(IF($A2:$A=\"\",," + expr + "))");
+    sh.getRange(c + "2").setFormula(fx("=ARRAYFORMULA(IF($A2:$A=\"\",," + expr + "))"));
     sh.getRange(c + "2:" + c).setNumberFormat("0.00");
   });
 }
@@ -183,7 +199,7 @@ function buildSummary(ss, schema) {
     "=\"Okres\"",
     "=IFERROR(INDEX(" + W + "A:A,2),\"\")", "=IFERROR(INDEX(" + W + "A:A,3),\"\")", "=\"\"",
     "=IFERROR(INDEX(" + M + "A:A,2),\"\")", "=IFERROR(INDEX(" + M + "A:A,3),\"\")", "=\"\"",
-  ]]);
+  ].map(fx)]);
   var rows = labels.map(function (label, i) {
     var c = letter(2 + i), r = 3 + i;
     return [
@@ -192,7 +208,7 @@ function buildSummary(ss, schema) {
       "=IFERROR(INDEX(" + M + c + ":" + c + ",2),\"\")", "=IFERROR(INDEX(" + M + c + ":" + c + ",3),\"\")", "=IFERROR(E" + r + "/F" + r + "-1,\"\")",
     ];
   });
-  sh.getRange(3, 1, rows.length, 7).setFormulas(rows);
+  sh.getRange(3, 1, rows.length, 7).setFormulas(rows.map(function (r) { return r.map(fx); }));
   sh.getRange(3, 2, rows.length, 2).setNumberFormat("0.00");
   sh.getRange(3, 5, rows.length, 2).setNumberFormat("0.00");
   sh.getRange(3, 4, rows.length, 1).setNumberFormat("0.0%");

@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { SheetSection } from "@/components/admin/SheetSection";
+import { ImportForm } from "@/components/admin/ImportForm";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
@@ -59,6 +60,15 @@ export default async function ClientPage({ params, searchParams }: { params: { i
           </section>
 
           <SheetSection client={client} secret={secret} />
+
+          <section className="card p-6">
+            <h2 className="text-[16px] font-bold">Import historii z arkusza VSL (.xlsx)</h2>
+            <p className="mb-4 mt-1 text-[13px] text-muted">
+              Plik w formacie „Arkusz śledzenia danych VSL” (zakładka „Dane z Facebook Ads”, wiersz na dzień). Pobierz go z Dysku jako .xlsx
+              (Plik → Pobierz → Microsoft Excel). Najpierw sprawdź, co się zaimportuje — dzień, który już jest w aplikacji, zostanie zastąpiony.
+            </p>
+            <ImportForm clientId={client.id} />
+          </section>
 
           <section className="card overflow-hidden">
             <h2 className="border-b border-line px-5 py-4 text-[16px] font-bold">Konta do logowania</h2>
