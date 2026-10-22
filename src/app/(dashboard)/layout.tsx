@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, createContext, useContext } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
@@ -37,9 +37,9 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      signIn("auto", { callbackUrl: window.location.href });
     }
-  }, [status, router]);
+  }, [status]);
 
   useEffect(() => {
     if (session) {

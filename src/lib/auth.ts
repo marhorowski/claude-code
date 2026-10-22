@@ -55,6 +55,29 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+    // Auto-login provider — signs in as the first ADMIN without credentials
+    CredentialsProvider({
+      id: "auto",
+      name: "auto",
+      credentials: {},
+      async authorize() {
+        const admin = await prisma.user.findFirst({
+          where: { role: "ADMIN" },
+          include: { clients: { include: { client: true } } },
+        });
+        if (!admin) return null;
+        return {
+          id: admin.id,
+          email: admin.email,
+          name: admin.name,
+          role: admin.role,
+          clients: admin.clients.map((ca) => ({
+            id: ca.client.id,
+            name: ca.client.name,
+          })),
+        };
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
