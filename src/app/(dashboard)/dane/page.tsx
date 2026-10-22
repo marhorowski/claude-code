@@ -17,7 +17,7 @@ interface DailyFormData {
   plannedMeetings: number | null; attendedMeetings: number | null;
   cancelledMeetings: number | null; postponedMeetings: number | null;
   noShows: number | null; closings: number | null; revenue: number | null;
-  followUpsDone: number | null; followUpClosings: number | null; followUpRevenue: number | null;
+  plannedFollowUps: number | null; followUpsDone: number | null; followUpClosings: number | null; followUpRevenue: number | null;
   // Setting
   callsMade: number | null; conductedCalls: number | null; meetingsBooked: number | null;
   // Marketing
@@ -59,10 +59,10 @@ export default function DanePage() {
   const [cPersonId, setCPersonId] = useState("");
   const [cDate, setCDate] = useState(toDateInput(now));
   const [cForm, setCForm] = useState({
-    plannedMeetings: "", attendedMeetings: "",
-    cancelledMeetings: "", postponedMeetings: "", noShows: "",
+    plannedMeetings: "", plannedFollowUps: "",
+    attendedMeetings: "", followUpsDone: "",
+    postponedMeetings: "", cancelledMeetings: "", noShows: "",
     closings: "", revenue: "",
-    followUpsDone: "", followUpClosings: "", followUpRevenue: "",
     notes: "",
   });
   const [revSuggested, setRevSuggested] = useState(false);
@@ -78,7 +78,7 @@ export default function DanePage() {
   const [mktDate, setMktDate] = useState(toDateInput(now));
   const [mktForm, setMktForm] = useState({
     dailyAdSpend: "", dailyImpressions: "", dailyClicks: "",
-    dailyLeads: "", optinConversion: "", vslMeetingsBooked: "",
+    dailyLeads: "", vslMeetingsBooked: "",
   });
 
   const showMsg = (text: string, ok: boolean) => {
@@ -107,7 +107,7 @@ export default function DanePage() {
   // Auto-fill closing form
   useEffect(() => {
     if (!cPersonId || !cDate) {
-      setCForm({ plannedMeetings: "", attendedMeetings: "", cancelledMeetings: "", postponedMeetings: "", noShows: "", closings: "", revenue: "", followUpsDone: "", followUpClosings: "", followUpRevenue: "", notes: "" });
+      setCForm({ plannedMeetings: "", plannedFollowUps: "", attendedMeetings: "", followUpsDone: "", postponedMeetings: "", cancelledMeetings: "", noShows: "", closings: "", revenue: "", notes: "" });
       setRevSuggested(false);
       return;
     }
@@ -115,20 +115,19 @@ export default function DanePage() {
     if (ex) {
       setCForm({
         plannedMeetings: ex.plannedMeetings?.toString() ?? "",
+        plannedFollowUps: ex.plannedFollowUps?.toString() ?? "",
         attendedMeetings: ex.attendedMeetings?.toString() ?? "",
-        cancelledMeetings: ex.cancelledMeetings?.toString() ?? "",
+        followUpsDone: ex.followUpsDone?.toString() ?? "",
         postponedMeetings: ex.postponedMeetings?.toString() ?? "",
+        cancelledMeetings: ex.cancelledMeetings?.toString() ?? "",
         noShows: ex.noShows?.toString() ?? "",
         closings: ex.closings?.toString() ?? "",
         revenue: ex.revenue?.toString() ?? "",
-        followUpsDone: ex.followUpsDone?.toString() ?? "",
-        followUpClosings: ex.followUpClosings?.toString() ?? "",
-        followUpRevenue: ex.followUpRevenue?.toString() ?? "",
         notes: ex.notes ?? "",
       });
       setRevSuggested(false);
     } else {
-      setCForm({ plannedMeetings: "", attendedMeetings: "", cancelledMeetings: "", postponedMeetings: "", noShows: "", closings: "", revenue: "", followUpsDone: "", followUpClosings: "", followUpRevenue: "", notes: "" });
+      setCForm({ plannedMeetings: "", plannedFollowUps: "", attendedMeetings: "", followUpsDone: "", postponedMeetings: "", cancelledMeetings: "", noShows: "", closings: "", revenue: "", notes: "" });
       setRevSuggested(false);
     }
   }, [cPersonId, cDate, daily]);
@@ -176,11 +175,10 @@ export default function DanePage() {
         dailyImpressions: ex.dailyImpressions?.toString() ?? "",
         dailyClicks: ex.dailyClicks?.toString() ?? "",
         dailyLeads: ex.dailyLeads?.toString() ?? "",
-        optinConversion: ex.optinConversion?.toString() ?? "",
         vslMeetingsBooked: ex.vslMeetingsBooked?.toString() ?? "",
       });
     } else {
-      setMktForm({ dailyAdSpend: "", dailyImpressions: "", dailyClicks: "", dailyLeads: "", optinConversion: "", vslMeetingsBooked: "" });
+      setMktForm({ dailyAdSpend: "", dailyImpressions: "", dailyClicks: "", dailyLeads: "", vslMeetingsBooked: "" });
     }
   }, [mktDate, daily]);
 
@@ -197,15 +195,14 @@ export default function DanePage() {
       await post("/api/daily", {
         clientId: selectedClientId, targetUserId: cPersonId, date: cDate,
         plannedMeetings: cForm.plannedMeetings ? +cForm.plannedMeetings : null,
+        plannedFollowUps: cForm.plannedFollowUps ? +cForm.plannedFollowUps : null,
         attendedMeetings: cForm.attendedMeetings ? +cForm.attendedMeetings : null,
-        cancelledMeetings: cForm.cancelledMeetings ? +cForm.cancelledMeetings : null,
+        followUpsDone: cForm.followUpsDone ? +cForm.followUpsDone : null,
         postponedMeetings: cForm.postponedMeetings ? +cForm.postponedMeetings : null,
+        cancelledMeetings: cForm.cancelledMeetings ? +cForm.cancelledMeetings : null,
         noShows: cForm.noShows ? +cForm.noShows : null,
         closings: cForm.closings ? +cForm.closings : null,
         revenue: cForm.revenue ? +cForm.revenue : null,
-        followUpsDone: cForm.followUpsDone ? +cForm.followUpsDone : null,
-        followUpClosings: cForm.followUpClosings ? +cForm.followUpClosings : null,
-        followUpRevenue: cForm.followUpRevenue ? +cForm.followUpRevenue : null,
         notes: cForm.notes || null,
       });
       showMsg("Zapisano dane sprzedaży!", true);
@@ -241,7 +238,6 @@ export default function DanePage() {
         dailyImpressions: mktForm.dailyImpressions ? +mktForm.dailyImpressions : null,
         dailyClicks: mktForm.dailyClicks ? +mktForm.dailyClicks : null,
         dailyLeads: mktForm.dailyLeads ? +mktForm.dailyLeads : null,
-        optinConversion: mktForm.optinConversion ? +mktForm.optinConversion : null,
         vslMeetingsBooked: mktForm.vslMeetingsBooked ? +mktForm.vslMeetingsBooked : null,
       });
       showMsg("Zapisano dane marketingowe!", true);
@@ -372,89 +368,61 @@ export default function DanePage() {
             </div>
 
             <div className="border-t pt-4" style={{ borderColor: "var(--border-card)" }}>
-              <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Spotkania</div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={LBL}>Zaplanowane (pierwsze)</label>
+                  <label className={LBL}>Zaplanowane spotkania (pierwsze)</label>
                   <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
                     value={cForm.plannedMeetings} onChange={e => setCForm(p => ({ ...p, plannedMeetings: e.target.value }))} />
                 </div>
                 <div>
-                  <label className={LBL}>Odbyte</label>
+                  <label className={LBL}>Zaplanowane follow-upy</label>
+                  <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
+                    value={cForm.plannedFollowUps} onChange={e => setCForm(p => ({ ...p, plannedFollowUps: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={LBL}>Odbyte spotkania pierwsze</label>
                   <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
                     value={cForm.attendedMeetings} onChange={e => setCForm(p => ({ ...p, attendedMeetings: e.target.value }))} />
                 </div>
                 <div>
-                  <label className={LBL}>Odwołane</label>
+                  <label className={LBL}>Odbyte follow-upy</label>
                   <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
-                    value={cForm.cancelledMeetings} onChange={e => setCForm(p => ({ ...p, cancelledMeetings: e.target.value }))} />
+                    value={cForm.followUpsDone} onChange={e => setCForm(p => ({ ...p, followUpsDone: e.target.value }))} />
                 </div>
                 <div>
-                  <label className={LBL}>Przełożone</label>
+                  <label className={LBL}>Przełożone spotkania</label>
                   <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
                     value={cForm.postponedMeetings} onChange={e => setCForm(p => ({ ...p, postponedMeetings: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={LBL}>Odwołane spotkania</label>
+                  <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
+                    value={cForm.cancelledMeetings} onChange={e => setCForm(p => ({ ...p, cancelledMeetings: e.target.value }))} />
                 </div>
                 <div>
                   <label className={LBL}>No show</label>
                   <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
                     value={cForm.noShows} onChange={e => setCForm(p => ({ ...p, noShows: e.target.value }))} />
                 </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-4" style={{ borderColor: "var(--border-card)" }}>
-              <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Sprzedaż</div>
-              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={LBL}>Domknięte sprzedaże</label>
                   <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
                     value={cForm.closings}
                     onChange={e => { setCForm(p => ({ ...p, closings: e.target.value })); setRevSuggested(false); }} />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className={LBL}>
-                    Przychód netto (PLN)
+                    Łączny zakontraktowany przychód dzisiaj (PLN)
                     {revSuggested && settings.dealSize > 0 && (
                       <span className="ml-2 text-xs px-1.5 py-0.5 rounded-full" style={{ background: "var(--neon-dim)", color: "var(--neon)", border: "1px solid var(--neon-border)" }}>auto</span>
                     )}
                   </label>
                   <input type="number" min="0" className={INP} style={inputStyle}
-                    placeholder={settings.dealSize > 0 ? `${settings.dealSize} × zamknięcia` : "0"}
+                    placeholder={settings.dealSize > 0 ? `sugestia: ${settings.dealSize} × zamknięcia` : "0"}
                     value={cForm.revenue}
                     onChange={e => { setCForm(p => ({ ...p, revenue: e.target.value })); setRevSuggested(false); }} />
                 </div>
               </div>
-            </div>
-
-            <div className="border-t pt-4" style={{ borderColor: "var(--border-card)" }}>
-              <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "var(--text-muted)" }}>Follow-upy</div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={LBL}>Follow-upy odbyte</label>
-                  <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
-                    value={cForm.followUpsDone} onChange={e => setCForm(p => ({ ...p, followUpsDone: e.target.value }))} />
-                </div>
-                <div>
-                  <label className={LBL}>Domknięcia z follow-upów</label>
-                  <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
-                    value={cForm.followUpClosings} onChange={e => setCForm(p => ({ ...p, followUpClosings: e.target.value }))} />
-                </div>
-                <div className="col-span-2">
-                  <label className={LBL}>Przychód z follow-upów (PLN)</label>
-                  <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
-                    value={cForm.followUpRevenue} onChange={e => setCForm(p => ({ ...p, followUpRevenue: e.target.value }))} />
-                </div>
-              </div>
-
-              {/* Łączny przychód */}
-              {(cForm.revenue || cForm.followUpRevenue) && (
-                <div className="mt-3" style={calcRowStyle}>
-                  <span style={{ color: "var(--text-muted)" }}>Łączny przychód zakontraktowany netto</span>
-                  <span style={{ color: "var(--neon)", fontWeight: 700 }}>
-                    {((cForm.revenue ? +cForm.revenue : 0) + (cForm.followUpRevenue ? +cForm.followUpRevenue : 0)).toLocaleString("pl-PL")} PLN
-                  </span>
-                </div>
-              )}
             </div>
 
             <div>
@@ -584,11 +552,6 @@ export default function DanePage() {
                   <label className={LBL}>Liczba leadów</label>
                   <input type="number" min="0" className={INP} style={inputStyle} placeholder="0"
                     value={mktForm.dailyLeads} onChange={e => setMktForm(p => ({ ...p, dailyLeads: e.target.value }))} />
-                </div>
-                <div>
-                  <label className={LBL}>Konwersja Optin Page (%)</label>
-                  <input type="number" min="0" max="100" step="0.1" className={INP} style={inputStyle} placeholder="0.0"
-                    value={mktForm.optinConversion} onChange={e => setMktForm(p => ({ ...p, optinConversion: e.target.value }))} />
                 </div>
                 <div>
                   <label className={LBL}>Umówione rozmowy z VSL</label>

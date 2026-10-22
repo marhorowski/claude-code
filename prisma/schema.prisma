@@ -68,7 +68,8 @@ model DailyForm {
   date              DateTime
   // Sprzedaż (Closing)
   plannedMeetings    Int?    // zaplanowane spotkania (pierwsze)
-  attendedMeetings   Int?    // odbyte spotkania
+  plannedFollowUps   Int?    // zaplanowane follow-upy
+  attendedMeetings   Int?    // odbyte spotkania pierwsze
   cancelledMeetings  Int?    // odwołane spotkania
   postponedMeetings  Int?    // przełożone spotkania
   noShows            Int?    // no show

@@ -20,15 +20,14 @@ interface TokenInfo {
 const EMPTY_FORM = {
   // Sprzedaż
   plannedMeetings: "",
+  plannedFollowUps: "",
   attendedMeetings: "",
-  cancelledMeetings: "",
+  followUpsDone: "",
   postponedMeetings: "",
+  cancelledMeetings: "",
   noShows: "",
   closings: "",
   revenue: "",
-  followUpsDone: "",
-  followUpClosings: "",
-  followUpRevenue: "",
   // Setting
   callsMade: "",
   conductedCalls: "",
@@ -38,7 +37,6 @@ const EMPTY_FORM = {
   dailyImpressions: "",
   dailyClicks: "",
   dailyLeads: "",
-  optinConversion: "",
   vslMeetingsBooked: "",
   // Common
   notes: "",
@@ -91,15 +89,14 @@ export default function PublicFormPage({ params }: { params: { token: string } }
 
       if (dept === "sprzedaz") {
         payload.plannedMeetings = ni(form.plannedMeetings);
+        payload.plannedFollowUps = ni(form.plannedFollowUps);
         payload.attendedMeetings = ni(form.attendedMeetings);
-        payload.cancelledMeetings = ni(form.cancelledMeetings);
+        payload.followUpsDone = ni(form.followUpsDone);
         payload.postponedMeetings = ni(form.postponedMeetings);
+        payload.cancelledMeetings = ni(form.cancelledMeetings);
         payload.noShows = ni(form.noShows);
         payload.closings = ni(form.closings);
         payload.revenue = n(form.revenue);
-        payload.followUpsDone = ni(form.followUpsDone);
-        payload.followUpClosings = ni(form.followUpClosings);
-        payload.followUpRevenue = n(form.followUpRevenue);
       } else if (dept === "setting") {
         payload.callsMade = ni(form.callsMade);
         payload.conductedCalls = ni(form.conductedCalls);
@@ -109,7 +106,6 @@ export default function PublicFormPage({ params }: { params: { token: string } }
         payload.dailyImpressions = ni(form.dailyImpressions);
         payload.dailyClicks = ni(form.dailyClicks);
         payload.dailyLeads = ni(form.dailyLeads);
-        payload.optinConversion = n(form.optinConversion);
         payload.vslMeetingsBooked = ni(form.vslMeetingsBooked);
       }
 
@@ -245,64 +241,43 @@ export default function PublicFormPage({ params }: { params: { token: string } }
                 Sprzedaż / Closing
               </h2>
 
-              <div>
-                <p className={SEC} style={{ color: "#00ff8888" }}>Spotkania dzisiaj</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={LBL}>Zaplanowane (pierwsze)</label>
-                    <input type="number" min="0" value={form.plannedMeetings} onChange={set("plannedMeetings")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
-                  <div>
-                    <label className={LBL}>Odbyte</label>
-                    <input type="number" min="0" value={form.attendedMeetings} onChange={set("attendedMeetings")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
-                  <div>
-                    <label className={LBL}>Odwołane</label>
-                    <input type="number" min="0" value={form.cancelledMeetings} onChange={set("cancelledMeetings")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
-                  <div>
-                    <label className={LBL}>Przełożone</label>
-                    <input type="number" min="0" value={form.postponedMeetings} onChange={set("postponedMeetings")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
-                  <div>
-                    <label className={LBL}>No show</label>
-                    <input type="number" min="0" value={form.noShows} onChange={set("noShows")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
-                  <div>
-                    <label className={LBL}>Domknięte sprzedaże</label>
-                    <input type="number" min="0" value={form.closings} onChange={set("closings")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className={LBL}>Przychód zakontraktowany netto (PLN)</label>
-                    <input type="number" min="0" step="0.01" value={form.revenue} onChange={set("revenue")} className={INP} style={inpStyle} placeholder="0.00" />
-                  </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={LBL}>Zaplanowane spotkania (pierwsze)</label>
+                  <input type="number" min="0" value={form.plannedMeetings} onChange={set("plannedMeetings")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
-              </div>
-
-              <div>
-                <p className={SEC} style={{ color: "#00ff8888" }}>Follow-upy</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={LBL}>Follow-upy odbyte dzisiaj</label>
-                    <input type="number" min="0" value={form.followUpsDone} onChange={set("followUpsDone")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
-                  <div>
-                    <label className={LBL}>Domknięcia z follow-upów</label>
-                    <input type="number" min="0" value={form.followUpClosings} onChange={set("followUpClosings")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className={LBL}>Przychód z follow-upów (PLN)</label>
-                    <input type="number" min="0" value={form.followUpRevenue} onChange={set("followUpRevenue")} className={INP} style={inpStyle} placeholder="0" />
-                  </div>
+                <div>
+                  <label className={LBL}>Zaplanowane follow-upy</label>
+                  <input type="number" min="0" value={form.plannedFollowUps} onChange={set("plannedFollowUps")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
-                {(form.revenue || form.followUpRevenue) && (
-                  <div className="flex justify-between items-center mt-3 px-3 py-2 rounded-lg text-sm" style={{ background: "rgba(0,255,136,0.06)", border: "1px solid rgba(0,255,136,0.15)" }}>
-                    <span style={{ color: "#aaa" }}>Łączny przychód zakontraktowany netto</span>
-                    <span style={{ color: "#00ff88", fontWeight: 700 }}>
-                      {((form.revenue ? +form.revenue : 0) + (form.followUpRevenue ? +form.followUpRevenue : 0)).toLocaleString("pl-PL")} PLN
-                    </span>
-                  </div>
-                )}
+                <div>
+                  <label className={LBL}>Odbyte spotkania pierwsze</label>
+                  <input type="number" min="0" value={form.attendedMeetings} onChange={set("attendedMeetings")} className={INP} style={inpStyle} placeholder="0" />
+                </div>
+                <div>
+                  <label className={LBL}>Odbyte follow-upy</label>
+                  <input type="number" min="0" value={form.followUpsDone} onChange={set("followUpsDone")} className={INP} style={inpStyle} placeholder="0" />
+                </div>
+                <div>
+                  <label className={LBL}>Przełożone spotkania</label>
+                  <input type="number" min="0" value={form.postponedMeetings} onChange={set("postponedMeetings")} className={INP} style={inpStyle} placeholder="0" />
+                </div>
+                <div>
+                  <label className={LBL}>Odwołane spotkania</label>
+                  <input type="number" min="0" value={form.cancelledMeetings} onChange={set("cancelledMeetings")} className={INP} style={inpStyle} placeholder="0" />
+                </div>
+                <div>
+                  <label className={LBL}>No show</label>
+                  <input type="number" min="0" value={form.noShows} onChange={set("noShows")} className={INP} style={inpStyle} placeholder="0" />
+                </div>
+                <div>
+                  <label className={LBL}>Domknięte sprzedaże</label>
+                  <input type="number" min="0" value={form.closings} onChange={set("closings")} className={INP} style={inpStyle} placeholder="0" />
+                </div>
+                <div className="col-span-2">
+                  <label className={LBL}>Łączny zakontraktowany przychód dzisiaj (PLN)</label>
+                  <input type="number" min="0" step="0.01" value={form.revenue} onChange={set("revenue")} className={INP} style={inpStyle} placeholder="0.00" />
+                </div>
               </div>
             </div>
           )}
@@ -353,12 +328,8 @@ export default function PublicFormPage({ params }: { params: { token: string } }
                   <label className={LBL}>Liczba leadów</label>
                   <input type="number" min="0" value={form.dailyLeads} onChange={set("dailyLeads")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
-                <div>
-                  <label className={LBL}>Konwersja Optin Page (%)</label>
-                  <input type="number" min="0" max="100" step="0.01" value={form.optinConversion} onChange={set("optinConversion")} className={INP} style={inpStyle} placeholder="0.00" />
-                </div>
                 <div className="col-span-2">
-                  <label className={LBL}>Umówione rozmowy z marketingu</label>
+                  <label className={LBL}>Umówione rozmowy z VSL</label>
                   <input type="number" min="0" value={form.vslMeetingsBooked} onChange={set("vslMeetingsBooked")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
               </div>

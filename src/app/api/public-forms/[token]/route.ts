@@ -59,6 +59,7 @@ export async function POST(
     selectedUserId,
     // Sprzedaż
     plannedMeetings,
+    plannedFollowUps,
     attendedMeetings,
     cancelledMeetings,
     postponedMeetings,
@@ -106,6 +107,7 @@ export async function POST(
     userId,
     date: parsedDate,
     plannedMeetings: plannedMeetings ?? null,
+    plannedFollowUps: plannedFollowUps ?? null,
     attendedMeetings: attendedMeetings ?? null,
     cancelledMeetings: cancelledMeetings ?? null,
     postponedMeetings: postponedMeetings ?? null,
