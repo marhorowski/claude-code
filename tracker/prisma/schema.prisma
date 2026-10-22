@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("TRACKER_DATABASE_URL")
+  directUrl = env("TRACKER_DIRECT_URL")
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  formToken String   @unique
+  createdAt DateTime @default(now())
+  entries   Entry[]
+}
+
+// Jeden wpis z formularza: dzienny (dateFrom = dateTo) albo zbiorczy za zakres dat.
+// Wartości pól trzymamy w JSON, a ich listę definiuje src/lib/fields.ts.
+model Entry {
+  id        String   @id @default(cuid())
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
+  area      String
+  dateFrom  DateTime @db.Date
+  dateTo    DateTime @db.Date
+  values    Json
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([clientId, area, dateFrom, dateTo])
+  @@index([clientId, area, dateTo])
+}
