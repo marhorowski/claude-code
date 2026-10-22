@@ -10,57 +10,46 @@ export function getKpiStatus(
   const ratio = value / target;
 
   if (lowerIsBetter) {
-    if (ratio <= 0.5) return "GOD";
-    if (ratio <= 1) return "GREEN";
-    if (ratio <= 1.5) return "ORANGE";
+    if (ratio <= 0.8) return "GOD";     // ≤ 80% celu = 125% efektywności
+    if (ratio <= 1.11) return "GREEN";  // ≤ 111% = ≥ 90% efektywności
+    if (ratio <= 1.67) return "ORANGE"; // ≤ 167% = ≥ 60% efektywności
     return "RED";
   } else {
-    if (ratio >= 1.5) return "GOD";
-    if (ratio >= 1) return "GREEN";
-    if (ratio >= 0.5) return "ORANGE";
+    if (ratio >= 1.25) return "GOD";    // ≥ 125% celu
+    if (ratio >= 0.9) return "GREEN";   // ≥ 90% celu
+    if (ratio >= 0.6) return "ORANGE";  // ≥ 60% celu
     return "RED";
   }
 }
 
 export function getStatusColor(status: KpiStatus): string {
   switch (status) {
-    case "GOD":
-      return "#EAB308";
-    case "GREEN":
-      return "#22C55E";
-    case "ORANGE":
-      return "#F97316";
-    case "RED":
-      return "#EF4444";
+    case "GOD":    return "#EAB308";
+    case "GREEN":  return "#22C55E";
+    case "ORANGE": return "#F97316";
+    case "RED":    return "#EF4444";
   }
 }
 
 export function getStatusBg(status: KpiStatus): string {
   switch (status) {
-    case "GOD":
-      return "bg-yellow-500/20 border-yellow-500/40";
-    case "GREEN":
-      return "bg-green-500/20 border-green-500/40";
-    case "ORANGE":
-      return "bg-orange-500/20 border-orange-500/40";
-    case "RED":
-      return "bg-red-500/20 border-red-500/40";
+    case "GOD":    return "bg-yellow-500/20 border-yellow-500/40";
+    case "GREEN":  return "bg-green-500/20 border-green-500/40";
+    case "ORANGE": return "bg-orange-500/20 border-orange-500/40";
+    case "RED":    return "bg-red-500/20 border-red-500/40";
   }
 }
 
 export function getStatusLabel(status: KpiStatus): string {
   switch (status) {
-    case "GOD":
-      return "GOD MODE 🥇";
-    case "GREEN":
-      return "Na torze 🟢";
-    case "ORANGE":
-      return "Poniżej planu 🟠";
-    case "RED":
-      return "Krytyczny 🔴";
+    case "GOD":    return "GOD MODE 🥇";
+    case "GREEN":  return "Na torze 🟢";
+    case "ORANGE": return "Poniżej planu 🟠";
+    case "RED":    return "Krytyczny 🔴";
   }
 }
 
+// --- Closing ---
 export function calcSUR(attended: number, planned: number): number {
   if (planned === 0) return 0;
   return (attended / planned) * 100;
@@ -71,9 +60,36 @@ export function calcCP(closings: number, attended: number): number {
   return (closings / attended) * 100;
 }
 
-export function calcLTS(closings: number, leads: number): number {
-  if (leads === 0) return 0;
-  return (closings / leads) * 100;
+// closings = pierwsze domknięcia + domknięcia z follow-upów
+export function calcTotalClosings(closings: number, followUpClosings: number): number {
+  return closings + followUpClosings;
+}
+
+// --- Setting ---
+export function calcPickupRate(conductedCalls: number, callsMade: number): number {
+  if (callsMade === 0) return 0;
+  return (conductedCalls / callsMade) * 100;
+}
+
+export function calcBookingRate(booked: number, calls: number): number {
+  if (calls === 0) return 0;
+  return (booked / calls) * 100;
+}
+
+// --- Marketing ---
+export function calcCPM(adSpend: number, impressions: number): number {
+  if (impressions === 0) return 0;
+  return (adSpend / impressions) * 1000;
+}
+
+export function calcCTR(clicks: number, impressions: number): number {
+  if (impressions === 0) return 0;
+  return (clicks / impressions) * 100;
+}
+
+export function calcCPC(adSpend: number, clicks: number): number {
+  if (clicks === 0) return 0;
+  return adSpend / clicks;
 }
 
 export function calcCPL(adSpend: number, leads: number): number {
@@ -81,9 +97,37 @@ export function calcCPL(adSpend: number, leads: number): number {
   return adSpend / leads;
 }
 
-export function calcBookingRate(booked: number, calls: number): number {
-  if (calls === 0) return 0;
-  return (booked / calls) * 100;
+export function calcVslBookingRate(vslBooked: number, leads: number): number {
+  if (leads === 0) return 0;
+  return (vslBooked / leads) * 100;
+}
+
+export function calcCostPerCallMarketing(adSpend: number, vslBooked: number): number {
+  if (vslBooked === 0) return 0;
+  return adSpend / vslBooked;
+}
+
+// --- Cross-department ---
+export function calcCombinedBookingRate(meetingsBooked: number, vslBooked: number, leads: number): number {
+  if (leads === 0) return 0;
+  return ((meetingsBooked + vslBooked) / leads) * 100;
+}
+
+export function calcLeadToCloseRate(closings: number, followUpClosings: number, leads: number): number {
+  if (leads === 0) return 0;
+  return ((closings + followUpClosings) / leads) * 100;
+}
+
+export function calcTotalCostPerCall(adSpend: number, meetingsBooked: number, vslBooked: number): number {
+  const totalCalls = meetingsBooked + vslBooked;
+  if (totalCalls === 0) return 0;
+  return adSpend / totalCalls;
+}
+
+// --- Legacy ---
+export function calcLTS(closings: number, leads: number): number {
+  if (leads === 0) return 0;
+  return (closings / leads) * 100;
 }
 
 export function isOnTrack(
@@ -92,13 +136,11 @@ export function isOnTrack(
   weekStart: Date,
   now: Date = new Date()
 ): boolean {
-  const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+  const dayOfWeek = now.getDay();
   const adjustedDay = dayOfWeek === 0 ? 5 : Math.min(dayOfWeek, 5);
   const workedDays = Math.max(0, adjustedDay);
-
   const expectedProgress = workedDays / 5;
   const actualProgress = weeklyTarget > 0 ? currentRevenue / weeklyTarget : 0;
-
   return actualProgress >= expectedProgress;
 }
 

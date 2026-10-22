@@ -66,22 +66,33 @@ model DailyForm {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            String
   date              DateTime
-  plannedMeetings   Int?
-  attendedMeetings  Int?
-  closings          Int?
-  revenue           Float?
-  callsMade         Int?
-  meetingsBooked    Int?
-  vslMeetingsBooked Int?
-  dailyLeads        Int?
-  dailyAdSpend      Float?
-  dailyClicks       Int?
-  dailyImpressions  Int?
-  dailyCtr          Float?
+  // Sprzedaż (Closing)
+  plannedMeetings    Int?    // zaplanowane spotkania (pierwsze)
+  attendedMeetings   Int?    // odbyte spotkania
+  cancelledMeetings  Int?    // odwołane spotkania
+  postponedMeetings  Int?    // przełożone spotkania
+  noShows            Int?    // no show
+  closings           Int?    // domknięte sprzedaże
+  revenue            Float?  // przychód zakontraktowany netto
+  followUpsDone      Int?    // follow-upy odbyte dzisiaj
+  followUpClosings   Int?    // domknięcia z follow-upów
+  // Setting
+  callsMade          Int?    // wykonane telefony
+  conductedCalls     Int?    // przeprowadzone rozmowy
+  meetingsBooked     Int?    // umówione spotkania
+  // Marketing
+  dailyAdSpend       Float?  // wydatek na reklamy
+  dailyImpressions   Int?    // wyświetlenia
+  dailyClicks        Int?    // unikatowe kliknięcia linku
+  dailyLeads         Int?    // liczba leadów
+  optinConversion    Float?  // konwersja optin page (%)
+  vslMeetingsBooked  Int?    // umówione rozmowy z marketingu
+  // Legacy fields (kept for old data)
   callsReceived        Int?
   followUpCount        Int?
   unqualifiedMeetings  Int?
   meetingFollowUps     Int?
+  dailyCtr             Float?
   notes                String?
   createdAt         DateTime @default(now())
 }

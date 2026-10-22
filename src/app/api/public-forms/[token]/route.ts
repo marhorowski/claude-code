@@ -57,22 +57,27 @@ export async function POST(
   const {
     date,
     selectedUserId,
+    // Sprzedaż
     plannedMeetings,
     attendedMeetings,
+    cancelledMeetings,
+    postponedMeetings,
+    noShows,
     closings,
     revenue,
+    followUpsDone,
+    followUpClosings,
+    // Setting
     callsMade,
+    conductedCalls,
     meetingsBooked,
-    vslMeetingsBooked,
-    dailyLeads,
+    // Marketing
     dailyAdSpend,
-    dailyClicks,
     dailyImpressions,
-    dailyCtr,
-    callsReceived,
-    followUpCount,
-    unqualifiedMeetings,
-    meetingFollowUps,
+    dailyClicks,
+    dailyLeads,
+    optinConversion,
+    vslMeetingsBooked,
     notes,
   } = body;
 
@@ -101,20 +106,22 @@ export async function POST(
     date: parsedDate,
     plannedMeetings: plannedMeetings ?? null,
     attendedMeetings: attendedMeetings ?? null,
+    cancelledMeetings: cancelledMeetings ?? null,
+    postponedMeetings: postponedMeetings ?? null,
+    noShows: noShows ?? null,
     closings: closings ?? null,
     revenue: revenue ?? null,
+    followUpsDone: followUpsDone ?? null,
+    followUpClosings: followUpClosings ?? null,
     callsMade: callsMade ?? null,
+    conductedCalls: conductedCalls ?? null,
     meetingsBooked: meetingsBooked ?? null,
-    vslMeetingsBooked: vslMeetingsBooked ?? null,
-    dailyLeads: dailyLeads ?? null,
     dailyAdSpend: dailyAdSpend ?? null,
-    dailyClicks: dailyClicks ?? null,
     dailyImpressions: dailyImpressions ?? null,
-    dailyCtr: dailyCtr ?? null,
-    callsReceived: callsReceived ?? null,
-    followUpCount: followUpCount ?? null,
-    unqualifiedMeetings: unqualifiedMeetings ?? null,
-    meetingFollowUps: meetingFollowUps ?? null,
+    dailyClicks: dailyClicks ?? null,
+    dailyLeads: dailyLeads ?? null,
+    optinConversion: optinConversion ?? null,
+    vslMeetingsBooked: vslMeetingsBooked ?? null,
     notes: notes ?? null,
   };
 
@@ -138,7 +145,7 @@ export async function POST(
     const totalMeetingsBooked = dailyForms.reduce((s, f) => s + (f.meetingsBooked ?? 0), 0);
     const totalPlannedMeetings = dailyForms.reduce((s, f) => s + (f.plannedMeetings ?? 0), 0);
     const totalAttended = dailyForms.reduce((s, f) => s + (f.attendedMeetings ?? 0), 0);
-    const totalClosings = dailyForms.reduce((s, f) => s + (f.closings ?? 0), 0);
+    const totalClosings = dailyForms.reduce((s, f) => s + ((f.closings ?? 0) + (f.followUpClosings ?? 0)), 0);
     const totalRevenue = dailyForms.reduce((s, f) => s + (f.revenue ?? 0), 0);
     const totalLeads = dailyForms.reduce((s, f) => s + (f.dailyLeads ?? 0), 0);
     const adSpend = dailyForms.reduce((s, f) => s + (f.dailyAdSpend ?? 0), 0);

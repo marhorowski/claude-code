@@ -18,24 +18,27 @@ interface TokenInfo {
 }
 
 const EMPTY_FORM = {
-  // Sprzedaż (Closing)
+  // Sprzedaż
   plannedMeetings: "",
   attendedMeetings: "",
+  cancelledMeetings: "",
+  postponedMeetings: "",
+  noShows: "",
   closings: "",
   revenue: "",
-  callsReceived: "",
-  followUpCount: "",
-  unqualifiedMeetings: "",
-  meetingFollowUps: "",
+  followUpsDone: "",
+  followUpClosings: "",
   // Setting
   callsMade: "",
+  conductedCalls: "",
   meetingsBooked: "",
   // Marketing
-  vslMeetingsBooked: "",
-  dailyLeads: "",
   dailyAdSpend: "",
-  dailyClicks: "",
   dailyImpressions: "",
+  dailyClicks: "",
+  dailyLeads: "",
+  optinConversion: "",
+  vslMeetingsBooked: "",
   // Common
   notes: "",
 };
@@ -59,7 +62,6 @@ export default function PublicFormPage({ params }: { params: { token: string } }
         if (data.error) setError(data.error);
         else {
           setTokenInfo(data);
-          // Pre-select user if token is assigned
           if (data.userId) setSelectedUserId(data.userId);
         }
       })
@@ -89,26 +91,24 @@ export default function PublicFormPage({ params }: { params: { token: string } }
       if (dept === "sprzedaz") {
         payload.plannedMeetings = ni(form.plannedMeetings);
         payload.attendedMeetings = ni(form.attendedMeetings);
+        payload.cancelledMeetings = ni(form.cancelledMeetings);
+        payload.postponedMeetings = ni(form.postponedMeetings);
+        payload.noShows = ni(form.noShows);
         payload.closings = ni(form.closings);
         payload.revenue = n(form.revenue);
-        payload.callsReceived = ni(form.callsReceived);
-        payload.followUpCount = ni(form.followUpCount);
-        payload.unqualifiedMeetings = ni(form.unqualifiedMeetings);
-        payload.meetingFollowUps = ni(form.meetingFollowUps);
+        payload.followUpsDone = ni(form.followUpsDone);
+        payload.followUpClosings = ni(form.followUpClosings);
       } else if (dept === "setting") {
         payload.callsMade = ni(form.callsMade);
+        payload.conductedCalls = ni(form.conductedCalls);
         payload.meetingsBooked = ni(form.meetingsBooked);
-        payload.callsReceived = ni(form.callsReceived);
-        payload.followUpCount = ni(form.followUpCount);
       } else if (dept === "marketing") {
-        payload.vslMeetingsBooked = ni(form.vslMeetingsBooked);
-        payload.dailyLeads = ni(form.dailyLeads);
         payload.dailyAdSpend = n(form.dailyAdSpend);
-        payload.dailyClicks = ni(form.dailyClicks);
         payload.dailyImpressions = ni(form.dailyImpressions);
-        if (form.dailyClicks && form.dailyImpressions) {
-          payload.dailyCtr = (parseInt(form.dailyClicks) / parseInt(form.dailyImpressions)) * 100;
-        }
+        payload.dailyClicks = ni(form.dailyClicks);
+        payload.dailyLeads = ni(form.dailyLeads);
+        payload.optinConversion = n(form.optinConversion);
+        payload.vslMeetingsBooked = ni(form.vslMeetingsBooked);
       }
 
       const res = await fetch(`/api/public-forms/${params.token}`, {
@@ -138,9 +138,10 @@ export default function PublicFormPage({ params }: { params: { token: string } }
   const LBL = "block text-xs mb-1.5 text-[#666]";
   const CARD = "p-5 rounded-2xl space-y-4";
   const cardStyle = { background: "#0f0f0f", border: "1px solid #1a1a1a" };
+  const SEC = "text-xs font-semibold uppercase tracking-wider mb-3";
 
   const deptOptions: Array<{ value: Dept; label: string; color: string }> = [
-    { value: "sprzedaz", label: "Sprzedaż (Closing)", color: "#00ff88" },
+    { value: "sprzedaz", label: "Sprzedaż", color: "#00ff88" },
     { value: "setting", label: "Setting", color: "#00d4ff" },
     { value: "marketing", label: "Marketing", color: "#ff9922" },
   ];
@@ -181,7 +182,6 @@ export default function PublicFormPage({ params }: { params: { token: string } }
           {tokenInfo.label && <div className="text-sm mt-1" style={{ color: "#555" }}>{tokenInfo.label}</div>}
         </div>
 
-        {/* Messages */}
         {saved && (
           <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium text-center"
             style={{ background: "rgba(0,255,136,0.1)", border: "1px solid rgba(0,255,136,0.3)", color: "#00ff88" }}>
@@ -197,47 +197,18 @@ export default function PublicFormPage({ params }: { params: { token: string } }
 
         <form onSubmit={submit} className="space-y-4">
 
-          {/* Date */}
+          {/* Date + user */}
           <div className={CARD} style={cardStyle}>
             <div>
               <label className={LBL}>Data *</label>
               <DatePicker value={date} onChange={setDate} max={toDateInput(new Date())} required
                 variant="dark" className={INP} style={inpStyle} />
             </div>
-          </div>
-
-          {/* Department selector */}
-          <div className={CARD} style={cardStyle}>
-            <div>
-              <label className={LBL}>Dział *</label>
-              <div className="flex gap-2">
-                {deptOptions.map((d) => (
-                  <button
-                    key={d.value}
-                    type="button"
-                    onClick={() => setDept(d.value)}
-                    className="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all"
-                    style={dept === d.value
-                      ? { background: `${d.color}22`, border: `1px solid ${d.color}66`, color: d.color }
-                      : { background: "#111", border: "1px solid #222", color: "#555" }}
-                  >
-                    {d.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* User picker — always visible so submitter can confirm who they're filling for */}
             <div>
               <label className={LBL}>Użytkownik *</label>
               {tokenInfo.users.length > 0 ? (
-                <select
-                  required
-                  value={selectedUserId}
-                  onChange={(e) => setSelectedUserId(e.target.value)}
-                  className={INP}
-                  style={{ ...inpStyle, cursor: "pointer" }}
-                >
+                <select required value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)}
+                  className={INP} style={{ ...inpStyle, cursor: "pointer" }}>
                   <option value="">— wybierz osobę —</option>
                   {tokenInfo.users.map((u) => (
                     <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
@@ -249,44 +220,74 @@ export default function PublicFormPage({ params }: { params: { token: string } }
             </div>
           </div>
 
+          {/* Dept selector */}
+          <div className={CARD} style={cardStyle}>
+            <label className={LBL}>Dział *</label>
+            <div className="flex gap-2">
+              {deptOptions.map((d) => (
+                <button key={d.value} type="button" onClick={() => setDept(d.value)}
+                  className="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all"
+                  style={dept === d.value
+                    ? { background: `${d.color}22`, border: `1px solid ${d.color}66`, color: d.color }
+                    : { background: "#111", border: "1px solid #222", color: "#555" }}>
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* === SPRZEDAŻ === */}
           {dept === "sprzedaz" && (
             <div className={CARD} style={{ ...cardStyle, borderColor: "#00ff8822" }}>
               <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "#00ff88" }}>
-                Closing / Sprzedaż
+                Sprzedaż / Closing
               </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={LBL}>Zaplanowane spotkania</label>
-                  <input type="number" min="0" value={form.plannedMeetings} onChange={set("plannedMeetings")} className={INP} style={inpStyle} placeholder="0" />
+
+              <div>
+                <p className={SEC} style={{ color: "#00ff8888" }}>Spotkania dzisiaj</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={LBL}>Zaplanowane (pierwsze)</label>
+                    <input type="number" min="0" value={form.plannedMeetings} onChange={set("plannedMeetings")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
+                  <div>
+                    <label className={LBL}>Odbyte</label>
+                    <input type="number" min="0" value={form.attendedMeetings} onChange={set("attendedMeetings")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
+                  <div>
+                    <label className={LBL}>Odwołane</label>
+                    <input type="number" min="0" value={form.cancelledMeetings} onChange={set("cancelledMeetings")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
+                  <div>
+                    <label className={LBL}>Przełożone</label>
+                    <input type="number" min="0" value={form.postponedMeetings} onChange={set("postponedMeetings")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
+                  <div>
+                    <label className={LBL}>No show</label>
+                    <input type="number" min="0" value={form.noShows} onChange={set("noShows")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
+                  <div>
+                    <label className={LBL}>Domknięte sprzedaże</label>
+                    <input type="number" min="0" value={form.closings} onChange={set("closings")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
+                  <div className="col-span-2">
+                    <label className={LBL}>Przychód zakontraktowany netto (PLN)</label>
+                    <input type="number" min="0" step="0.01" value={form.revenue} onChange={set("revenue")} className={INP} style={inpStyle} placeholder="0.00" />
+                  </div>
                 </div>
-                <div>
-                  <label className={LBL}>Odbyłe spotkania</label>
-                  <input type="number" min="0" value={form.attendedMeetings} onChange={set("attendedMeetings")} className={INP} style={inpStyle} placeholder="0" />
-                </div>
-                <div>
-                  <label className={LBL}>Zamknięcia (sprzedaże)</label>
-                  <input type="number" min="0" value={form.closings} onChange={set("closings")} className={INP} style={inpStyle} placeholder="0" />
-                </div>
-                <div>
-                  <label className={LBL}>Przychód (PLN)</label>
-                  <input type="number" min="0" step="0.01" value={form.revenue} onChange={set("revenue")} className={INP} style={inpStyle} placeholder="0.00" />
-                </div>
-                <div>
-                  <label className={LBL}>Odebrane telefony</label>
-                  <input type="number" min="0" value={form.callsReceived} onChange={set("callsReceived")} className={INP} style={inpStyle} placeholder="0" />
-                </div>
-                <div>
-                  <label className={LBL}>Follow-upy wykonane</label>
-                  <input type="number" min="0" value={form.followUpCount} onChange={set("followUpCount")} className={INP} style={inpStyle} placeholder="0" />
-                </div>
-                <div>
-                  <label className={LBL}>Spotkania niekwalifikowane</label>
-                  <input type="number" min="0" value={form.unqualifiedMeetings} onChange={set("unqualifiedMeetings")} className={INP} style={inpStyle} placeholder="0" />
-                </div>
-                <div>
-                  <label className={LBL}>Follow-upy po spotkaniach</label>
-                  <input type="number" min="0" value={form.meetingFollowUps} onChange={set("meetingFollowUps")} className={INP} style={inpStyle} placeholder="0" />
+              </div>
+
+              <div>
+                <p className={SEC} style={{ color: "#00ff8888" }}>Follow-upy</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={LBL}>Follow-upy odbyte dzisiaj</label>
+                    <input type="number" min="0" value={form.followUpsDone} onChange={set("followUpsDone")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
+                  <div>
+                    <label className={LBL}>Domknięcia z follow-upów</label>
+                    <input type="number" min="0" value={form.followUpClosings} onChange={set("followUpClosings")} className={INP} style={inpStyle} placeholder="0" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -298,22 +299,18 @@ export default function PublicFormPage({ params }: { params: { token: string } }
               <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "#00d4ff" }}>
                 Setting
               </h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={LBL}>Wykonane telefony</label>
                   <input type="number" min="0" value={form.callsMade} onChange={set("callsMade")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
                 <div>
-                  <label className={LBL}>Odebrane telefony</label>
-                  <input type="number" min="0" value={form.callsReceived} onChange={set("callsReceived")} className={INP} style={inpStyle} placeholder="0" />
+                  <label className={LBL}>Przeprowadzone rozmowy</label>
+                  <input type="number" min="0" value={form.conductedCalls} onChange={set("conductedCalls")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className={LBL}>Umówione spotkania</label>
                   <input type="number" min="0" value={form.meetingsBooked} onChange={set("meetingsBooked")} className={INP} style={inpStyle} placeholder="0" />
-                </div>
-                <div>
-                  <label className={LBL}>Follow-upy</label>
-                  <input type="number" min="0" value={form.followUpCount} onChange={set("followUpCount")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
               </div>
             </div>
@@ -325,26 +322,30 @@ export default function PublicFormPage({ params }: { params: { token: string } }
               <h2 className="text-xs font-bold uppercase tracking-widest" style={{ color: "#ff9922" }}>
                 Marketing
               </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={LBL}>Leady dzienne</label>
-                  <input type="number" min="0" value={form.dailyLeads} onChange={set("dailyLeads")} className={INP} style={inpStyle} placeholder="0" />
-                </div>
-                <div>
-                  <label className={LBL}>Zapisy VSL</label>
-                  <input type="number" min="0" value={form.vslMeetingsBooked} onChange={set("vslMeetingsBooked")} className={INP} style={inpStyle} placeholder="0" />
-                </div>
+              <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
-                  <label className={LBL}>Ad Spend dzienny (PLN)</label>
+                  <label className={LBL}>Wydatek na reklamy (PLN)</label>
                   <input type="number" min="0" step="0.01" value={form.dailyAdSpend} onChange={set("dailyAdSpend")} className={INP} style={inpStyle} placeholder="0.00" />
                 </div>
                 <div>
-                  <label className={LBL}>Kliknięcia w reklamę</label>
+                  <label className={LBL}>Wyświetlenia</label>
+                  <input type="number" min="0" value={form.dailyImpressions} onChange={set("dailyImpressions")} className={INP} style={inpStyle} placeholder="0" />
+                </div>
+                <div>
+                  <label className={LBL}>Unikatowe kliknięcia linku</label>
                   <input type="number" min="0" value={form.dailyClicks} onChange={set("dailyClicks")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
                 <div>
-                  <label className={LBL}>Wyświetlenia reklamy</label>
-                  <input type="number" min="0" value={form.dailyImpressions} onChange={set("dailyImpressions")} className={INP} style={inpStyle} placeholder="0" />
+                  <label className={LBL}>Liczba leadów</label>
+                  <input type="number" min="0" value={form.dailyLeads} onChange={set("dailyLeads")} className={INP} style={inpStyle} placeholder="0" />
+                </div>
+                <div>
+                  <label className={LBL}>Konwersja Optin Page (%)</label>
+                  <input type="number" min="0" max="100" step="0.01" value={form.optinConversion} onChange={set("optinConversion")} className={INP} style={inpStyle} placeholder="0.00" />
+                </div>
+                <div className="col-span-2">
+                  <label className={LBL}>Umówione rozmowy z marketingu</label>
+                  <input type="number" min="0" value={form.vslMeetingsBooked} onChange={set("vslMeetingsBooked")} className={INP} style={inpStyle} placeholder="0" />
                 </div>
               </div>
             </div>
@@ -357,16 +358,9 @@ export default function PublicFormPage({ params }: { params: { token: string } }
               className={`${INP} resize-none`} style={inpStyle} placeholder="Dodatkowe informacje..." />
           </div>
 
-          <button
-            type="submit"
-            disabled={saving}
+          <button type="submit" disabled={saving}
             className="w-full py-3.5 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
-            style={{
-              background: `${activeColor}18`,
-              border: `1px solid ${activeColor}55`,
-              color: activeColor,
-            }}
-          >
+            style={{ background: `${activeColor}18`, border: `1px solid ${activeColor}55`, color: activeColor }}>
             {saving ? "Zapisywanie..." : "Zapisz dane"}
           </button>
         </form>
