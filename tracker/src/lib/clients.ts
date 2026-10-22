@@ -1,35 +1,34 @@
 import { randomBytes } from "node:crypto";
-import { Prisma } from "@prisma/client";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { prisma } from "./db";
 import { requireSession } from "./auth";
 
-const DEFAULT_CLIENT_ID = "klient-testowy";
+/** Klient wybrany przez administratora w przełączniku w nagłówku. */
+export const ACTIVE_CLIENT_COOKIE = "tracker_client";
 
-/**
- * Do etapu z panelem klientów admin pracuje na jednym kliencie testowym o stałym id.
- * Przy równoległym pierwszym wejściu (layout i strona) drugi zapis trafia na
- * unikalny klucz — wtedy po prostu czytamy klienta założonego przez pierwszy.
- */
-async function getDefaultClient() {
-  const existing = await prisma.client.findUnique({ where: { id: DEFAULT_CLIENT_ID } });
-  if (existing) return existing;
-  try {
-    return await prisma.client.create({
-      data: { id: DEFAULT_CLIENT_ID, name: "Klient testowy", formToken: randomBytes(18).toString("base64url") },
-    });
-  } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return prisma.client.findUniqueOrThrow({ where: { id: DEFAULT_CLIENT_ID } });
-    }
-    throw e;
-  }
+export function newFormToken() {
+  return randomBytes(18).toString("base64url");
 }
 
-/** Klient, którego dane ogląda zalogowana osoba: konto klienta → jego klient, admin → klient testowy. */
-export async function getCurrentClient() {
+/**
+ * Klient, którego dane ogląda zalogowana osoba: konto klienta → zawsze jego firma;
+ * admin → firma wybrana w przełączniku, a gdy brak wyboru — pierwsza założona. Null = nie ma żadnej firmy.
+ */
+export async function getActiveClient() {
   const session = await requireSession();
-  if (session.role === "CLIENT" && session.cid) {
-    return prisma.client.findUniqueOrThrow({ where: { id: session.cid } });
+  if (session.role === "CLIENT") {
+    return session.cid ? prisma.client.findUnique({ where: { id: session.cid } }) : null;
   }
-  return getDefaultClient();
+  const chosen = cookies().get(ACTIVE_CLIENT_COOKIE)?.value;
+  const client = chosen ? await prisma.client.findUnique({ where: { id: chosen } }) : null;
+  return client ?? prisma.client.findFirst({ orderBy: { createdAt: "asc" } });
+}
+
+/** Jak getActiveClient, ale bez firmy przenosi do zakładki Klienci (admin) albo logowania (klient). */
+export async function getCurrentClient() {
+  const client = await getActiveClient();
+  if (client) return client;
+  const session = await requireSession();
+  redirect(session.role === "ADMIN" ? "/panel/klienci" : "/logowanie");
 }

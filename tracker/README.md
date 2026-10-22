@@ -15,7 +15,9 @@ Stack: Next.js 14, Prisma + Postgres (Neon na Vercelu, schemat `tracker`), Tailw
 - `/f/[token]` — publiczny formularz klienta
 - `/logowanie` — logowanie emailem i hasłem
 - `/panel` — wyniki w zakładkach Ogólny / Marketing / Setting i sprzedaż (north star na górze),
-  `/panel/dane` — edycja surowych wpisów, `/panel/uzytkownicy` — konta (admin), `/panel/konto` — zmiana hasła
+  `/panel/dane` — edycja surowych wpisów, `/panel/konto` — zmiana hasła
+- `/panel/klienci` (admin) — firmy, ich linki do formularza, konta osób i administratorów;
+  przełącznik w nagłówku wybiera firmę, której wyniki ogląda admin
 
 ## Lokalnie
 

@@ -1,4 +1,4 @@
-/** Sygnet TrifectaOS (niemożliwy trójkąt) + wordmark; wersja na jasne tło. */
+/** Sygnet (niemożliwy trójkąt, kolory TrifectaOS) + wordmark „KPI-Tracker”; wersja na jasne tło. */
 export function Logo({ size = 22, wordmark = true }: { size?: number; wordmark?: boolean }) {
   return (
     <span className="inline-flex items-center" style={{ gap: size * 0.3 }}>
@@ -9,7 +9,7 @@ export function Logo({ size = 22, wordmark = true }: { size?: number; wordmark?:
       </svg>
       {wordmark && (
         <span className="font-display font-extrabold tracking-[-0.02em] text-ink" style={{ fontSize: size * 0.82 }}>
-          Trifecta<span className="text-accent">OS</span>
+          KPI-<span className="text-accent">Tracker</span>
         </span>
       )}
     </span>

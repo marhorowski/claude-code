@@ -6,7 +6,7 @@ import "./globals.css";
 const manrope = Manrope({ subsets: ["latin", "latin-ext"], weight: ["500", "700", "800"], variable: "--font-manrope" });
 const inter = Inter({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600", "700"], variable: "--font-inter" });
 
-export const metadata: Metadata = { title: "TrifectaOS · Tracker marketingu i sprzedaży" };
+export const metadata: Metadata = { title: "KPI-Tracker" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
