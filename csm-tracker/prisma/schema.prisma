@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Role: LIDER (lider CSM, pełny dostęp) | CSM (opiekun portfela)
+model User {
+  id        String         @id @default(cuid())
+  email     String         @unique
+  password  String
+  name      String
+  role      String         @default("CSM")
+  fte       Float          @default(1)
+  active    Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  monthly   MonthlyEntry[]
+  weekly    WeeklyEntry[]
+  surveys   SurveyLink[]
+}
+
+// Pełny formularz miesięczny — liczby zbiorcze za portfel jednego CSM
+model MonthlyEntry {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  year   Int
+  month  Int
+
+  // Baza i MRR
+  activeClientsStart Int?
+  mrrStart           Float?
+  mrrEnd             Float?
+  newClients         Int?
+  newMrr             Float?
+  churnedClients     Int?
+  churnMrr           Float?
+  downgradeMrr       Float?
+  expansionMrr       Float?
+
+  // Dosprzedaż
+  clientsWithUpsell Int?
+  activeServices    Int?
+  oneTimeRevenue    Float?
+  offersWebSent     Int?
+  offersWebWon      Int?
+  offersSeoSent     Int?
+  offersSeoWon      Int?
+  offersCrmSent     Int?
+  offersCrmWon      Int?
+  offersOtherSent   Int?
+  offersOtherWon    Int?
+
+  // Onboarding
+  onboardings            Int?
+  onboardingsOnTime      Int?
+  onboardingsClientDelay Int?
+  avgDaysToKickoff       Float?
+  avgDaysToLaunch        Float?
+  avgDaysToFirstLead     Float?
+  cohort90Size           Int?
+  cohort90Retained       Int?
+
+  // Zadowolenie i ryzyko
+  surveysSent      Int?
+  healthGreen      Int?
+  healthRed        Int?
+  escalations      Int?
+  avgResponseHours Float?
+
+  // Wyniki klientów
+  clientsCplOnTarget    Int?
+  leadsPlanned          Int?
+  leadsDelivered        Int?
+  leadsContacted        Int?
+  leadsQualified        Int?
+  avgSpeedToLeadMin     Float?
+  clientsReportingSales Int?
+  clientRevenue         Float?
+  clientAdSpend         Float?
+  clientFees            Float?
+
+  // Proces
+  clientsWithCall Int?
+  reportsDue      Int?
+  reportsOnTime   Int?
+
+  notes     String?
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, year, month])
+}
+
+// Krótki formularz tygodniowy — dane pod KPI kluczowe
+model WeeklyEntry {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  weekStart DateTime // poniedziałek, 00:00 UTC
+
+  activeClientsStart Int?
+  mrrStart           Float?
+  churnedClients     Int?
+  churnMrr           Float?
+  downgradeMrr       Float?
+  expansionMrr       Float?
+  firstLeads         Int?
+  avgDaysToFirstLead Float?
+  healthGreen        Int?
+  clientsCplOnTarget Int?
+
+  notes     String?
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, weekStart])
+}
+
+// Dane na poziomie agencji (wpisuje lider)
+model AgencyMonth {
+  id                 String   @id @default(cuid())
+  year               Int
+  month              Int
+  cac                Float?
+  grossMarginPct     Float?
+  newClientsTotal    Int?
+  newClientsReferral Int?
+  updatedAt          DateTime @updatedAt
+
+  @@unique([year, month])
+}
+
+// Nadpisane standardy KPI (domyślne są w src/lib/kpis.ts)
+model KpiTarget {
+  code   String @id
+  target Float
+}
+
+// Ustawienia aplikacji, np. progi gradingu
+model Setting {
+  key   String @id
+  value String
+}
+
+// Publiczny link do ankiety. type: NPS | CSAT; stage (CSAT): ONBOARDING | RAPORT | CALL | INNE
+model SurveyLink {
+  id        String           @id @default(cuid())
+  token     String           @unique
+  type      String
+  stage     String?
+  label     String
+  csm       User?            @relation(fields: [csmId], references: [id], onDelete: SetNull)
+  csmId     String?
+  active    Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  responses SurveyResponse[]
+}
+
+model SurveyResponse {
+  id        String     @id @default(cuid())
+  link      SurveyLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  linkId    String
+  type      String
+  stage     String?
+  csmId     String?
+  score     Int
+  company   String
+  comment   String?
+  createdAt DateTime   @default(now())
+
+  @@index([createdAt])
+}
