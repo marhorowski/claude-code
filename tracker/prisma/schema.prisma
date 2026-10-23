@@ -19,6 +19,9 @@ model Client {
   sheetName     String?
   sheetSyncedAt DateTime?
   sheetError    String?
+  // Ustawienia oferty (cena, prowizje, koszty) i cele KPI — kształt opisuje src/lib/kpi.ts.
+  offer      Json?
+  kpiTargets Json?
   entries   Entry[]
   users     User[]
 }

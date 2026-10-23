@@ -20,6 +20,9 @@
   --money: 138 90 18;
   --up: 30 125 79;
   --down: 196 58 46;
+  /* Statusy KPI: GOD MODE / na torze (= up) / poniżej planu / krytyczny (= down). */
+  --god: 109 40 217;
+  --warn: 214 112 10;
   --line: #e3ded4;
   --line-strong: #d3ccbf;
   --shadow-card: 0 1px 2px rgb(22 21 19 / 0.04), 0 10px 30px rgb(22 21 19 / 0.06);

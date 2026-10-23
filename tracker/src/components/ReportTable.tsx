@@ -1,5 +1,7 @@
 import type { ReportColumn } from "@/lib/report";
 import { formatValue } from "@/lib/format";
+import type { KpiStatus } from "@/lib/kpi";
+import { StatusDot } from "./KpiStatus";
 
 export interface ReportRow {
   key: string;
@@ -15,11 +17,16 @@ interface Props {
   total: ReportColumn;
   /** Ile pierwszych wierszy to north star: pogrubione, z linią pod spodem. */
   leadRows?: number;
+  /** Status względem celu — kropka przy wartości. */
+  statusOf?: (col: ReportColumn, key: string) => KpiStatus | null;
 }
 
-export function ReportTable({ title, rows, columns, total, leadRows = 0 }: Props) {
-  const cell = (col: ReportColumn, row: ReportRow) =>
-    formatValue(row.kind === "sum" ? col.sums[row.key] ?? null : col.metrics[row.key], row.unit);
+export function ReportTable({ title, rows, columns, total, leadRows = 0, statusOf }: Props) {
+  const cell = (col: ReportColumn, row: ReportRow) => {
+    const text = formatValue(row.kind === "sum" ? col.sums[row.key] ?? null : col.metrics[row.key], row.unit);
+    const status = statusOf?.(col, row.key);
+    return status ? <span className="inline-flex items-center gap-1.5"><StatusDot status={status} />{text}</span> : text;
+  };
 
   return (
     <section className="rounded-2xl bg-card border border-line shadow-card">

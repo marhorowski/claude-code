@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { KpiData } from "@/lib/dashboard";
 import { formatKpi, formatValue } from "@/lib/format";
 import { MainChart } from "./MainChart";
+import { StatusChip, STATUS_BG } from "@/components/KpiStatus";
 
 /** Zmiana względem poprzedniego okresu. Procenty jako punkty procentowe; mała baza mówi „było N” zamiast krzyczeć. */
 function Delta({ k }: { k: KpiData }) {
@@ -29,22 +30,19 @@ function Delta({ k }: { k: KpiData }) {
   return <span className={`tnum shrink-0 whitespace-nowrap text-[12px] font-medium ${good ? "text-up" : "text-down"}`} title={title}>{text}</span>;
 }
 
+/** Mały wykres trendu: puste okresy pomijamy i łączymy sąsiednie punkty, żeby rzadkie dane nie rozpadały się na kawałki. */
 function Spark({ values, color }: { values: (number | null)[]; color: string }) {
-  const nums = values.filter((v): v is number => v !== null);
-  if (nums.length < 2) return <div className="h-8" />;
-  const max = Math.max(...nums), min = Math.min(0, ...nums);
+  const pts = values.flatMap((v, i) => (v === null ? [] : [{ i, v }]));
+  if (!pts.length) return <div className="mt-2 h-8" />;
+  const max = Math.max(...pts.map((p) => p.v)), min = Math.min(0, ...pts.map((p) => p.v));
   const x = (i: number) => (values.length === 1 ? 50 : (i / (values.length - 1)) * 100);
   const y = (v: number) => 30 - ((v - min) / (max - min || 1)) * 28;
-  const segments: string[] = [];
-  let d = "";
-  values.forEach((v, i) => {
-    if (v === null) { if (d) segments.push(d); d = ""; return; }
-    d += `${d ? "L" : "M"}${x(i).toFixed(2)} ${y(v).toFixed(2)}`;
-  });
-  if (d) segments.push(d);
+  const d = pts.map((p, n) => `${n ? "L" : "M"}${x(p.i).toFixed(2)} ${y(p.v).toFixed(2)}`).join("");
   return (
     <svg viewBox="0 0 100 32" preserveAspectRatio="none" className="mt-2 h-8 w-full" aria-hidden>
-      {segments.map((s) => <path key={s} d={s} fill="none" stroke={color} strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />)}
+      {pts.length > 1 && <path d={d} fill="none" stroke={color} strokeWidth="1.5" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />}
+      {/* Pojedynczy punkt: krótka kreska zamiast niewidocznej kropki (SVG jest rozciągnięte). */}
+      {pts.length === 1 && <path d={`M${Math.max(0, x(pts[0].i) - 3)} ${y(pts[0].v)}H${Math.min(100, x(pts[0].i) + 3)}`} stroke={color} strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinecap="round" />}
     </svg>
   );
 }
@@ -63,6 +61,7 @@ export function Overview({ kpis, labels, axisLabels, prevLabels, partialLast, pr
   const [selected, setSelected] = useState(kpis[0].key);
   const k = kpis.find((x) => x.key === selected) ?? kpis[0];
   const colorOf = (x: KpiData) => (x.money ? "rgb(var(--money))" : "rgb(var(--accent))");
+  const anyTarget = kpis.some((x) => x.target !== null);
 
   return (
     <section className="card overflow-hidden">
@@ -78,10 +77,11 @@ export function Overview({ kpis, labels, axisLabels, prevLabels, partialLast, pr
               className="group relative bg-card p-2 text-left focus-visible:outline-none"
             >
               <div
-                className={`h-full rounded-xl px-3 py-3 transition-colors group-focus-visible:ring-2 group-focus-visible:ring-accent ${
+                className={`relative h-full overflow-hidden rounded-xl px-3 py-3 transition-colors group-focus-visible:ring-2 group-focus-visible:ring-accent ${
                   on ? (x.money ? "bg-money/[.07] ring-1 ring-inset ring-money/30" : "bg-accent/[.12] ring-1 ring-inset ring-accent/40") : "group-hover:bg-soft/70"
                 }`}
               >
+                {x.status && <span aria-hidden className={`absolute inset-x-0 top-0 h-[3px] ${STATUS_BG[x.status]}`} />}
                 <div className={`flex items-center justify-between gap-2 text-[13px] ${on ? "font-medium text-ink" : "text-ink-2"}`}>
                   <span className="truncate" title={x.label}>{x.label}</span>
                   <Delta k={x} />
@@ -89,6 +89,12 @@ export function Overview({ kpis, labels, axisLabels, prevLabels, partialLast, pr
                 <div className={`tnum mt-1 truncate font-display text-[22px] font-extrabold sm:text-[28px] leading-[1.1] tracking-[-.02em] ${on ? (x.money ? "text-brown" : "text-ink") : "text-ink-2"}`} title={formatValue(x.value, x.unit)}>
                   {formatKpi(x.value, x.unit)}
                 </div>
+                {anyTarget && (
+                  <div className="mt-1 flex min-h-[22px] flex-wrap items-center gap-x-2 gap-y-0.5">
+                    {x.status && <StatusChip status={x.status} />}
+                    {x.target !== null && <span className="tnum whitespace-nowrap text-[11.5px] text-muted">cel {formatKpi(x.target, x.unit)}</span>}
+                  </div>
+                )}
                 <div className="mt-0.5 line-clamp-2 min-h-[2lh] text-[12px] leading-snug text-muted">{x.hint}</div>
                 <Spark values={x.series} color={on ? colorOf(x) : "rgb(var(--muted))"} />
               </div>

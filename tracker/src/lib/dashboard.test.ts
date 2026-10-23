@@ -63,7 +63,7 @@ describe("buildDashboard — znane sumy", () => {
   it("seria wykresu sumuje się do kafelka", () => {
     const s = kpi("totalRevenue").series;
     expect(s).toEqual([null, 40000]);
-    expect(kpi("leads").series).toEqual([40, null]);
+    expect(kpi("leadToClose").series).toEqual([0, null]); // 1. tydzień: leady bez sprzedaży; 2.: brak leadów
   });
 
   it("niepełny ostatni tydzień, gdy obejmuje dziś", () => {

@@ -25,7 +25,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   const formUrl = client ? `${proto}://${host}/f/${client.formToken}` : null;
 
   const nav: NavItem[] = [
-    ...(client ? [{ href: "/panel", label: "Wyniki" }, { href: "/panel/dane", label: "Dane" }] : []),
+    ...(client ? [{ href: "/panel", label: "Wyniki" }, { href: "/panel/dane", label: "Dane" }, { href: "/panel/kpi", label: "KPI i oferta" }] : []),
     ...(isAdmin ? [{ href: "/panel/klienci", label: "Klienci" }] : []),
     { href: "/panel/konto", label: "Moje konto" },
     ...(formUrl ? [{ href: formUrl, label: "Formularz", external: true }] : []),

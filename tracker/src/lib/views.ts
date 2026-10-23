@@ -42,10 +42,10 @@ export const VIEWS: ViewDef[] = [
     question: "Czy lejek zarabia i ile kosztuje klient?",
     northStar: [
       { key: "totalRevenue", hint: "Zakontraktowany, netto, z follow-upami" },
+      { key: "profit", hint: "Przychód minus reklamy, prowizje i koszty" },
       { key: "totalClosings", hint: "Pierwsze spotkania + follow-upy" },
       { key: "roas", hint: "Przychód na 1 zł wydany na reklamy" },
       { key: "cac", hint: "Wydatek na reklamy na jedną sprzedaż" },
-      { key: "leads", hint: "Zgłoszenia z marketingu" },
       { key: "leadToClose", hint: "Sprzedaże łącznie / leady" },
     ],
     panels: [
@@ -69,6 +69,18 @@ export const VIEWS: ViewDef[] = [
           { key: "cac", label: "Klient (CAC)" },
         ],
         note: "Wydatek na reklamy podzielony przez liczbę na danym etapie.",
+      },
+      {
+        title: "Na co idzie przychód",
+        kind: "parts",
+        total: "totalRevenue",
+        rows: [
+          { key: "adSpend", label: "Reklamy" },
+          { key: "commissions", label: "Prowizje closera i settera" },
+          { key: "otherCosts", label: "Inne koszty" },
+          { key: "profit", label: "Zysk" },
+        ],
+        note: "Udział w przychodzie łącznie. Stawki i koszty: zakładka KPI i oferta.",
       },
     ],
   },

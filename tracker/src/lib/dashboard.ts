@@ -1,6 +1,7 @@
 // Dane dashboardu: kafelki north star (z poprzednim okresem i serią do wykresu) oraz panele lejka.
 import { AREAS } from "./fields";
 import { METRICS } from "./metrics";
+import { kpiStatus, monthShare, PROFIT_DEFS, profitMetrics, targetFor, type KpiStatus, type Offer, type Targets } from "./kpi";
 import { addDays, bucketBounds, bucketKey, daysInRange, type Grouping } from "./periods";
 import { buildReport, type ReportColumn, type ReportEntry } from "./report";
 import type { PanelDef, ViewDef } from "./views";
@@ -13,7 +14,7 @@ export interface MeasureInfo {
   money: boolean;
 }
 
-const MONEY_KEYS = new Set(["totalRevenue", "revenue", "followUpRevenue", "avgDealValue", "roas"]);
+const MONEY_KEYS = new Set(["totalRevenue", "revenue", "followUpRevenue", "avgDealValue", "roas", "profit", "profitPerSale"]);
 
 const DERIVED: Record<string, { info: MeasureInfo; calc: (col: ReportColumn) => number | null }> = {
   bookedTotal: {
@@ -27,7 +28,7 @@ const DERIVED: Record<string, { info: MeasureInfo; calc: (col: ReportColumn) => 
 
 export function measureInfo(key: string): MeasureInfo {
   if (DERIVED[key]) return DERIVED[key].info;
-  const m = METRICS.find((x) => x.key === key);
+  const m = METRICS.find((x) => x.key === key) ?? PROFIT_DEFS.find((x) => x.key === key);
   if (m) return { label: m.label, unit: m.unit, better: m.better, money: MONEY_KEYS.has(key) };
   const f = AREAS.flatMap((a) => a.fields).find((x) => x.key === key);
   if (f) return { label: f.label, unit: f.unit, better: "higher", money: MONEY_KEYS.has(key) };
@@ -87,6 +88,9 @@ export interface KpiData extends MeasureInfo {
   prev: number | null;
   series: (number | null)[];
   prevSeries: (number | null)[];
+  /** Cel przeliczony na ten okres (wolumeny miesięczne skalowane) i status względem niego. */
+  target: number | null;
+  status: KpiStatus | null;
 }
 
 export interface PanelRow {
@@ -118,6 +122,8 @@ export interface DashboardData {
   prevBucketRanges: { from: string; to: string }[];
   /** Ostatnia kolumna obejmuje dzisiejszy dzień, więc jest niepełna. */
   partialLast: boolean;
+  /** Status miary w kolumnie (albo w „Razem”) względem celu; null bez celu lub danych. */
+  statusOf: (col: ReportColumn, key: string) => KpiStatus | null;
 }
 
 function buildPanel(def: PanelDef, total: ReportColumn): PanelData {
@@ -142,8 +148,10 @@ export function buildDashboard(
   entries: ReportEntry[],
   view: ViewDef,
   range: { from: string; to: string; grouping: Grouping; today: string },
+  settings: { offer?: Offer | null; targets?: Targets } = {},
 ): DashboardData {
   const { from, to, grouping, today } = range;
+  const { offer = null, targets = {} } = settings;
   const cmp = comparisonFor(from, to);
   const current = buildReport(entries, from, to, grouping);
   // Wpisy z poprzedniego okresu przesunięte na daty bieżącego: każda kolumna porównuje się z jej odpowiednikiem.
@@ -151,6 +159,25 @@ export function buildDashboard(
     .filter((e) => e.dateTo >= cmp.from && e.dateTo <= cmp.to)
     .map((e) => ({ ...e, dateTo: cmp.toCurrent(e.dateTo) }));
   const before = buildReport(shifted, from, to, grouping);
+
+  // Daty każdej kolumny przycięte do zakresu — od nich zależą koszty miesięczne i cele miesięczne.
+  const bounds = current.columns.map((c) => {
+    const b = bucketBounds(c.key, grouping);
+    return { from: b.start < from ? from : b.start, to: b.end > to ? to : b.end };
+  });
+  const shares = new Map<ReportColumn, number>();
+  const addProfit = (col: ReportColumn, share: number) => {
+    shares.set(col, share);
+    if (col.entryCount) Object.assign(col.metrics, profitMetrics(col.sums, offer, share));
+    else Object.assign(col.metrics, Object.fromEntries(PROFIT_DEFS.map((d) => [d.key, null])));
+  };
+  current.columns.forEach((c, i) => addProfit(c, monthShare(bounds[i].from, bounds[i].to)));
+  addProfit(current.total, monthShare(from, to));
+  before.columns.forEach((c, i) => addProfit(c, monthShare(cmp.toPrevious(bounds[i].from), cmp.toPrevious(bounds[i].to))));
+  addProfit(before.total, monthShare(cmp.from, cmp.to));
+
+  const statusOf = (col: ReportColumn, key: string) =>
+    kpiStatus(valueOf(col, key), targetFor(key, targets, shares.get(col) ?? 1), measureInfo(key).better);
 
   const kpis = view.northStar.map((k): KpiData => ({
     key: k.key,
@@ -160,18 +187,15 @@ export function buildDashboard(
     prev: before.total.entryCount ? valueOf(before.total, k.key) : null,
     series: current.columns.map((c) => valueOf(c, k.key)),
     prevSeries: before.columns.map((c) => valueOf(c, k.key)),
+    target: targetFor(k.key, targets, shares.get(current.total)!),
+    status: statusOf(current.total, k.key),
   }));
 
   const lastKey = current.columns.at(-1)?.key;
   const partialLast = to >= today && lastKey === bucketKey(today, grouping);
 
-  // Podpis poprzedniego okresu dla każdej kolumny: jej daty (przycięte do zakresu) przeniesione wstecz.
-  const prevBucketRanges = current.columns.map((c) => {
-    const b = bucketBounds(c.key, grouping);
-    const start = b.start < from ? from : b.start;
-    const end = b.end > to ? to : b.end;
-    return { from: cmp.toPrevious(start), to: cmp.toPrevious(end) };
-  });
+  // Podpis poprzedniego okresu dla każdej kolumny: jej daty przeniesione wstecz.
+  const prevBucketRanges = bounds.map((b) => ({ from: cmp.toPrevious(b.from), to: cmp.toPrevious(b.to) }));
 
   return {
     bucketKeys: current.columns.map((c) => c.key),
@@ -182,5 +206,6 @@ export function buildDashboard(
     previous: { from: cmp.from, to: cmp.to },
     prevBucketRanges,
     partialLast,
+    statusOf,
   };
 }

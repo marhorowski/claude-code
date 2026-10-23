@@ -6,6 +6,8 @@ import { bucketLabel, formatDay, isIsoDate, todayInPoland, toIso, type Grouping 
 import { buildDashboard, previousRange } from "@/lib/dashboard";
 import { datesLabel, DEFAULT_PRESET, rangePresets } from "@/lib/ranges";
 import { getView, VIEWS } from "@/lib/views";
+import { maxCac, parseOffer, parseTargets, PROFIT_DEFS } from "@/lib/kpi";
+import { formatValue } from "@/lib/format";
 import { ReportTable, type ReportRow } from "@/components/ReportTable";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Overview } from "@/components/dashboard/Overview";
@@ -30,7 +32,14 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
     select: { dateTo: true, values: true },
   });
   const rows = entries.map((e) => ({ dateTo: toIso(e.dateTo), values: e.values as Record<string, number> }));
-  const data = buildDashboard(rows, view, { from, to, grouping, today });
+  const offer = parseOffer(client.offer);
+  const data = buildDashboard(rows, view, { from, to, grouping, today }, { offer, targets: parseTargets(client.kpiTargets) });
+  // Podpowiedzi zależne od ustawień oferty.
+  const cacLimit = maxCac(offer);
+  for (const k of data.kpis) {
+    if (k.key === "profit" && !offer) k.hint = "Uzupełnij stawki w zakładce KPI i oferta";
+    if (k.key === "cac" && cacLimit !== null) k.hint = `Reklamy na sprzedaż · maks. ${formatValue(cacLimit, "PLN")}`;
+  }
 
   // Szczegóły: wszystkie pola i wskaźniki zakładki, north star na początku.
   const northStar = view.northStar.map((k) => k.key);
@@ -50,7 +59,11 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
           ]
         : [{
             title: "Cały lejek",
-            rows: [...pick([...fieldRows("marketing"), ...fieldRows("setting"), ...fieldRows("sales")], ["adSpend", "leads", "meetingsBooked", "vslMeetingsBooked", "attendedMeetings"]), ...metricRows("total")],
+            rows: [
+              ...pick([...fieldRows("marketing"), ...fieldRows("setting"), ...fieldRows("sales")], ["adSpend", "leads", "meetingsBooked", "vslMeetingsBooked", "attendedMeetings"]),
+              ...metricRows("total"),
+              ...PROFIT_DEFS.map((d): ReportRow => ({ key: d.key, label: d.label, unit: d.unit, kind: "metric" })),
+            ],
           }];
   const columns = data.columns.map((c) => ({ label: bucketLabel(c.key, grouping), data: c }));
   const axisLabel = (key: string) => (grouping === "month" ? bucketLabel(key, grouping) : formatDay(key));
@@ -105,6 +118,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
                 leadRows={t.rows.filter((r) => northStar.includes(r.key)).length}
                 columns={columns}
                 total={data.total}
+                statusOf={data.statusOf}
               />
             ))}
           </div>

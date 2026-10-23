@@ -22,6 +22,8 @@ const config: Config = {
         money: channel("money"),
         up: channel("up"),
         down: channel("down"),
+        god: channel("god"),
+        warn: channel("warn"),
         line: "var(--line)",
         "line-strong": "var(--line-strong)",
       },
