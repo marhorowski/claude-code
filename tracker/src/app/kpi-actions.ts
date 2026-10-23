@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { parseNumber } from "@/lib/entries";
-import { COST_KINDS, TARGETABLE, type CostKind, type Offer, type OfferCost } from "@/lib/kpi";
+import { Prisma } from "@prisma/client";
+import { COST_KINDS, parseGoals, TARGETABLE, type CostKind, type Offer, type OfferCost } from "@/lib/kpi";
 import { measureInfo } from "@/lib/dashboard";
 import type { FormState } from "./auth-actions";
 
@@ -64,4 +65,29 @@ export async function saveTargets(_prev: FormState, fd: FormData): Promise<FormS
   await prisma.client.update({ where: { id: clientId }, data: { kpiTargets: targets } });
   revalidatePath("/panel", "layout");
   return { ok: `Zapisano cele (${Object.keys(targets).length}). Kafelki i tabele pokazują już statusy.` };
+}
+
+/** Wraca do standardu agencji (cele startowe z DEFAULT_TARGETS). */
+export async function resetTargets(clientId: string) {
+  await requireAdmin();
+  await prisma.client.update({ where: { id: clientId }, data: { kpiTargets: Prisma.DbNull } });
+  revalidatePath("/panel", "layout");
+}
+
+/** Cel przychodu na miesiąc (RRRR-MM). Puste pole usuwa cel tego miesiąca. */
+export async function saveGoal(_prev: FormState, fd: FormData): Promise<FormState> {
+  await requireAdmin();
+  const clientId = str(fd, "clientId");
+  const month = str(fd, "month");
+  if (!/^\d{4}-\d{2}$/.test(month)) return { error: "Nieprawidłowy miesiąc." };
+  const v = optionalNumber(str(fd, "revenue"), "Cel przychodu");
+  if (typeof v === "string") return { error: v };
+  const client = await prisma.client.findUnique({ where: { id: clientId }, select: { goals: true } });
+  if (!client) return { error: "Nie ma takiego klienta." };
+  const goals = parseGoals(client.goals);
+  if (v) goals[month] = v;
+  else delete goals[month];
+  await prisma.client.update({ where: { id: clientId }, data: { goals } });
+  revalidatePath("/panel", "layout");
+  return { ok: v ? "Zapisano cel. Plan lejka przeliczony." : "Usunięto cel tego miesiąca." };
 }

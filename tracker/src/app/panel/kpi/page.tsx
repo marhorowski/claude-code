@@ -3,11 +3,11 @@ import { requireSession } from "@/lib/auth";
 import { getCurrentClient } from "@/lib/clients";
 import { buildDashboard, measureInfo } from "@/lib/dashboard";
 import { formatValue } from "@/lib/format";
-import { isPerMonth, parseOffer, parseTargets, STATUS_INFO, TARGETABLE, type KpiStatus } from "@/lib/kpi";
+import { parseGoals, parseOffer, parseTargets, RELATIVE_LABEL, relativeOf, STATUS_INFO, TARGETABLE, type KpiStatus } from "@/lib/kpi";
 import { todayInPoland, toIso } from "@/lib/periods";
 import { datesLabel, DEFAULT_PRESET, rangePresets } from "@/lib/ranges";
 import type { ViewDef } from "@/lib/views";
-import { saveOffer, saveTargets } from "@/app/kpi-actions";
+import { resetTargets, saveOffer, saveTargets } from "@/app/kpi-actions";
 import { StatusForm } from "@/components/StatusForm";
 import { StatusChip } from "@/components/KpiStatus";
 import { OfferFields } from "@/components/kpi/OfferFields";
@@ -40,7 +40,7 @@ export default async function KpiPage() {
     entries.map((e) => ({ dateTo: toIso(e.dateTo), values: e.values as Record<string, number> })),
     all,
     { from: range.from, to: range.to, grouping: "week", today },
-    { offer, targets },
+    { offer, targets, goals: parseGoals(client.goals) },
   );
   const current = new Map(data.kpis.map((k) => [k.key, k]));
   const input = (n: number | undefined) => (n === undefined ? "" : String(n).replace(".", ","));
@@ -84,17 +84,24 @@ export default async function KpiPage() {
             ))}
           </ul>
           <p className="mt-4 text-[12.5px] text-muted">
-            Cele oznaczone „na miesiąc” (leady, sprzedaże, przychód…) skalujemy do długości wybranego okresu — w tygodniu cel to ok. ¼ miesięcznego.
+            Cele ilościowe (przychód, sprzedaże, rozmowy, leady) wynikają z miesięcznego celu przychodu — ustawiasz go w Wyniki → Realizacja celu.
           </p>
         </section>
       </div>
 
       <section className="card overflow-hidden">
-        <div className="border-b border-line px-5 py-4">
-          <h2 className="text-[16px] font-bold">Cele KPI</h2>
-          <p className="mt-1 text-[13px] text-muted">
-            Puste pole = bez celu i bez koloru. Bieżący wynik: {datesLabel(range.from, range.to)}.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
+          <div>
+            <h2 className="text-[16px] font-bold">Cele KPI</h2>
+            <p className="mt-1 text-[13px] text-muted">
+              {client.kpiTargets ? "Cele tego klienta." : "Standard agencji (wartości startowe)."} Puste pole = bez celu i bez koloru. Bieżący wynik: {datesLabel(range.from, range.to)}.
+            </p>
+          </div>
+          {isAdmin && client.kpiTargets !== null && (
+            <form action={resetTargets.bind(null, client.id)}>
+              <button className="rounded-xl border border-line-strong px-4 py-2 text-[13px] font-semibold hover:bg-soft">Przywróć standard agencji</button>
+            </form>
+          )}
         </div>
         <StatusFormOrPlain isAdmin={isAdmin}>
           <input type="hidden" name="clientId" value={client.id} />
@@ -132,7 +139,7 @@ export default async function KpiPage() {
                               className="input mt-0 w-28 py-1.5 tnum"
                             />
                             <span className="whitespace-nowrap text-[12.5px] text-muted">
-                              {UNIT_SUFFIX[info.unit]}{isPerMonth(key) ? " / mies." : ""}
+                              {relativeOf(key) ? RELATIVE_LABEL[relativeOf(key)!] : UNIT_SUFFIX[info.unit]}
                             </span>
                           </span>
                         </td>

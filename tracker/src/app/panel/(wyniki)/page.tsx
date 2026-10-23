@@ -6,7 +6,7 @@ import { bucketLabel, formatDay, isIsoDate, todayInPoland, toIso, type Grouping 
 import { buildDashboard, previousRange } from "@/lib/dashboard";
 import { datesLabel, DEFAULT_PRESET, rangePresets } from "@/lib/ranges";
 import { getView, VIEWS } from "@/lib/views";
-import { maxCac, parseOffer, parseTargets, PROFIT_DEFS } from "@/lib/kpi";
+import { maxCac, parseGoals, parseOffer, parseTargets, PROFIT_DEFS } from "@/lib/kpi";
 import { formatValue } from "@/lib/format";
 import { ReportTable, type ReportRow } from "@/components/ReportTable";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -33,7 +33,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
   });
   const rows = entries.map((e) => ({ dateTo: toIso(e.dateTo), values: e.values as Record<string, number> }));
   const offer = parseOffer(client.offer);
-  const data = buildDashboard(rows, view, { from, to, grouping, today }, { offer, targets: parseTargets(client.kpiTargets) });
+  const data = buildDashboard(rows, view, { from, to, grouping, today }, { offer, targets: parseTargets(client.kpiTargets), goals: parseGoals(client.goals) });
   // Podpowiedzi zależne od ustawień oferty.
   const cacLimit = maxCac(offer);
   for (const k of data.kpis) {

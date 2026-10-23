@@ -21,7 +21,7 @@ const FORMULAS: Record<string, { num: string[]; den?: string[]; mult?: number }>
   vslBookingRate: { num: ["vslMeetingsBooked"], den: ["leads"], mult: 100 },
   marketingCostPerCall: { num: ["adSpend"], den: ["vslMeetingsBooked"] },
   pickupRate: { num: ["conductedCalls"], den: ["callsMade"], mult: 100 },
-  bookingRate: { num: ["meetingsBooked"], den: ["callsMade"], mult: 100 },
+  bookingRate: { num: ["meetingsBooked"], den: ["leads"], mult: 100 },
   sur: { num: ["attendedMeetings"], den: ["plannedMeetings"], mult: 100 },
   noShowRate: { num: ["noShows"], den: ["plannedMeetings"], mult: 100 },
   cp: { num: ["closings"], den: ["attendedMeetings"], mult: 100 },
@@ -34,6 +34,7 @@ const FORMULAS: Record<string, { num: string[]; den?: string[]; mult?: number }>
   totalBookingRate: { num: ["meetingsBooked", "vslMeetingsBooked"], den: ["leads"], mult: 100 },
   leadToClose: { num: ["closings", "followUpClosings"], den: ["leads"], mult: 100 },
   cac: { num: ["adSpend"], den: ["closings", "followUpClosings"] },
+  cacMarketing: { num: ["adSpend"], den: ["revenue", "followUpRevenue"], mult: 100 },
   roas: { num: ["revenue", "followUpRevenue"], den: ["adSpend"] },
 };
 

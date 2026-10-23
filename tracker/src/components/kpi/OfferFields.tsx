@@ -48,7 +48,7 @@ export function OfferFields({ offer, readOnly = false }: { offer: Offer | null; 
 
       <div>
         <p className="label">Inne koszty</p>
-        <p className="mb-2 text-[12.5px] text-muted">Np. platforma, księgowość, obsługa klienta. Koszty miesięczne dzielimy proporcjonalnie na dni okresu.</p>
+        <p className="mb-2 text-[12.5px] text-muted">Np. bramka płatności (% przychodu), onboarding albo materiały (zł na każdą sprzedaż).</p>
         <div className="space-y-2">
           {rows.map((r) => (
             <div key={r.id} className="grid grid-cols-[1fr_auto] gap-2 sm:grid-cols-[1fr_110px_150px_auto]">
@@ -69,7 +69,7 @@ export function OfferFields({ offer, readOnly = false }: { offer: Offer | null; 
         {!readOnly && (
           <button
             type="button"
-            onClick={() => setRows((rs) => [...rs, { id: Math.max(0, ...rs.map((x) => x.id)) + 1, name: "", kind: "monthly", value: "" }])}
+            onClick={() => setRows((rs) => [...rs, { id: Math.max(0, ...rs.map((x) => x.id)) + 1, name: "", kind: "perSale", value: "" }])}
             className="mt-3 rounded-xl border border-line-strong px-4 py-2 text-[13px] font-semibold hover:bg-soft"
           >
             + Dodaj koszt

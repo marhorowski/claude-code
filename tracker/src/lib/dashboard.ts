@@ -1,7 +1,7 @@
 // Dane dashboardu: kafelki north star (z poprzednim okresem i serią do wykresu) oraz panele lejka.
 import { AREAS } from "./fields";
 import { METRICS } from "./metrics";
-import { kpiStatus, monthShare, PROFIT_DEFS, profitMetrics, targetFor, type KpiStatus, type Offer, type Targets } from "./kpi";
+import { kpiStatus, PROFIT_DEFS, profitMetrics, targetFor, type Goals, type KpiStatus, type Offer, type Targets } from "./kpi";
 import { addDays, bucketBounds, bucketKey, daysInRange, type Grouping } from "./periods";
 import { buildReport, type ReportColumn, type ReportEntry } from "./report";
 import type { PanelDef, ViewDef } from "./views";
@@ -148,10 +148,10 @@ export function buildDashboard(
   entries: ReportEntry[],
   view: ViewDef,
   range: { from: string; to: string; grouping: Grouping; today: string },
-  settings: { offer?: Offer | null; targets?: Targets } = {},
+  settings: { offer?: Offer | null; targets?: Targets; goals?: Goals } = {},
 ): DashboardData {
   const { from, to, grouping, today } = range;
-  const { offer = null, targets = {} } = settings;
+  const ctx = { offer: settings.offer ?? null, targets: settings.targets ?? {}, goals: settings.goals ?? {} };
   const cmp = comparisonFor(from, to);
   const current = buildReport(entries, from, to, grouping);
   // Wpisy z poprzedniego okresu przesunięte na daty bieżącego: każda kolumna porównuje się z jej odpowiednikiem.
@@ -160,24 +160,22 @@ export function buildDashboard(
     .map((e) => ({ ...e, dateTo: cmp.toCurrent(e.dateTo) }));
   const before = buildReport(shifted, from, to, grouping);
 
-  // Daty każdej kolumny przycięte do zakresu — od nich zależą koszty miesięczne i cele miesięczne.
+  // Daty każdej kolumny przycięte do zakresu — od nich zależą cele wolumenów (z miesięcznego celu przychodu).
   const bounds = current.columns.map((c) => {
     const b = bucketBounds(c.key, grouping);
     return { from: b.start < from ? from : b.start, to: b.end > to ? to : b.end };
   });
-  const shares = new Map<ReportColumn, number>();
-  const addProfit = (col: ReportColumn, share: number) => {
-    shares.set(col, share);
-    if (col.entryCount) Object.assign(col.metrics, profitMetrics(col.sums, offer, share));
-    else Object.assign(col.metrics, Object.fromEntries(PROFIT_DEFS.map((d) => [d.key, null])));
-  };
-  current.columns.forEach((c, i) => addProfit(c, monthShare(bounds[i].from, bounds[i].to)));
-  addProfit(current.total, monthShare(from, to));
-  before.columns.forEach((c, i) => addProfit(c, monthShare(cmp.toPrevious(bounds[i].from), cmp.toPrevious(bounds[i].to))));
-  addProfit(before.total, monthShare(cmp.from, cmp.to));
+  const ranges = new Map<ReportColumn, { from: string; to: string }>([[current.total, { from, to }]]);
+  current.columns.forEach((c, i) => ranges.set(c, bounds[i]));
+  for (const col of [...current.columns, current.total, ...before.columns, before.total]) {
+    Object.assign(col.metrics, col.entryCount ? profitMetrics(col.sums, ctx.offer) : Object.fromEntries(PROFIT_DEFS.map((d) => [d.key, null])));
+  }
 
-  const statusOf = (col: ReportColumn, key: string) =>
-    kpiStatus(valueOf(col, key), targetFor(key, targets, shares.get(col) ?? 1), measureInfo(key).better);
+  const targetOf = (col: ReportColumn, key: string) => {
+    const r = ranges.get(col);
+    return r ? targetFor(key, ctx, r, col.metrics.avgDealValue ?? null) : null;
+  };
+  const statusOf = (col: ReportColumn, key: string) => kpiStatus(valueOf(col, key), targetOf(col, key), measureInfo(key).better);
 
   const kpis = view.northStar.map((k): KpiData => ({
     key: k.key,
@@ -187,7 +185,7 @@ export function buildDashboard(
     prev: before.total.entryCount ? valueOf(before.total, k.key) : null,
     series: current.columns.map((c) => valueOf(c, k.key)),
     prevSeries: before.columns.map((c) => valueOf(c, k.key)),
-    target: targetFor(k.key, targets, shares.get(current.total)!),
+    target: targetOf(current.total, k.key),
     status: statusOf(current.total, k.key),
   }));
 

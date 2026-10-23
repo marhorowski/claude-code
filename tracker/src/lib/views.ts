@@ -127,7 +127,7 @@ export const VIEWS: ViewDef[] = [
     question: "Ile rozmów umawiamy i ile z nich zamykamy?",
     northStar: [
       { key: "meetingsBooked", hint: "Spotkania umówione przez settera" },
-      { key: "bookingRate", hint: "Umówione / wykonane telefony" },
+      { key: "bookingRate", hint: "Umówione przez settera / leady" },
       { key: "sur", hint: "Odbyte / zaplanowane pierwsze" },
       { key: "cp", hint: "Sprzedaże / odbyte pierwsze" },
       { key: "totalClosings", hint: "Pierwsze spotkania + follow-upy" },

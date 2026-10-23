@@ -27,7 +27,7 @@ export const totalRevenue = (s: Sums) => v(s, "revenue") + v(s, "followUpRevenue
 
 export const METRICS: MetricDef[] = [
   { key: "cpm", label: "CPM", group: "marketing", unit: "PLN", better: "lower", calc: (s) => ratio(v(s, "adSpend"), v(s, "impressions"), 1000) },
-  { key: "ctr", label: "CTR", group: "marketing", unit: "%", better: "higher", calc: (s) => ratio(v(s, "clicks"), v(s, "impressions"), 100) },
+  { key: "ctr", label: "CTR (link)", group: "marketing", unit: "%", better: "higher", calc: (s) => ratio(v(s, "clicks"), v(s, "impressions"), 100) },
   { key: "cpc", label: "CPC", group: "marketing", unit: "PLN", better: "lower", calc: (s) => ratio(v(s, "adSpend"), v(s, "clicks")) },
   { key: "pageConversion", label: "Konwersja strony", group: "marketing", unit: "%", better: "higher", calc: (s) => ratio(v(s, "leads"), v(s, "clicks"), 100) },
   { key: "cpl", label: "CPL", group: "marketing", unit: "PLN", better: "lower", calc: (s) => ratio(v(s, "adSpend"), v(s, "leads")) },
@@ -35,7 +35,7 @@ export const METRICS: MetricDef[] = [
   { key: "marketingCostPerCall", label: "Koszt za rozmowę (marketing)", group: "marketing", unit: "PLN", better: "lower", calc: (s) => ratio(v(s, "adSpend"), v(s, "vslMeetingsBooked")) },
 
   { key: "pickupRate", label: "Pickup Rate", group: "setting", unit: "%", better: "higher", calc: (s) => ratio(v(s, "conductedCalls"), v(s, "callsMade"), 100) },
-  { key: "bookingRate", label: "Booking Rate", group: "setting", unit: "%", better: "higher", calc: (s) => ratio(v(s, "meetingsBooked"), v(s, "callsMade"), 100) },
+  { key: "bookingRate", label: "Booking Rate (setter)", group: "setting", unit: "%", better: "higher", calc: (s) => ratio(v(s, "meetingsBooked"), v(s, "leads"), 100) },
 
   { key: "sur", label: "SUR (Show-Up Rate)", group: "sales", unit: "%", better: "higher", calc: (s) => ratio(v(s, "attendedMeetings"), v(s, "plannedMeetings"), 100) },
   { key: "noShowRate", label: "No-show rate", group: "sales", unit: "%", better: "lower", calc: (s) => ratio(v(s, "noShows"), v(s, "plannedMeetings"), 100) },
@@ -51,6 +51,8 @@ export const METRICS: MetricDef[] = [
   { key: "totalBookingRate", label: "Booking Rate łącznie", group: "total", unit: "%", better: "higher", calc: (s) => ratio(v(s, "meetingsBooked") + v(s, "vslMeetingsBooked"), v(s, "leads"), 100) },
   { key: "leadToClose", label: "Lead-to-Close Rate", group: "total", unit: "%", better: "higher", calc: (s) => ratio(totalClosings(s), v(s, "leads"), 100) },
   { key: "cac", label: "CAC", group: "total", unit: "PLN", better: "lower", calc: (s) => ratio(v(s, "adSpend"), totalClosings(s)) },
+  // Koszt reklamy na sprzedaż jako % jej średniej wartości = wydatek / przychód.
+  { key: "cacMarketing", label: "CAC marketingowy", group: "total", unit: "%", better: "lower", calc: (s) => ratio(v(s, "adSpend"), totalRevenue(s), 100) },
   { key: "roas", label: "ROAS", group: "total", unit: "×", better: "higher", calc: (s) => ratio(totalRevenue(s), v(s, "adSpend")) },
 ];
 

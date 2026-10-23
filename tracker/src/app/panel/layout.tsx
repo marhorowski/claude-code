@@ -25,10 +25,30 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   const formUrl = client ? `${proto}://${host}/f/${client.formToken}` : null;
 
   const nav: NavItem[] = [
-    ...(client ? [{ href: "/panel", label: "Wyniki" }, { href: "/panel/dane", label: "Dane" }, { href: "/panel/kpi", label: "KPI i oferta" }] : []),
+    ...(client
+      ? [
+          {
+            label: "Wyniki",
+            children: [
+              { href: "/panel?view=ogolny", label: "Ogólny" },
+              { href: "/panel?view=marketing", label: "Marketing" },
+              { href: "/panel?view=setting-sprzedaz", label: "Setting i sprzedaż" },
+              { href: "/panel/realizacja", label: "Realizacja celu" },
+            ],
+          },
+          {
+            label: "Dane",
+            children: [
+              { href: "/panel/dane", label: "Dane surowe" },
+              { href: "/panel/kpi", label: "KPI i oferta" },
+              ...(formUrl ? [{ href: formUrl, label: "Formularz", external: true }] : []),
+            ],
+          },
+          "divider" as const,
+        ]
+      : []),
     ...(isAdmin ? [{ href: "/panel/klienci", label: "Klienci" }] : []),
     { href: "/panel/konto", label: "Moje konto" },
-    ...(formUrl ? [{ href: formUrl, label: "Formularz", external: true }] : []),
   ];
 
   return (
@@ -43,7 +63,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             client && <span className="hidden truncate font-display font-bold text-ink-2 sm:block">{client.name}</span>
           )}
           <HeaderNav items={nav} />
-          <div className="ml-auto flex items-center gap-3 text-[13.5px]">
+          <div className="ml-auto flex shrink-0 items-center gap-3 text-[13.5px]">
             {formUrl && <span className="hidden xl:block"><CopyLink url={formUrl} /></span>}
             <span className="hidden text-ink-2 lg:block">{user.name}</span>
             <form action={logout}>

@@ -33,7 +33,7 @@ describe("computeMetrics", () => {
 
   it("liczy setting", () => {
     expect(m.pickupRate).toBe(40);
-    expect(m.bookingRate).toBe(10);
+    expect(m.bookingRate).toBe(25); // umówione przez settera / leady
   });
 
   it("liczy sprzedaż z follow-upami", () => {
@@ -51,6 +51,7 @@ describe("computeMetrics", () => {
     expect(m.leadToClose).toBe(10);
     expect(m.cac).toBe(250);
     expect(m.roas).toBe(40);
+    expect(m.cacMarketing).toBe(2.5);
   });
 
   it("sumuje przed dzieleniem, a nie uśrednia procenty", () => {

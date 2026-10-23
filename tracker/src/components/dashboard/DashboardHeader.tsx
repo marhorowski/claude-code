@@ -74,7 +74,13 @@ export function DashboardHeader({ views, view, from, to, grouping, today }: Prop
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Segmented label="Widok" items={views} value={view} onChange={(v) => go({ view: v })} className="w-full sm:w-auto" />
+      <Segmented
+        label="Widok"
+        items={[...views, { key: "realizacja", label: "Realizacja celu" }]}
+        value={view}
+        onChange={(v) => (v === "realizacja" ? navigate("/panel/realizacja") : go({ view: v }))}
+        className="w-full sm:w-auto"
+      />
 
       <div className="flex w-full min-w-0 items-center gap-2 sm:ml-auto sm:w-auto">
         <div ref={box} className="relative shrink-0">
