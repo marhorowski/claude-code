@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Klient agencji = jedno konto reklamowe Meta
+model Client {
+  id                 String    @id @default(cuid())
+  name               String
+  adAccountId        String    @unique // bez prefiksu "act_"
+  currency           String    @default("PLN")
+  timezone           String    @default("Europe/Warsaw")
+  active             Boolean   @default(true)
+
+  // Cele i progi decyzyjne
+  targetCostPerBooking Float   @default(300)
+  targetCpl            Float?
+  minBookingsForWin    Int     @default(3)
+  killSpendMultiplier  Float   @default(2)
+  maxFrequency         Float   @default(3)
+
+  // Mapowanie zdarzeń (action_type z Meta). Puste = auto-wykrywanie.
+  leadActionType     String?
+  bookingActionType  String?
+  detectedActionTypes String[] @default([])
+
+  lastSyncAt         DateTime?
+  lastSyncStatus     String?
+  lastSyncMessage    String?
+  initialSyncDone    Boolean   @default(false)
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  campaigns  Campaign[]
+  adSets     AdSet[]
+  ads        Ad[]
+  insights   DailyInsight[]
+  breakdowns BreakdownInsight[]
+  reports    Report[]
+}
+
+model Campaign {
+  id              String   @id // Meta campaign id
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name            String
+  objective       String?
+  status          String?
+  effectiveStatus String?
+  updatedAt       DateTime @updatedAt
+
+  @@index([clientId])
+}
+
+model AdSet {
+  id               String   @id // Meta ad set id
+  clientId         String
+  client           Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  campaignId       String
+  name             String
+  status           String?
+  effectiveStatus  String?
+  optimizationGoal String?
+  dailyBudget      Float?
+  lifetimeBudget   Float?
+  targetingSummary String?
+  updatedAt        DateTime @updatedAt
+
+  @@index([clientId])
+}
+
+model Ad {
+  id              String   @id // Meta ad id
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  campaignId      String
+  adSetId         String
+  name            String
+  status          String?
+  effectiveStatus String?
+  createdTime     DateTime?
+
+  // Kreacja
+  thumbnailUrl    String?
+  imageUrl        String?
+  title           String?
+  body            String?
+  objectType      String?
+  videoId         String?
+  previewUrl      String?
+
+  // Frequency z ostatnich 7 dni (reach nie sumuje się po dniach, więc pobierane osobno)
+  frequency7d     Float?
+
+  updatedAt       DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([adSetId])
+}
+
+// Dzienne metryki na poziomie reklamy
+model DailyInsight {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  adId        String
+  adSetId     String
+  campaignId  String
+  date        DateTime @db.Date
+
+  spend       Float    @default(0)
+  impressions Int      @default(0)
+  reach       Int      @default(0)
+  clicks      Int      @default(0) // link clicks
+  leads       Float    @default(0)
+  bookings    Float    @default(0)
+  actions     Json? // surowe actions z Meta, żeby można było przeliczyć mapowanie zdarzeń
+
+  @@unique([clientId, adId, date])
+  @@index([clientId, date])
+}
+
+// Dzienne metryki konta w rozbiciu (wiek, płeć, region, placement)
+model BreakdownInsight {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dimension   String // age | gender | region | placement
+  value       String
+  date        DateTime @db.Date
+
+  spend       Float    @default(0)
+  impressions Int      @default(0)
+  clicks      Int      @default(0)
+  leads       Float    @default(0)
+  bookings    Float    @default(0)
+  actions     Json?
+
+  @@unique([clientId, dimension, value, date])
+  @@index([clientId, dimension, date])
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  periodStart DateTime @db.Date
+  periodEnd   DateTime @db.Date
+  data        Json
+  shareToken  String   @unique
+  createdAt   DateTime @default(now())
+
+  @@index([clientId, createdAt])
+}
